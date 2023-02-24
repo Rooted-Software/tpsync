@@ -1,7 +1,7 @@
 /**
  * This plugin contains all the logic for setting up the `Settings` singleton
  */
-import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 import { type DocumentDefinition, definePlugin } from 'sanity'
 import { type StructureResolver } from 'sanity/desk'
 
@@ -56,20 +56,26 @@ export const settingsStructure = (
 
     return S.list()
       .title('Content')
-      .items([settingsListItem, S.divider(), ...defaultListItems, orderableDocumentListDeskItem({
-        type: 'post',
-        title: 'Posts',
+      .items(
+        [
+          settingsListItem, 
+          S.divider(), 
+          ...defaultListItems, 
+          orderableDocumentListDeskItem({
+              type: 'post',
+              title: 'Posts',
 
-        // Required if using multiple lists of the same 'type'
-        id: 'orderable-en-projects',
-        // See notes on adding a `filter` below
-        params: {
-            lang: 'en_US'
-        },
-        // pass from the structure callback params above
-        S, 
-        context
-    }),]
+              // Required if using multiple lists of the same 'type'
+              id: 'orderable-en-projects',
+              // See notes on adding a `filter` below
+              params: {
+                  lang: 'en_US'
+              },
+              // pass from the structure callback params above
+              S, 
+              context
+          }),
+        ]
       
       )
   }

@@ -17,6 +17,7 @@ import postType from 'schemas/post'
 import settingsType from 'schemas/settings'
 import supportType from 'schemas/support'
 import supportCategoryType from 'schemas/supportCategory'
+import features from 'schemas/features'
 
 const title = process.env.NEXT_PUBLIC_SANITY_PROJECT_TITLE || 'Rooted Template'
 
@@ -35,6 +36,7 @@ export default defineConfig({
       docArticleType,
       supportCategoryType,
       docCategoryType,
+      features
     ],
   },
   plugins: [
@@ -56,6 +58,7 @@ export default defineConfig({
         docArticleType.name,
         supportCategoryType.name,
         docCategoryType.name,
+        features.name
       ],
     }),
     // Add an image asset source for Unsplash

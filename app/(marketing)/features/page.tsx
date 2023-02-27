@@ -7,7 +7,7 @@ import { getAllFeatures } from '@/lib/sanity.client'
 export default async function FeaturePage() {
   // Fetch queries in parallel
   const features = await getAllFeatures();
-  console.log("features: ", features, features[0].description[0].children[0].text);
+  // console.log("features: ", features, features[0].description[0].children[0].text);
 
   return (
     <section className="container flex flex-col items-center gap-6 py-8 md:max-w-[64rem] md:py-12 lg:py-24">

@@ -7,7 +7,7 @@ import { getAllFeatures } from '@/lib/sanity.client'
 export default async function FeaturePage() {
   // Fetch queries in parallel
   const features = await getAllFeatures();
-  // console.log("features: ", features, features[0].description[0].children[0].text);
+  console.log("features: ", features, features[0].description[0], features[0].description[0].children[0].text);
 
   return (
     <section className="container flex flex-col items-center gap-6 py-8 md:max-w-[64rem] md:py-12 lg:py-24">
@@ -43,7 +43,10 @@ export default async function FeaturePage() {
       
       <div className="w-full grid grid-cols-1 gap-20 md:grid-cols-2">
         {features.map((e) => {
-          const description = e.description[0].children[0].text;
+          let description = '';
+          if(e.description) {
+            description = e.description[0].children[0].text;
+          }
 
           return (
             <div key={e._id} className="w-full">
@@ -58,7 +61,9 @@ export default async function FeaturePage() {
                   />
               )}
               <h2 className="text-2xl font-bold mt-3">{e.title}</h2>
-              {description && <p className="text-slate-600">{description}</p>}
+              {description && <p className="text-slate-600">
+                {description}
+              </p>}
             </div>
           )
         })}

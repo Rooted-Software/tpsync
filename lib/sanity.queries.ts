@@ -122,7 +122,7 @@ export interface DocCategory {
 export interface Feature {
   _id: string
   title?: string
-  description?: string
+  description?: any
   coverImage?: any
 }
 

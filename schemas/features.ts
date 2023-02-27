@@ -23,30 +23,13 @@ export default defineType({
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
+      title: 'Feature Name',
       type: 'string',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'description',
       title: 'Description',
-      type: 'string',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {
-        source: 'title',
-        maxLength: 96,
-        isUnique: (value, context) => context.defaultIsUnique(value, context),
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'content',
-      title: 'Content',
       type: 'array',
       of: [{ type: 'block' }],
     }),
@@ -57,12 +40,6 @@ export default defineType({
       options: {
         hotspot: true,
       },
-    }),
-    defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'reference',
-      to: [{ type: docCategoryType.name }],
     }),
   ],
   preview: {

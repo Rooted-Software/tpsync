@@ -12,6 +12,7 @@ datasource db {
   referentialIntegrity = "prisma"
 }
 
+// Using these for virtuous account details.  Was used by Next Auth for OAuth Clients.  However, credentials method on Next Auth is not supported
 model Account {
   id                String   @id @default(cuid())
   userId            String
@@ -27,9 +28,7 @@ model Account {
   session_state     String?
   createdAt         DateTime @default(now()) @map(name: "created_at")
   updatedAt         DateTime @default(now()) @map(name: "updated_at")
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@unique([provider, providerAccountId])
   @@map(name: "accounts")
 }
@@ -56,7 +55,8 @@ model User {
   accounts Account[]
   sessions Session[]
   Post     Post[]
-
+  APISettings apiSettings?
+  RESettings  reSettings?
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
   stripePriceId          String?   @map(name: "stripe_price_id")
@@ -86,4 +86,39 @@ model Post {
   author User @relation(fields: [authorId], references: [id])
 
   @@map(name: "posts")
+}
+
+model apiSettings {
+  id        String   @id @default(cuid())
+  virtuousAPI     String @db.MediumText
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  userId  String  @unique
+  user User @relation(fields: [userId], references: [id])
+  @@map(name: "apiSettings")
+}
+
+model reSettings {
+  id                          String   @id @default(cuid())
+  token_type                  String
+  expires_in                  Int
+  refresh_token               String?  @db.Text
+  access_token                String?  @db.Text
+  environment_id              String
+  environment_name            String
+  legal_entity_id             String
+  legal_entity_name           String
+  user_id                     String
+  email                       String
+  family_name                 String
+  given_name                  String
+  refresh_token_expires_in    Int
+  mode                        String?
+  scope                       String?
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  userId  String  @unique
+  user User @relation(fields: [userId], references: [id])
+  @@map(name: "reSettings")
 }

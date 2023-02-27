@@ -1,6 +1,7 @@
-import { UserAuthForm } from '@/components/dashboard/user-auth-form'
-import { Icons } from '@/components/icons'
 import Link from 'next/link'
+
+import { UserVirtuousAuthForm } from '@/components/dashboard/user-virtuous-auth-form'
+import { Icons } from '@/components/icons'
 
 export default function LoginPage() {
   return (
@@ -19,10 +20,10 @@ export default function LoginPage() {
           <Icons.logo className="mx-auto h-6 w-6" />
           <h1 className="text-2xl font-bold">Welcome back</h1>
           <p className="text-sm text-slate-600">
-            Enter your email to sign in to your account
+            Use Virtuous authentication to access your account.
           </p>
         </div>
-        <UserAuthForm />
+        <UserVirtuousAuthForm />
         <p className="px-8 text-center text-sm text-slate-600">
           <Link href="/register" className="underline hover:text-brand">
             Don&apos;t have an account? Sign Up

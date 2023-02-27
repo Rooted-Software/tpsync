@@ -17,6 +17,16 @@ import postType from 'schemas/post'
 import settingsType from 'schemas/settings'
 import supportType from 'schemas/support'
 import supportCategoryType from 'schemas/supportCategory'
+import { vercelWidget } from "sanity-plugin-dashboard-widget-vercel";
+import { documentListWidget } from "sanity-plugin-dashboard-widget-document-list";
+
+
+import {
+  dashboardTool,
+  sanityTutorialsWidget,
+  projectUsersWidget,
+  projectInfoWidget,
+} from "@sanity/dashboard";
 
 const title = process.env.NEXT_PUBLIC_SANITY_PROJECT_TITLE || 'Rooted Template'
 
@@ -38,6 +48,16 @@ export default defineConfig({
     ],
   },
   plugins: [
+    dashboardTool({ 
+      widgets: [
+        documentListWidget({
+          title: 'Recent Documents',
+      }),
+        projectInfoWidget(),
+        projectUsersWidget(),
+        vercelWidget(),
+      ]
+    }),
     deskTool({
       structure: settingsStructure(settingsType),
       // `defaultDocumentNode` is responsible for adding a “Preview” tab to the document pane

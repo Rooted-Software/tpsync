@@ -1,4 +1,5 @@
-import { UserAuthForm } from '@/components/dashboard/user-auth-form'
+
+import { UserVirtuousAuthForm } from '@/components/dashboard/user-virtuous-auth-form'
 import { Icons } from '@/components/icons'
 import Link from 'next/link'
 
@@ -21,7 +22,7 @@ export default function RegisterPage() {
               Enter your email below to create your account
             </p>
           </div>
-          <UserAuthForm />
+          <UserVirtuousAuthForm />
           <p className="px-8 text-center text-sm text-slate-600">
             By clicking continue, you agree to our{' '}
             <Link href="/terms" className="underline hover:text-brand">

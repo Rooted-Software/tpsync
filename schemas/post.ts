@@ -73,7 +73,6 @@ export default defineType({
       to: [{ type: authorType.name }],
     }),
     orderRankField({ type: 'post' }),
-   
   ],
   preview: {
     select: {

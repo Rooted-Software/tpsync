@@ -33,8 +33,10 @@ export const indexQuery = groq`
   ${postFields}
 }`
 
+// just put order(orderRank) to make the results order based on studio orderRank
+
 export const featuresQuery = groq`
-*[_type == "features"] | order(_updatedAt asc) {
+*[_type == "features"] | order(orderRank) {
   ${featureFields}
 }`
 

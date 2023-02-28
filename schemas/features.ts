@@ -1,5 +1,6 @@
 import docCategoryType from './docCategory'
-import { BookIcon, ThListIcon } from '@sanity/icons'
+import { ThListIcon } from '@sanity/icons'
+import { orderRankOrdering, orderRankField } from '@sanity/orderable-document-list'
 import { format, parseISO } from 'date-fns'
 import { defineField, defineType } from 'sanity'
 
@@ -19,6 +20,7 @@ export default defineType({
   name: 'features',
   title: 'Features',
   icon: ThListIcon,
+  orderings: [{ title: 'Rank', name:'rank',  by: [{ field: "orderRank",  direction: 'asc'}, { field: "orderRank",  direction: 'desc'},]} ],
   type: 'document',
   fields: [
     defineField({
@@ -39,8 +41,9 @@ export default defineType({
       type: 'image',
       options: {
         hotspot: true,
-      },
+      }
     }),
+    orderRankField({ type: 'features' }),
   ],
   preview: {
     select: {

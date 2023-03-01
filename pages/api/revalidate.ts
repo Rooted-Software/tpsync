@@ -184,11 +184,13 @@ async function queryStaleFeatureRoutes(
   client: SanityClient
 ): Promise<StaleRoute[]> {
 
-  console.log("queryStaleFeatureRoutes triggered: ", client)
-
-  return await client.fetch(groq`
+  const response = await client.fetch(groq`
     *[_type == "features"] | order(orderRank) {
       ${featureFields}
     }`
   )
+
+  console.log("queryStaleFeatureRoutes triggered: ", response);
+
+  return response
 }

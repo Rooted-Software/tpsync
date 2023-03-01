@@ -36,7 +36,7 @@ export default async function revalidate(
       process.env.SANITY_REVALIDATE_SECRET
     )
 
-    console.log("revalidate triggered");
+    console.log("revalidate triggered: " + body);
 
     if (isValidSignature === false) {
       const message = 'Invalid signature'
@@ -51,18 +51,21 @@ export default async function revalidate(
     }
 
     const staleRoutes = await queryStaleRoutes(body as any)
+    console.log("staleRoutes: ", staleRoutes);
+
     await Promise.all(staleRoutes.map((route) => res.revalidate(route)))
 
     const updatedRoutes = `Updated routes: ${staleRoutes.join(', ')}`
     console.log(updatedRoutes)
     return res.status(200).send(updatedRoutes)
+
   } catch (err) {
     console.error(err)
     return res.status(500).send(err.message)
   }
 }
 
-type StaleRoute = '/' | `/blog/${string}`
+type StaleRoute = '/' | `/blog/${string}` | '/features'
 
 async function queryStaleRoutes(
   body: Pick<ParseBody['body'], '_type' | '_id' | 'date' | 'slug'>

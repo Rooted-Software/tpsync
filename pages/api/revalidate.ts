@@ -35,6 +35,9 @@ export default async function revalidate(
       req,
       process.env.SANITY_REVALIDATE_SECRET
     )
+
+    console.log("revalidate triggered");
+
     if (isValidSignature === false) {
       const message = 'Invalid signature'
       console.log(message)
@@ -89,13 +92,19 @@ async function queryStaleRoutes(
     }
   }
 
+  // create new if (body._type === 'features') to check for deletions
+
   switch (body._type) {
     case 'author':
       return await queryStaleAuthorRoutes(client, body._id)
     case 'post':
       return await queryStalePostRoutes(client, body._id)
+    
     case 'settings':
       return await queryAllRoutes(client)
+
+    case 'features':
+      return await queryStaleFeatureRoutes(client, body._id)
     default:
       throw new TypeError(`Unknown type: ${body._type}`)
   }
@@ -157,4 +166,23 @@ async function queryStalePostRoutes(
   slugs = await mergeWithMoreStories(client, slugs)
 
   return ['/', ...slugs.map((slug) => `/blog/${slug}`)]
+}
+
+const featureFields = groq`
+  _id,
+  title,
+  description,
+  coverImage
+`
+
+async function queryStaleFeatureRoutes(
+  client: SanityClient,
+  id: string
+): Promise<StaleRoute[]> {
+
+  return await client.fetch(groq`
+    *[_type == "features"] | order(orderRank) {
+      ${featureFields}
+    }`
+  )
 }

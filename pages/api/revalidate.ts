@@ -60,7 +60,7 @@ export default async function revalidate(
     return res.status(200).send(updatedRoutes)
 
   } catch (err) {
-    console.error("err: ", err)
+    console.error(err)
     return res.status(500).send(err.message)
   }
 }
@@ -109,7 +109,7 @@ async function queryStaleRoutes(
       return await queryAllRoutes(client)
 
     case 'features':
-      return await queryStaleFeatureRoutes(client, body._id)
+      return await queryStaleFeatureRoutes(client)
     default:
       throw new TypeError(`Unknown type: ${body._type}`)
   }
@@ -184,7 +184,7 @@ async function queryStaleFeatureRoutes(
   client: SanityClient
 ): Promise<StaleRoute[]> {
 
-  console.log("queryStaleFeatureRoutes triggered")
+  console.log("queryStaleFeatureRoutes triggered: ", client)
 
   return await client.fetch(groq`
     *[_type == "features"] | order(orderRank) {

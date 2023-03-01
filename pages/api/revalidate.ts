@@ -72,6 +72,8 @@ async function queryStaleRoutes(
 ): Promise<StaleRoute[]> {
   const client = createClient({ projectId, dataset, apiVersion, useCdn: false })
 
+  console.log("queryStaleRoutes: ", body)
+
   // Handle possible deletions
   if (body._type === 'post') {
     const exists = await client.fetch(groq`*[_id == $id][0]`, { id: body._id })

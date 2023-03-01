@@ -41,7 +41,7 @@ export async function getSettings(): Promise<Settings> {
 // Features
 export async function getAllFeatures(): Promise<Feature[]> {
   if (client) {
-    return (await client.fetch(featuresQuery, { next: { revalidate: 60 } })) || []
+    return (await client.fetch(featuresQuery)) || []
   }
   return []
 }

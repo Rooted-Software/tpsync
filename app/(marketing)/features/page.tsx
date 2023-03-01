@@ -6,7 +6,8 @@ import { getAllFeatures } from '@/lib/sanity.client'
 
 export default async function FeaturePage() {
   // Fetch queries in parallel
-  const features = await getAllFeatures();
+  // const features = await getAllFeatures();
+  const [features] = await Promise.all([getAllFeatures()])
   console.log("features: ", features, features[0].description[0], features[0].description[0].children[0].text);
 
   return (

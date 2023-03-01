@@ -60,7 +60,7 @@ export default async function revalidate(
     return res.status(200).send(updatedRoutes)
 
   } catch (err) {
-    console.error(err)
+    console.error("err: ", err)
     return res.status(500).send(err.message)
   }
 }
@@ -72,7 +72,7 @@ async function queryStaleRoutes(
 ): Promise<StaleRoute[]> {
   const client = createClient({ projectId, dataset, apiVersion, useCdn: false })
 
-  console.log("queryStaleRoutes: ", body)
+  console.log("queryStaleRoutes: ", body, body._type)
 
   // Handle possible deletions
   if (body._type === 'post') {
@@ -181,9 +181,10 @@ const featureFields = groq`
 `
 
 async function queryStaleFeatureRoutes(
-  client: SanityClient,
-  id: string
+  client: SanityClient
 ): Promise<StaleRoute[]> {
+
+  console.log("queryStaleFeatureRoutes triggered")
 
   return await client.fetch(groq`
     *[_type == "features"] | order(orderRank) {

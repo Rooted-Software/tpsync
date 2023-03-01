@@ -65,7 +65,7 @@ export default async function revalidate(
   }
 }
 
-type StaleRoute = '/' | `/blog/${string}`
+type StaleRoute = '/' | `/blog/${string}` | '/features'
 
 async function queryStaleRoutes(
   body: Pick<ParseBody['body'], '_type' | '_id' | 'date' | 'slug'>
@@ -104,6 +104,10 @@ async function queryStaleRoutes(
       return await queryStalePostRoutes(client, body._id)
     case 'settings':
       return await queryAllRoutes(client)
+
+    case 'features':
+      return await queryStaleFeatureRoutes(client)
+      
     default:
       throw new TypeError(`Unknown type: ${body._type}`)
   }
@@ -165,4 +169,17 @@ async function queryStalePostRoutes(
   slugs = await mergeWithMoreStories(client, slugs)
 
   return ['/', ...slugs.map((slug) => `/blog/${slug}`)]
+}
+
+async function queryStaleFeatureRoutes(
+  client: SanityClient
+): Promise<StaleRoute[]> {
+
+  const response = await client.fetch(groq`
+    *[_type == "features"] | order(orderRank)`
+  )
+
+  console.log("queryStaleFeatureRoutes triggered: ", response);
+
+  return ['/features']
 }

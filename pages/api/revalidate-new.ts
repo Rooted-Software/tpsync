@@ -110,6 +110,7 @@ async function queryStaleRoutes(
 
     case 'features':
       return await queryStaleFeatureRoutes(client)
+      
     default:
       throw new TypeError(`Unknown type: ${body._type}`)
   }

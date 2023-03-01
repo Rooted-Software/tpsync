@@ -6,8 +6,7 @@ import { getAllFeatures } from '@/lib/sanity.client'
 
 export default async function FeaturePage() {
   // Fetch queries in parallel
-  // const features = await getAllFeatures();
-  const [features] = await Promise.all([getAllFeatures()])
+  const features = await getAllFeatures();
   console.log("features: ", features, features[0].description[0], features[0].description[0].children[0].text);
 
   return (
@@ -82,3 +81,6 @@ export default async function FeaturePage() {
     </section>
   )
 }
+
+// FIXME: remove the `revalidate` export below once you've followed the instructions in `/pages/api/revalidate.ts`
+export const revalidate = 1

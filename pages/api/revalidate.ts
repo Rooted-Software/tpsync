@@ -110,7 +110,7 @@ async function queryStaleRoutes(
 
     // FIXME: don't know what preview.secret is. need to figure out how to handle this later
     case 'preview.secret':
-      return ['/']
+      return await queryAllRoutes(client)
       
     default:
       throw new TypeError(`Unknown type: ${body._type}`)

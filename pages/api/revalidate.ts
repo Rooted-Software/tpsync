@@ -38,11 +38,6 @@ export default async function revalidate(
 
     console.log("revalidating body: ", body, body._type);
 
-    // FIXME: this is a hack to stope the server from breaking every 'preview.secret' request
-    if(body._type === 'preview.secret') {
-      return ['/']
-    }
-
     if (isValidSignature === false) {
       const message = 'Invalid signature'
       console.log(message)
@@ -102,8 +97,7 @@ async function queryStaleRoutes(
     }
   }
 
-  // Handle preview.secret
-
+  // need to figure out how to handle preview.secret body type here or 
 
   switch (body._type) {
     case 'author':
@@ -115,6 +109,9 @@ async function queryStaleRoutes(
 
     case 'features':
       return await queryStaleFeatureRoutes(client)
+
+    case 'preview.secret':
+      return await queryAllRoutes(client)
       
     default:
       throw new TypeError(`Unknown type: ${body._type}`)

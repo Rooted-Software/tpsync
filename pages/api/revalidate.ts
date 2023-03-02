@@ -53,6 +53,12 @@ export default async function revalidate(
     const staleRoutes = await queryStaleRoutes(body as any)
     console.log("staleRoutes: ", staleRoutes);
 
+    // remove '/' link from staleRoutes list if it exists
+    if(staleRoutes.includes('/')) {
+      staleRoutes.splice(staleRoutes.indexOf('/'), 1)
+    }
+    console.log("staleRoutes after slice: ", staleRoutes);
+
     await Promise.all(staleRoutes.map((route) => res.revalidate(route)))
 
     const updatedRoutes = `Updated routes: ${staleRoutes.join(', ')}`

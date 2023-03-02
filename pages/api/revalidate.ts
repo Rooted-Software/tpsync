@@ -116,11 +116,14 @@ async function queryStaleRoutes(
     case 'features':
       return await queryStaleFeatureRoutes(client)
 
-    case 'preview.secret':
-      return await queryAllRoutes(client)
+    // case 'preview.secret':
+    //   return await queryAllRoutes(client)
       
+    // FIXME: changing default to run queryAllRoutes to handle all unknown types
     default:
-      throw new TypeError(`Unknown type: ${body._type}`)
+      // throw new TypeError(`Unknown type: ${body._type}`)
+
+      return await queryAllRoutes(client)
   }
 }
 

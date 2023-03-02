@@ -136,7 +136,7 @@ async function _queryAllRoutes(client: SanityClient): Promise<string[]> {
 async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
   const slugs = await _queryAllRoutes(client)
 
-  return ['/blog', ...slugs.map((slug) => `/blog/${slug}` as StaleRoute)]
+  return ['/', '/blog', ...slugs.map((slug) => `/blog/${slug}` as StaleRoute)]
 }
 
 async function mergeWithMoreStories(
@@ -167,7 +167,7 @@ async function queryStaleAuthorRoutes(
 
   if (slugs.length > 0) {
     slugs = await mergeWithMoreStories(client, slugs)
-    return ['/blog', ...slugs.map((slug) => `/blog/${slug}`)]
+    return ['/', '/blog', ...slugs.map((slug) => `/blog/${slug}`)]
   }
 
   return []
@@ -184,7 +184,7 @@ async function queryStalePostRoutes(
 
   slugs = await mergeWithMoreStories(client, slugs)
 
-  return ['/blog', ...slugs.map((slug) => `/blog/${slug}`)]
+  return ['/', '/blog', ...slugs.map((slug) => `/blog/${slug}`)]
 }
 
 async function queryStaleFeatureRoutes(

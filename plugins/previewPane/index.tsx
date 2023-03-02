@@ -5,9 +5,11 @@
 // https://www.sanity.io/docs/structure-builder-reference
 import AuthorAvatarPreviewPane from './AuthorAvatarPreviewPane'
 import PostPreviewPane from './PostPreviewPane'
+import FeaturesPreviewPane from './FeaturesPreviewPane'
 import { DefaultDocumentNodeResolver } from 'sanity/desk'
 import authorType from 'schemas/author'
 import postType from 'schemas/post'
+import featuresType from 'schemas/features'
 
 export const previewDocumentNode = ({
   apiVersion,
@@ -38,6 +40,19 @@ export const previewDocumentNode = ({
             .component(({ document }) => (
               <PostPreviewPane
                 slug={document.displayed.slug?.current}
+                apiVersion={apiVersion}
+                previewSecretId={previewSecretId}
+              />
+            ))
+            .title('Preview'),
+        ])
+
+      case featuresType.name:
+        return S.document().views([
+          S.view.form(),
+          S.view
+            .component(({ document }) => (
+              <FeaturesPreviewPane
                 apiVersion={apiVersion}
                 previewSecretId={previewSecretId}
               />

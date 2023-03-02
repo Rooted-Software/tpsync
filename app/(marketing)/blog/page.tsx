@@ -10,7 +10,9 @@ import { getAllPosts, getSettings } from 'lib/sanity.client'
 export default async function BlogPage() {
   // Fetch queries in parallel
   const [settings, posts] = await Promise.all([getSettings(), getAllPosts()])
-  
+
+  console.log(previewData(), settings, posts);
+    // previeData() currently returns false
   if (previewData()) {
     const token = previewData().token || null
 
@@ -25,7 +27,9 @@ export default async function BlogPage() {
     )
   }
 
+
   return <IndexPage posts={posts} settings={settings} />
 }
 
-export const revalidate = 1
+// FIXME: remove the `revalidate` export below once you've followed the instructions in `/pages/api/revalidate.ts`
+// export const revalidate = 1

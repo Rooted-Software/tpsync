@@ -19,7 +19,7 @@
  * 13. Add the secret to Vercel: `npx vercel env add SANITY_REVALIDATE_SECRET`
  * 14. Redeploy with `npx vercel --prod` to apply the new environment variable
  */
-import { apiVersion, dataset, projectId } from 'lib/sanity.api'
+import { apiVersion, dataset, projectId, previewSecretId } from 'lib/sanity.api'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { type SanityClient, createClient, groq } from 'next-sanity'
 import { type ParseBody, parseBody } from 'next-sanity/webhook'
@@ -35,6 +35,9 @@ export default async function revalidate(
       req,
       process.env.SANITY_REVALIDATE_SECRET
     )
+
+    console.log("revalidating body: ", body, body._type);
+
     if (isValidSignature === false) {
       const message = 'Invalid signature'
       console.log(message)
@@ -48,10 +51,19 @@ export default async function revalidate(
     }
 
     const staleRoutes = await queryStaleRoutes(body as any)
+    console.log("staleRoutes: ", staleRoutes);
+
+    // remove '/' link from staleRoutes list if it exists because it breaks the res.revalidate function below
+    if(staleRoutes.includes('/')) {
+      staleRoutes.splice(staleRoutes.indexOf('/'), 1)
+    }
+    console.log("staleRoutes after slice: ", staleRoutes);
+
     await Promise.all(staleRoutes.map((route) => res.revalidate(route)))
 
     const updatedRoutes = `Updated routes: ${staleRoutes.join(', ')}`
-    console.log(updatedRoutes)
+    console.log("updatedRoutes: ", updatedRoutes);
+
     return res.status(200).send(updatedRoutes)
   } catch (err) {
     console.error(err)
@@ -59,12 +71,20 @@ export default async function revalidate(
   }
 }
 
-type StaleRoute = '/' | `/blog/${string}`
+// StaleRoutes is a list of the routes allowed to be rerendered
+  // for some reason, the '/' breaks the revalidate function
+
+type StaleRoute = '/' | '/blog' | `/blog/${string}` | '/features'
 
 async function queryStaleRoutes(
   body: Pick<ParseBody['body'], '_type' | '_id' | 'date' | 'slug'>
 ): Promise<StaleRoute[]> {
   const client = createClient({ projectId, dataset, apiVersion, useCdn: false })
+
+  console.log("queryStaleRoutes body: ", body);
+
+  // this function decides which link needs to be rerendered
+    // whatever link is returned is the link that gets rerendered
 
   // Handle possible deletions
   if (body._type === 'post') {
@@ -96,8 +116,16 @@ async function queryStaleRoutes(
       return await queryStalePostRoutes(client, body._id)
     case 'settings':
       return await queryAllRoutes(client)
+
+    case 'features':
+      return await queryStaleFeatureRoutes(client)
+      
+    // FIXME: changing default to run queryAllRoutes to handle all unknown types
+      // this may be the right solution, not just a quick fix
     default:
-      throw new TypeError(`Unknown type: ${body._type}`)
+      // throw new TypeError(`Unknown type: ${body._type}`)
+
+      return await queryAllRoutes(client)
   }
 }
 
@@ -108,7 +136,7 @@ async function _queryAllRoutes(client: SanityClient): Promise<string[]> {
 async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
   const slugs = await _queryAllRoutes(client)
 
-  return ['/', ...slugs.map((slug) => `/blog/${slug}` as StaleRoute)]
+  return ['/blog', ...slugs.map((slug) => `/blog/${slug}` as StaleRoute)]
 }
 
 async function mergeWithMoreStories(
@@ -139,7 +167,7 @@ async function queryStaleAuthorRoutes(
 
   if (slugs.length > 0) {
     slugs = await mergeWithMoreStories(client, slugs)
-    return ['/', ...slugs.map((slug) => `/blog/${slug}`)]
+    return ['/blog', ...slugs.map((slug) => `/blog/${slug}`)]
   }
 
   return []
@@ -156,5 +184,18 @@ async function queryStalePostRoutes(
 
   slugs = await mergeWithMoreStories(client, slugs)
 
-  return ['/', ...slugs.map((slug) => `/blog/${slug}`)]
+  return ['/blog', ...slugs.map((slug) => `/blog/${slug}`)]
+}
+
+async function queryStaleFeatureRoutes(
+  client: SanityClient
+): Promise<StaleRoute[]> {
+
+  const response = await client.fetch(groq`
+    *[_type == "features"] | order(orderRank)`
+  )
+
+  console.log("queryStaleFeatureRoutes triggered: ", response);
+
+  return ['/features']
 }

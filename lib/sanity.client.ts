@@ -4,12 +4,14 @@ import { apiVersion, dataset, projectId, useCdn } from 'lib/sanity.api'
 import {
   type Post,
   type Settings,
+  type Feature,
   DocArticle,
   docBySlugQuery,
   DocCategory,
   docsCategoriesWithArticleLinksQuery,
   docSlugsQuery,
   indexQuery,
+  featuresQuery,
   postAndMoreStoriesQuery,
   postBySlugQuery,
   postSlugsQuery,
@@ -35,6 +37,15 @@ export async function getSettings(): Promise<Settings> {
   }
   return {}
 }
+
+// Features
+export async function getAllFeatures(): Promise<Feature[]> {
+  if (client) {
+    return (await client.fetch(featuresQuery)) || []
+  }
+  return []
+}
+
 
 // Blog
 export async function getAllPosts(): Promise<Post[]> {

@@ -19,7 +19,7 @@
  * 13. Add the secret to Vercel: `npx vercel env add SANITY_REVALIDATE_SECRET`
  * 14. Redeploy with `npx vercel --prod` to apply the new environment variable
  */
-import { apiVersion, dataset, projectId } from 'lib/sanity.api'
+import { apiVersion, dataset, projectId, previewSecretId } from 'lib/sanity.api'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { type SanityClient, createClient, groq } from 'next-sanity'
 import { type ParseBody, parseBody } from 'next-sanity/webhook'
@@ -97,6 +97,9 @@ async function queryStaleRoutes(
     }
   }
 
+  // Handle preview.secret
+
+
   switch (body._type) {
     case 'author':
       return await queryStaleAuthorRoutes(client, body._id)
@@ -107,6 +110,9 @@ async function queryStaleRoutes(
 
     case 'features':
       return await queryStaleFeatureRoutes(client)
+
+    case 'preview.secret': 
+      return ['/']
       
     default:
       throw new TypeError(`Unknown type: ${body._type}`)

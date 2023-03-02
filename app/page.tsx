@@ -30,13 +30,13 @@ export default async function IndexRoute() {
           </div>
         </header>
         <main className="flex-1">
-          <PreviewSuspense
+          {/* <PreviewSuspense
             fallback={
               <IndexPage loading preview posts={posts} settings={settings} />
             }
           >
             <PreviewIndexPage token={token} />
-          </PreviewSuspense>
+          </PreviewSuspense> */}
         </main>
         <SiteFooter />
       </div>

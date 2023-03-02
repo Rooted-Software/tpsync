@@ -53,9 +53,9 @@ export default async function revalidate(
     const staleRoutes = await queryStaleRoutes(body as any)
     console.log("staleRoutes: ", staleRoutes);
 
-    // remove '/' link from staleRoutes list if it exists because it breaks the res.revalidate function below
-    // if(staleRoutes.includes('/')) {
-    //   staleRoutes.splice(staleRoutes.indexOf('/'), 1)
+    // remove '/index' link from staleRoutes list if it exists because it breaks the res.revalidate function below
+    // if(staleRoutes.includes('/index')) {
+    //   staleRoutes.splice(staleRoutes.indexOf('/index'), 1)
     // }
     // console.log("staleRoutes after slice: ", staleRoutes);
 
@@ -72,9 +72,9 @@ export default async function revalidate(
 }
 
 // StaleRoutes is a list of the routes allowed to be rerendered
-  // for some reason, the '/' breaks the revalidate function
+  // for some reason, the '/index' breaks the revalidate function
 
-type StaleRoute = '/' | '/blog' | `/blog/${string}` | '/features'
+type StaleRoute = '/' | '/index' | '/blog' | `/blog/${string}` | '/features'
 
 async function queryStaleRoutes(
   body: Pick<ParseBody['body'], '_type' | '_id' | 'date' | 'slug'>
@@ -90,7 +90,7 @@ async function queryStaleRoutes(
   if (body._type === 'post') {
     const exists = await client.fetch(groq`*[_id == $id][0]`, { id: body._id })
     if (!exists) {
-      let staleRoutes: StaleRoute[] = ['/']
+      let staleRoutes: StaleRoute[] = ['/index']
       if ((body.slug as any)?.current) {
         staleRoutes.push(`/blog/${(body.slug as any).current}`)
       }
@@ -136,7 +136,7 @@ async function _queryAllRoutes(client: SanityClient): Promise<string[]> {
 async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
   const slugs = await _queryAllRoutes(client)
 
-  return ['/', '/blog', ...slugs.map((slug) => `/blog/${slug}` as StaleRoute)]
+  return ['/index', '/blog', ...slugs.map((slug) => `/blog/${slug}` as StaleRoute)]
 }
 
 async function mergeWithMoreStories(
@@ -167,7 +167,7 @@ async function queryStaleAuthorRoutes(
 
   if (slugs.length > 0) {
     slugs = await mergeWithMoreStories(client, slugs)
-    return ['/', '/blog', ...slugs.map((slug) => `/blog/${slug}`)]
+    return ['/index', '/blog', ...slugs.map((slug) => `/blog/${slug}`)]
   }
 
   return []
@@ -184,7 +184,7 @@ async function queryStalePostRoutes(
 
   slugs = await mergeWithMoreStories(client, slugs)
 
-  return ['/', '/blog', ...slugs.map((slug) => `/blog/${slug}`)]
+  return ['/index', '/blog', ...slugs.map((slug) => `/blog/${slug}`)]
 }
 
 async function queryStaleFeatureRoutes(

@@ -1,7 +1,5 @@
-import docCategoryType from './docCategory'
 import { ThListIcon } from '@sanity/icons'
 import { orderRankOrdering, orderRankField } from '@sanity/orderable-document-list'
-import { format, parseISO } from 'date-fns'
 import { defineField, defineType } from 'sanity'
 
 /**

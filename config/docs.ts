@@ -5,7 +5,7 @@ export const docsConfig: DocsConfig = {
     {
       title: 'Features',
       href: '/features',
-      disabled: true,
+      // disabled: true,
     },
     {
       title: 'Pricing',

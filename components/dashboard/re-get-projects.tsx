@@ -7,27 +7,27 @@ import { Icons } from '@/components/icons'
 import { cn } from '@/lib/utils'
 import { toast } from '@/ui/toast'
 
-interface PostCreateButtonProps
+interface ReGetProjectsButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {}
 
-export function ReTestPostButton({
+export function ReGetProjectsButton({
   className,
   ...props
-}: PostCreateButtonProps) {
+}: ReGetProjectsButtonProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [projects, setProjects] = React.useState([]); 
   async function onClick() {
     setIsLoading(true)
     setProjects(null);
-    const response = await fetch('/api/reTestApiCall', {
-      method: 'POST',
+    const response = await fetch('/api/reGetProjects', {
+      method: 'GET',
  
     })
 
     setIsLoading(false)
     console.log(response)
-    if (!(response?.status === 200 )) {
+    if (!response?.ok) {
       if (response.status === 429) {
         console.log(response)
         const data = await response.json(); 
@@ -48,13 +48,11 @@ export function ReTestPostButton({
 
     const data = await response.json()
     console.log(data)
-    return toast({
-      title: 'Record Entered.',
-      message: `Your Record Was Created:  ${data.record_id}`,
-      type: 'error',
-    })
+    if (data?.value?.length >0) {
+      setProjects(data.value)
+    }
     // This forces a cache invalidation.
-    
+    router.refresh()
   }
 
   return (<div>
@@ -75,9 +73,11 @@ export function ReTestPostButton({
       ) : (
         <Icons.add className="mr-2 h-4 w-4" />
       )}
-      Test RE API Post
+      Get RE Projects 
     </button>
-  
+    {projects && projects.length > 0 ? <div>  
+        {projects?.map((project, index) =>  <div key={index} className="mt-2">{project.description} : {project.status}</div>)}
+         </div> : null}
     </div>
   )
 }

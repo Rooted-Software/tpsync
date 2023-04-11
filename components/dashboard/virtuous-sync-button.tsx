@@ -7,27 +7,31 @@ import { Icons } from '@/components/icons'
 import { cn } from '@/lib/utils'
 import { toast } from '@/ui/toast'
 
-interface PostCreateButtonProps
-  extends React.HTMLAttributes<HTMLButtonElement> {}
+interface SyncButtonProps extends React.HTMLAttributes<HTMLFormElement> {
+    batch_name: string
+  }
 
-export function ReTestPostButton({
+export function VirtuousSyncButton({
+  batch_name,
   className,
   ...props
-}: PostCreateButtonProps) {
+}: SyncButtonProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [projects, setProjects] = React.useState([]); 
+  const [giftCount, setGiftCount] = React.useState<string>(''); 
   async function onClick() {
     setIsLoading(true)
-    setProjects(null);
-    const response = await fetch('/api/reTestApiCall', {
+    setGiftCount('Loading...');
+    const response = await fetch('/api/syncGifts', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({batch_name: batch_name} )
  
     })
 
     setIsLoading(false)
-    console.log(response)
-    if (!(response?.status === 200 )) {
+    
+    if (!response?.ok) {
       if (response.status === 429) {
         console.log(response)
         const data = await response.json(); 
@@ -41,20 +45,21 @@ export function ReTestPostButton({
 
       return toast({
         title: 'Something went wrong.',
-        message: 'Your post was not created. Please try again.',
+        message: 'Your gifts were not synced. Please try again.',
         type: 'error',
       })
     }
 
     const data = await response.json()
+  
     console.log(data)
-    return toast({
-      title: 'Record Entered.',
-      message: `Your Record Was Created:  ${data.record_id}`,
-      type: 'error',
-    })
+    if (data?.list) {
+      setGiftCount(data?.list.length) 
+    } else { 
+        setGiftCount('gifts'); 
+    }
     // This forces a cache invalidation.
-    
+    router.refresh()
   }
 
   return (<div>
@@ -75,9 +80,9 @@ export function ReTestPostButton({
       ) : (
         <Icons.add className="mr-2 h-4 w-4" />
       )}
-      Test RE API Post
+      Sync
     </button>
-  
+    <div>Gifts: { giftCount }</div>
     </div>
   )
 }

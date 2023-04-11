@@ -82,63 +82,59 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(429).end()
       }
       const bodyStuff = 
+      [{
+        "type_code": "Debit",
+        "account_number": "01-1000-00-000000",
+        "post_date": "2018-07-02T00:00:00Z",
+        "encumbrance": "Regular",
+        "journal": "Journal Entry",
+        "reference": "Debit reference",
+        "amount": 10.0,
+        "notes": "New Note",
+        "distributions": [
           {
-            "type_code": "Debit",
-            "account_number": "01-1000-00",
-            "post_date": "2018-07-02T00:00:00Z",
-            "encumbrance": "Regular",
-            "journal": "Journal Entry",
-            "reference": "Debit reference",
-            "amount": 10.0,
-            "notes": "New Note",
-            "distributions": [
+            "ui_project_id": "2400",
+            "account_class": "Unrestricted Net Assets",
+            "transaction_code_values": [
               {
-                "ui_project_id": "1100",
-                "account_class": "Unrestricted Net Assets",
-                "transaction_code_values": [
-                  {
-                    "name": "Grants",
-                    "value": "None",
-                    "id": 0
-                  },
-                  {
-                    "name": "Spendable?",
-                    "value": "Spendable",
-                    "id": 0
-                  }
-                ],
-                "amount": 5.0,
-                "percent": 50.0
+                "name": "Grants",
+                "value": "None",
+                "id": 0
               },
               {
-                "ui_project_id": "1200",
-                "account_class": "Unrestricted Net Assets",
-                "transaction_code_values": [
-                  {
-                    "name": "Grants",
-                    "value": "None",
-                    "id": 0
-                  },
-                  {
-                    "name": "Spendable?",
-                    "value": "Non spendable",
-                    "id": 0
-                  }
-                ],
-                "amount": 5.0,
-                "percent": 50.0
+                "name": "Spendable?",
+                "value": "Spendable",
+                "id": 0
               }
             ],
-            "custom_fields": [
+            "amount": 5.0,
+            "percent": 50.0
+          },
+          {
+            "ui_project_id": "2400",
+            "account_class": "Unrestricted Net Assets",
+            "transaction_code_values": [
               {
-                "field_name": "Unique Auth Text",
-                "value": "My text",
-                "comments": "a comment",
-                "date": "2018-07-02T00:00:00Z"
+                "name": "Grants",
+                "value": "None",
+                "id": 0
+              },
+              {
+                "name": "Spendable?",
+                "value": "Non spendable",
+                "id": 0
               }
-            ]
+            ],
+            "amount": 5.0,
+            "percent": 50.0
           }
-      const res2 = await fetch('https://api.sky.blackbaud.com/generalledger/v1/journalentrybatches/2527/journalentries', {
+        ],
+        "custom_fields": [
+          
+        ]
+      }
+    ]
+      const res2 = await fetch('https://api.sky.blackbaud.com/generalledger/v1/journalentrybatches/2500/journalentries', {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${reSettings.access_token}`,
@@ -155,9 +151,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(res2.status).end()
       }
       console.log('returning something else')
-     const data=await res2.json(); 
-     console.log(data);
-     res.status(200).json( data )
+   
+     res.status(200).json({message: 'Success'})
 
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -3,13 +3,12 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  relationMode = "prisma"
 }
 
 // Using these for virtuous account details.  Was used by Next Auth for OAuth Clients.  However, credentials method on Next Auth is not supported
@@ -51,7 +50,6 @@ model User {
   image         String?
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @default(now()) @map(name: "updated_at")
-
   accounts Account[]
   sessions Session[]
   Post     Post[]
@@ -121,4 +119,129 @@ model reSettings {
   userId  String  @unique
   user User @relation(fields: [userId], references: [id])
   @@map(name: "reSettings")
+}
+
+model giftBatches {
+  id                          String   @id @default(cuid())
+  batch_name                  String    @unique
+  synced                      Boolean  @default(false)
+  syncedAt                    DateTime? @map(name: "synced_at")
+  createdAt                   DateTime @default(now()) @map(name: "created_at")
+  updatedAt                   DateTime @default(now()) @map(name: "updated_at")
+}
+
+model gifts {
+  gift_id                     String @id @default(cuid())
+  id                          Int  @unique
+  transactionSource           String?
+  transactionId               String?
+  contactId                   Int?
+  contactName                 String?
+  contactUrl                  String?
+  giftType                    String?
+  giftTypeFormatted           String?
+  giftDate                    DateTime? 
+  giftDateFormatted           String?
+  amount                      Decimal?
+  amountFormatted             String?
+  currencyCode                String?
+  exchangeRate                Decimal?
+  baseCurrencyCode            String?
+  batch                       String?
+  createDateTimeUtc           DateTime? 
+  createdByUser               String?
+  modifiedDateTimeUtc         DateTime?
+  modifiedByUser              String?
+  segmentId                   Int?
+  segment                     String?
+  segmentCode                 String?
+  segmentUrl                  String?
+  mediaOutletId               Int?
+  mediaOutlet                 String?
+  grantId                     Int?
+  grant                       String?
+  grantUrl                    String?
+  notes                       String?
+  tribute                     String?
+  tributeId                   Int?
+  tributeType                 String?
+  acknowledgeIndividualId    Int?
+  receiptDate                 DateTime?
+  receiptDateFormatted        String?
+  contactPassthroughId        Int?
+  contactPassthroughUrl       String?
+  contactIndividualId         Int?
+  cashAccountingCode          String?
+  giftAskId                   Int?
+  contactMembershipId         Int?
+  giftUrl                     String?
+  isTaxDeductible             Boolean?
+  giftDesignations            Json?
+  giftPremiums                Json?
+  recurringGiftPayments       Json?
+  pledgePayments              Json?
+  customFields                Json?
+  batch_name                  String
+  synced                      Boolean? 
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+}
+
+model virtuousProjects {
+  project_id                    String @id @default(cuid())
+  id                            Int  @unique
+  name                          String?
+  projectCode                   String?
+  externalAccountingCode        String?
+  onlineDisplayName             String?
+  description                   String?
+  type                          String?
+  isPublic                      Boolean?
+  isActive                      Boolean?
+  isTaxDeductible               Boolean?
+  giftSpecifications            Json?
+  customFields                  Json?
+  createdDateTimeUTC            DateTime?
+  modifiedDateTimeUTC           DateTime?
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  projectMappings                projectMapping[]  
+}
+
+
+model feProjects {
+  id                            String @id @default(cuid())
+  project_id                    Int @unique
+  ui_project_id                 String @unique    
+  projectCode                   String?
+  location                      String?
+  division                      String?
+  department                    String?
+  type                          String?
+  status                        String?
+  description                   String?
+  added_by                      String?
+  modified_by                   String?
+  prevent_data_entry            Boolean?
+  prevent_posting_after         Boolean?
+  account_restrictions          Json?
+  customFields                  Json?
+  date_added                    DateTime?
+  date_modified                 DateTime?
+  start_date                    DateTime?
+  end_date                      DateTime?
+  posting_date                  DateTime?
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  projectMappings                projectMapping[]                
+}
+
+model projectMapping { 
+  id String @id @default(cuid())
+  virProject    virtuousProjects      @relation(fields: [virProjectId], references: [project_id], onDelete: Cascade)
+  virProjectId  String 
+  reProject     feProjects            @relation(fields: [feProjectId], references: [id])
+  feProjectId   String
+  @@index([virProjectId, feProjectId])
+
 }

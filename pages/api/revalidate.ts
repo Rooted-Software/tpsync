@@ -30,6 +30,7 @@ export default async function revalidate(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log('**** revalidating webhook');
   try {
     const { body, isValidSignature } = await parseBody(
       req,

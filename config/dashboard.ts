@@ -31,6 +31,16 @@ export const dashboardConfig: DashboardConfig = {
   ],
   sidebarNav: [
     {
+      title: 'Batch Management',
+      href: '/batches',
+      icon: 'post',
+    },
+    {
+      title: 'Project Management',
+      href: '/projects',
+      icon: 'post',
+    },
+    {
       title: 'Content Management',
       href: '/studio',
       icon: 'post',

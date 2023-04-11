@@ -13,26 +13,26 @@ import { ReTestApiButton } from '@/components/dashboard/re-test-button'
 import { ReTestPostButton } from '@/components/dashboard/re-test-post-button'
 import { DashboardShell } from '@/components/dashboard/shell'
 import { VirtuousGetGiftsButton } from '@/components/dashboard/virtuous-get-gifts'
+import { VirtuousSyncButton } from '@/components/dashboard/virtuous-sync-button'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getCurrentUser } from '@/lib/session'
 
-const getPostsForUser = cache(async (userId: User['id']) => {
-  return await db.post.findMany({
-    where: {
-      authorId: userId,
-    },
+const getBatches = async () => {
+  return await db.giftBatches.findMany({
     select: {
       id: true,
-      title: true,
-      published: true,
+      batch_name: true,
+      synced: true,
+      syncedAt: true,
       createdAt: true,
+      updatedAt: true, 
     },
     orderBy: {
       updatedAt: 'desc',
     },
   })
-})
+}
 
 
 
@@ -43,29 +43,29 @@ export default async function DashboardPage() {
     redirect(authOptions.pages.signIn)
   }
 
-  const posts = await getPostsForUser(user.id)
+  const batches = await getBatches()
 
   return (
     <DashboardShell>
       <DashboardHeader
-        heading="Dashboard"
-        text="Test Various API Calls"
+        heading="Batches"
+        text="Recent Dontation Batches from Virtuous"
       >
      
       </DashboardHeader>
       <div>
-        {posts?.length ? (
+        {batches?.length ? (
           <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-            {posts.map((post) => (
-              <PostItem key={post.id} post={post} />
+            {batches.map((batch) => (
+              <div key={batch.id}>{batch.batch_name} {!batch.synced ? <VirtuousSyncButton batch_name={batch.batch_name} className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" /> : null }</div>
             ))}
           </div>
         ) : (
           <EmptyPlaceholder>
             <EmptyPlaceholder.Icon name="post" />
-            <EmptyPlaceholder.Title>No posts created</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Title>No batches created</EmptyPlaceholder.Title>
             <EmptyPlaceholder.Description>
-              You don&apos;t have any posts yet. Start creating content.
+              You don&apos;t have any batches yet. Start creating content.
             </EmptyPlaceholder.Description>
             <PostCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
           </EmptyPlaceholder>

@@ -10,24 +10,24 @@ import { toast } from '@/ui/toast'
 interface PostCreateButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {}
 
-export function ReTestPostButton({
+export function VirtuousGetGiftsButton({
   className,
   ...props
 }: PostCreateButtonProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [projects, setProjects] = React.useState([]); 
+  const [organizationName, setOrganizationName] = React.useState<string>(''); 
   async function onClick() {
     setIsLoading(true)
-    setProjects(null);
-    const response = await fetch('/api/reTestApiCall', {
-      method: 'POST',
+    setOrganizationName('Loading...');
+    const response = await fetch('/api/getGifts', {
+      method: 'GET',
  
     })
 
     setIsLoading(false)
-    console.log(response)
-    if (!(response?.status === 200 )) {
+    
+    if (!response?.ok) {
       if (response.status === 429) {
         console.log(response)
         const data = await response.json(); 
@@ -47,14 +47,15 @@ export function ReTestPostButton({
     }
 
     const data = await response.json()
+  
     console.log(data)
-    return toast({
-      title: 'Record Entered.',
-      message: `Your Record Was Created:  ${data.record_id}`,
-      type: 'error',
-    })
+    if (data[0]?.organizationName) {
+      setOrganizationName(data[0].organizationName) 
+    } else { 
+        setOrganizationName('gifts'); 
+    }
     // This forces a cache invalidation.
-    
+    router.refresh()
   }
 
   return (<div>
@@ -75,9 +76,9 @@ export function ReTestPostButton({
       ) : (
         <Icons.add className="mr-2 h-4 w-4" />
       )}
-      Test RE API Post
+      Test Virtuous API Call
     </button>
-  
+    <div>Organization Name: { organizationName }</div>
     </div>
   )
 }

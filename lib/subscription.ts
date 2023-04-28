@@ -1,8 +1,8 @@
 // @ts-nocheck
 // TODO: Fix this when we turn strict mode on.
-import { UserSubscriptionPlan } from "types"
-import { freePlan, proPlan } from "@/config/subscriptions"
-import { db } from "@/lib/db"
+import { freePlan, proPlan } from '@/config/subscriptions'
+import { db } from '@/lib/db'
+import { UserSubscriptionPlan } from 'types'
 
 export async function getUserSubscriptionPlan(
   userId: string
@@ -20,7 +20,7 @@ export async function getUserSubscriptionPlan(
   })
 
   if (!user) {
-    throw new Error("User not found")
+    throw new Error('User not found')
   }
 
   // Check if user is on a pro plan.

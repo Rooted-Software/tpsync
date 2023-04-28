@@ -7,9 +7,8 @@
  * https://portabletext.org/
  *
  */
-import { PortableText } from '@portabletext/react'
-
 import styles from './PostBody.module.css'
+import { PortableText } from '@portabletext/react'
 
 export default function PostBody({ content }) {
   return (

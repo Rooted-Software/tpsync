@@ -4,12 +4,12 @@
 // It's part of the Studio's “Structure Builder API” and is documented here:
 // https://www.sanity.io/docs/structure-builder-reference
 import AuthorAvatarPreviewPane from './AuthorAvatarPreviewPane'
-import PostPreviewPane from './PostPreviewPane'
 import FeaturesPreviewPane from './FeaturesPreviewPane'
+import PostPreviewPane from './PostPreviewPane'
 import { DefaultDocumentNodeResolver } from 'sanity/desk'
 import authorType from 'schemas/author'
-import postType from 'schemas/post'
 import featuresType from 'schemas/features'
+import postType from 'schemas/post'
 
 export const previewDocumentNode = ({
   apiVersion,

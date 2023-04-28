@@ -1,12 +1,11 @@
-import { headers } from "next/headers"
-import Stripe from "stripe"
-
-import { db } from "@/lib/db"
-import { stripe } from "@/lib/stripe"
+import { db } from '@/lib/db'
+import { stripe } from '@/lib/stripe'
+import { headers } from 'next/headers'
+import Stripe from 'stripe'
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const signature = headers().get("Stripe-Signature") as string
+  const signature = headers().get('Stripe-Signature') as string
 
   let event: Stripe.Event
 
@@ -14,7 +13,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET || ""
+      process.env.STRIPE_WEBHOOK_SECRET || ''
     )
   } catch (error) {
     return new Response(`Webhook Error: ${error.message}`, { status: 400 })

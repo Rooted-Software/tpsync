@@ -36,7 +36,7 @@ export default async function revalidate(
       process.env.SANITY_REVALIDATE_SECRET
     )
 
-    console.log("revalidating body: ", body, body._type);
+    console.log('revalidating body: ', body, body._type)
 
     if (isValidSignature === false) {
       const message = 'Invalid signature'
@@ -51,18 +51,18 @@ export default async function revalidate(
     }
 
     const staleRoutes = await queryStaleRoutes(body as any)
-    console.log("staleRoutes: ", staleRoutes);
+    console.log('staleRoutes: ', staleRoutes)
 
     // remove '/' link from staleRoutes list if it exists because it breaks the res.revalidate function below
-    if(staleRoutes.includes('/')) {
+    if (staleRoutes.includes('/')) {
       staleRoutes.splice(staleRoutes.indexOf('/'), 1)
     }
-    console.log("staleRoutes after slice: ", staleRoutes);
+    console.log('staleRoutes after slice: ', staleRoutes)
 
     await Promise.all(staleRoutes.map((route) => res.revalidate(route)))
 
     const updatedRoutes = `Updated routes: ${staleRoutes.join(', ')}`
-    console.log("updatedRoutes: ", updatedRoutes);
+    console.log('updatedRoutes: ', updatedRoutes)
 
     return res.status(200).send(updatedRoutes)
   } catch (err) {
@@ -72,7 +72,7 @@ export default async function revalidate(
 }
 
 // StaleRoutes is a list of the routes allowed to be rerendered
-  // for some reason, the '/' breaks the revalidate function
+// for some reason, the '/' breaks the revalidate function
 
 type StaleRoute = '/' | '/blog' | `/blog/${string}` | '/features'
 
@@ -81,10 +81,10 @@ async function queryStaleRoutes(
 ): Promise<StaleRoute[]> {
   const client = createClient({ projectId, dataset, apiVersion, useCdn: false })
 
-  console.log("queryStaleRoutes body: ", body);
+  console.log('queryStaleRoutes body: ', body)
 
   // this function decides which link needs to be rerendered
-    // whatever link is returned is the link that gets rerendered
+  // whatever link is returned is the link that gets rerendered
 
   // Handle possible deletions
   if (body._type === 'post') {
@@ -119,9 +119,9 @@ async function queryStaleRoutes(
 
     case 'features':
       return await queryStaleFeatureRoutes(client)
-      
+
     // FIXME: changing default to run queryAllRoutes to handle all unknown types
-      // this may be the right solution, not just a quick fix
+    // this may be the right solution, not just a quick fix
     default:
       // throw new TypeError(`Unknown type: ${body._type}`)
 
@@ -190,12 +190,10 @@ async function queryStalePostRoutes(
 async function queryStaleFeatureRoutes(
   client: SanityClient
 ): Promise<StaleRoute[]> {
-
   const response = await client.fetch(groq`
-    *[_type == "features"] | order(orderRank)`
-  )
+    *[_type == "features"] | order(orderRank)`)
 
-  console.log("queryStaleFeatureRoutes triggered: ", response);
+  console.log('queryStaleFeatureRoutes triggered: ', response)
 
   return ['/features']
 }

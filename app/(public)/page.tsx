@@ -1,8 +1,7 @@
-import Link from "next/link"
-
-import { siteConfig } from "@/config/site"
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from '@/components/ui/button'
+import { siteConfig } from '@/config/site'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 async function getGitHubStars(): Promise<string | null> {
   try {
@@ -53,14 +52,14 @@ export default async function IndexPage() {
             everything. Follow along as we figure this out together.
           </p>
           <div className="space-x-4">
-            <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
+            <Link href="/login" className={cn(buttonVariants({ size: 'lg' }))}>
               Get Started
             </Link>
             <Link
               href={siteConfig.links.github}
               target="_blank"
               rel="noreferrer"
-              className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+              className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
             >
               GitHub
             </Link>
@@ -181,8 +180,8 @@ export default async function IndexPage() {
             Proudly Open Source
           </h2>
           <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-            Taxonomy is open source and powered by open source software. <br />{" "}
-            The code is available on{" "}
+            Taxonomy is open source and powered by open source software. <br />{' '}
+            The code is available on{' '}
             <Link
               href={siteConfig.links.github}
               target="_blank"

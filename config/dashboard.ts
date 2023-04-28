@@ -36,14 +36,14 @@ export const dashboardConfig: DashboardConfig = {
       icon: 'post',
     },
     {
-      title: "Billing",
-      href: "/dashboard/billing",
-      icon: "billing",
+      title: 'Billing',
+      href: '/dashboard/billing',
+      icon: 'billing',
     },
     {
-      title: "Settings",
-      href: "/dashboard/settings",
-      icon: "settings",
+      title: 'Settings',
+      href: '/dashboard/settings',
+      icon: 'settings',
     },
   ],
 }

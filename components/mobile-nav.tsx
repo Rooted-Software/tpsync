@@ -1,12 +1,10 @@
+import { Icons } from '@/components/icons'
+import { siteConfig } from '@/config/site'
+import { useLockBody } from '@/hooks/use-lock-body'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import * as React from 'react'
 import { MainNavItem } from 'types'
-
-import { MainNavItem } from "types"
-import { siteConfig } from "@/config/site"
-import { cn } from "@/lib/utils"
-import { useLockBody } from "@/hooks/use-lock-body"
-import { Icons } from "@/components/icons"
 
 interface MobileNavProps {
   items: MainNavItem[]
@@ -33,8 +31,8 @@ export function MobileNav({ items, children }: MobileNavProps) {
               key={index}
               href={item.disabled ? '#' : item.href}
               className={cn(
-                "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline",
-                item.disabled && "cursor-not-allowed opacity-60"
+                'flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline',
+                item.disabled && 'cursor-not-allowed opacity-60'
               )}
             >
               {item.title}

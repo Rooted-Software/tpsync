@@ -1,11 +1,7 @@
 'use client'
 
-import * as React from 'react'
-import { UserSubscriptionPlan } from 'types'
-
-import { UserSubscriptionPlan } from "types"
-import { cn, formatDate } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { Icons } from '@/components/icons'
+import { buttonVariants } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -13,9 +9,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
-import { Icons } from "@/components/icons"
+} from '@/components/ui/card'
+import { toast } from '@/components/ui/use-toast'
+import { cn, formatDate } from '@/lib/utils'
+import * as React from 'react'
+import { UserSubscriptionPlan } from 'types'
 
 interface BillingFormProps extends React.HTMLAttributes<HTMLFormElement> {
   subscriptionPlan: UserSubscriptionPlan & {
@@ -39,9 +37,9 @@ export function BillingForm({
 
     if (!response?.ok) {
       return toast({
-        title: "Something went wrong.",
-        description: "Please refresh the page and try again.",
-        variant: "destructive",
+        title: 'Something went wrong.',
+        description: 'Please refresh the page and try again.',
+        variant: 'destructive',
       })
     }
 
@@ -60,7 +58,7 @@ export function BillingForm({
         <CardHeader>
           <CardTitle>Subscription Plan</CardTitle>
           <CardDescription>
-            You are currently on the <strong>{subscriptionPlan.name}</strong>{" "}
+            You are currently on the <strong>{subscriptionPlan.name}</strong>{' '}
             plan.
           </CardDescription>
         </CardHeader>

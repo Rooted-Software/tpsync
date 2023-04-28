@@ -1,5 +1,6 @@
 'use client'
 
+import BlogPostPage from '@/components/blog/BlogPostPage'
 import { usePreview } from 'lib/sanity.preview'
 import {
   type Post,
@@ -7,8 +8,6 @@ import {
   postAndMoreStoriesQuery,
   settingsQuery,
 } from 'lib/sanity.queries'
-
-import BlogPostPage from '@/components/blog/BlogPostPage'
 
 export default function PreviewPostPage({
   token,

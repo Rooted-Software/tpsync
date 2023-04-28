@@ -1,15 +1,14 @@
-import { ImageResponse } from "@vercel/og"
+import { ogImageSchema } from '@/lib/validations/og'
+import { ImageResponse } from '@vercel/og'
 
-import { ogImageSchema } from "@/lib/validations/og"
-
-export const runtime = "edge"
+export const runtime = 'edge'
 
 const interRegular = fetch(
-  new URL("../../../assets/fonts/Inter-Regular.ttf", import.meta.url)
+  new URL('../../../assets/fonts/Inter-Regular.ttf', import.meta.url)
 ).then((res) => res.arrayBuffer())
 
 const interBold = fetch(
-  new URL("../../../assets/fonts/CalSans-SemiBold.ttf", import.meta.url)
+  new URL('../../../assets/fonts/CalSans-SemiBold.ttf', import.meta.url)
 ).then((res) => res.arrayBuffer())
 
 export async function GET(req: Request) {
@@ -36,9 +35,9 @@ export async function GET(req: Request) {
           style={{
             color: paint,
             background:
-              mode === "dark"
-                ? "linear-gradient(90deg, #000 0%, #111 100%)"
-                : "white",
+              mode === 'dark'
+                ? 'linear-gradient(90deg, #000 0%, #111 100%)'
+                : 'white',
           }}
         >
           <svg width="212" height="50" viewBox="0 0 212 50" fill="none">
@@ -80,9 +79,9 @@ export async function GET(req: Request) {
             <div
               tw="flex leading-[1.1] text-[80px] font-bold"
               style={{
-                fontFamily: "Cal Sans",
-                fontWeight: "bold",
-                marginLeft: "-3px",
+                fontFamily: 'Cal Sans',
+                fontWeight: 'bold',
+                marginLeft: '-3px',
                 fontSize,
               }}
             >
@@ -132,7 +131,7 @@ export async function GET(req: Request) {
             style: 'normal',
           },
           {
-            name: "Cal Sans",
+            name: 'Cal Sans',
             data: fontBold,
             weight: 700,
             style: 'normal',

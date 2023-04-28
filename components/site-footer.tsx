@@ -1,8 +1,8 @@
-import * as React from "react"
-import { siteConfig } from "@/config/site"
-import { cn } from "@/lib/utils"
-import { Icons } from "@/components/icons"
-import { ModeToggle } from "@/components/mode-toggle"
+import { Icons } from '@/components/icons'
+import { ModeToggle } from '@/components/mode-toggle'
+import { siteConfig } from '@/config/site'
+import { cn } from '@/lib/utils'
+import * as React from 'react'
 
 export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
@@ -38,7 +38,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             >
               Popsy
             </a>
-            . The source code is available on{" "}
+            . The source code is available on{' '}
             <a
               href={siteConfig.links.github}
               target="_blank"

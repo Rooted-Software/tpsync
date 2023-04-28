@@ -1,9 +1,8 @@
-import { Card, Flex, Stack, Text } from '@sanity/ui'
-import { notFound } from 'next/navigation'
-
 import { MainNav } from '@/components/main-nav'
 import { dashboardConfig } from '@/config/dashboard'
 import { getCurrentUser } from '@/lib/session'
+import { Card, Flex, Stack, Text } from '@sanity/ui'
+import { notFound } from 'next/navigation'
 
 // Adds markup and invokes renderDefault()
 export function enhancedNavbar(props: any) {

@@ -1,10 +1,9 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SidebarNavItem } from 'types'
-
-import { cn } from '@/lib/utils'
 
 export interface DocsSidebarNavProps {
   items: SidebarNavItem[]
@@ -40,7 +39,6 @@ export function DocsSidebarNavItems({
 }: DocsSidebarNavItemsProps): JSX.Element {
   return items?.length ? (
     <div className="grid grid-flow-row auto-rows-max text-sm">
-
       {items.map((item, index) => (
         <Link
           key={index}
@@ -59,7 +57,7 @@ export function DocsSidebarNavItems({
         </Link>
       ))}
 
-{/*
+      {/*
       {items.map((item, index) =>
         !item.disabled && item.href ? (
           <Link

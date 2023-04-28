@@ -1,13 +1,12 @@
-import { compareDesc } from 'date-fns'
-import * as demo from 'lib/demo.data'
-import type { Post, Settings } from 'lib/sanity.queries'
-import Link from 'next/link'
-
+import Container from '@/components/GeneralContainer'
 import BlogHeader from '@/components/blog/BlogHeader'
 import Layout from '@/components/blog/BlogLayout'
 import HeroPost from '@/components/blog/HeroPost'
 import MoreStories from '@/components/blog/MoreStories'
-import Container from '@/components/GeneralContainer'
+import { compareDesc } from 'date-fns'
+import * as demo from 'lib/demo.data'
+import type { Post, Settings } from 'lib/sanity.queries'
+import Link from 'next/link'
 
 export default function IndexPage(props: {
   preview?: boolean

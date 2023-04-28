@@ -1,10 +1,9 @@
-import { getServerSession } from "next-auth/next"
-import * as z from "zod"
-
-import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { RequiresProPlanError } from "@/lib/exceptions"
-import { getUserSubscriptionPlan } from "@/lib/subscription"
+import { authOptions } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { RequiresProPlanError } from '@/lib/exceptions'
+import { getUserSubscriptionPlan } from '@/lib/subscription'
+import { getServerSession } from 'next-auth/next'
+import * as z from 'zod'
 
 const postCreateSchema = z.object({
   title: z.string(),
@@ -16,7 +15,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return new Response("Unauthorized", { status: 403 })
+      return new Response('Unauthorized', { status: 403 })
     }
 
     const { user } = session
@@ -43,7 +42,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return new Response("Unauthorized", { status: 403 })
+      return new Response('Unauthorized', { status: 403 })
     }
 
     const { user } = session
@@ -84,7 +83,7 @@ export async function POST(req: Request) {
     }
 
     if (error instanceof RequiresProPlanError) {
-      return new Response("Requires Pro Plan", { status: 402 })
+      return new Response('Requires Pro Plan', { status: 402 })
     }
 
     return new Response(null, { status: 500 })

@@ -1,7 +1,6 @@
-import * as React from 'react'
-
 import { Icons } from '@/components/icons'
 import { cn } from '@/lib/utils'
+import * as React from 'react'
 
 interface EmptyPlaceholderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -43,7 +42,7 @@ EmptyPlaceholder.Icon = function EmptyPlaceHolderIcon({
 
   return (
     <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-      <Icon className={cn("h-10 w-10", className)} {...props} />
+      <Icon className={cn('h-10 w-10', className)} {...props} />
     </div>
   )
 }
@@ -70,7 +69,7 @@ EmptyPlaceholder.Description = function EmptyPlaceholderDescription({
   return (
     <p
       className={cn(
-        "mb-8 mt-2 text-center text-sm font-normal leading-6 text-muted-foreground",
+        'mb-8 mt-2 text-center text-sm font-normal leading-6 text-muted-foreground',
         className
       )}
       {...props}

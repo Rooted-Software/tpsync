@@ -6,7 +6,6 @@ import {
   LinkableH4Header,
 } from '@/components/docs/customComponents'
 import { DocsPageHeader } from '@/components/docs/page-header'
-import { DocsPager } from '@/components/docs/pager'
 import { parseOutline } from '@/lib/sanity-toc'
 import { getAllDocsSlugs, getDocBySlug } from '@/lib/sanity.client'
 import '@/styles/mdx.css'

@@ -1,12 +1,11 @@
 'use client'
 
+import { Icons } from '@/components/icons'
+import { ButtonProps, buttonVariants } from '@/components/ui/button'
+import { toast } from '@/components/ui/use-toast'
+import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-
-import { cn } from "@/lib/utils"
-import { ButtonProps, buttonVariants } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
-import { Icons } from "@/components/icons"
 
 interface PostCreateButtonProps extends ButtonProps {}
 
@@ -36,16 +35,16 @@ export function PostCreateButton({
     if (!response?.ok) {
       if (response.status === 402) {
         return toast({
-          title: "Limit of 3 posts reached.",
-          description: "Please upgrade to the PRO plan.",
-          variant: "destructive",
+          title: 'Limit of 3 posts reached.',
+          description: 'Please upgrade to the PRO plan.',
+          variant: 'destructive',
         })
       }
 
       return toast({
-        title: "Something went wrong.",
-        description: "Your post was not created. Please try again.",
-        variant: "destructive",
+        title: 'Something went wrong.',
+        description: 'Your post was not created. Please try again.',
+        variant: 'destructive',
       })
     }
 

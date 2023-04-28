@@ -1,14 +1,13 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { NextAuthOptions } from "next-auth"
-import EmailProvider from "next-auth/providers/email"
-import GitHubProvider from "next-auth/providers/github"
-import { Client } from "postmark"
-
-import { siteConfig } from "@/config/site"
-import { db } from "@/lib/db"
+import { siteConfig } from '@/config/site'
+import { db } from '@/lib/db'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { NextAuthOptions } from 'next-auth'
+import EmailProvider from 'next-auth/providers/email'
+import GitHubProvider from 'next-auth/providers/github'
+import { Client } from 'postmark'
 
 // TODO: Move env vars to env a la t3.
-const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || "")
+const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || '')
 
 export const authOptions: NextAuthOptions = {
   // huh any! I know.
@@ -23,8 +22,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      clientId: process.env.GITHUB_CLIENT_ID || '',
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
     }),
     EmailProvider({
       from: process.env.SMTP_FROM,
@@ -42,7 +41,7 @@ export const authOptions: NextAuthOptions = {
           ? process.env.POSTMARK_SIGN_IN_TEMPLATE
           : process.env.POSTMARK_ACTIVATION_TEMPLATE
         if (!templateId) {
-          throw new Error("Missing template id")
+          throw new Error('Missing template id')
         }
 
         const result = await postmarkClient.sendEmailWithTemplate({

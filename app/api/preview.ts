@@ -7,8 +7,8 @@ import {
 } from 'lib/sanity.api'
 import { postBySlugQuery } from 'lib/sanity.queries'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import type { PageConfig } from 'next/types'
 import { createClient } from 'next-sanity'
+import type { PageConfig } from 'next/types'
 import { getSecret } from 'plugins/productionUrl/utils'
 
 // res.setPreviewData only exists in the nodejs runtime, setting the config here allows changing the global runtime

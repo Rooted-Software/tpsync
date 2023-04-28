@@ -13,11 +13,11 @@ import { deskTool } from 'sanity/desk'
 import authorType from 'schemas/author'
 import docArticleType from 'schemas/docArticle'
 import docCategoryType from 'schemas/docCategory'
+import featuresType from 'schemas/features'
 import postType from 'schemas/post'
 import settingsType from 'schemas/settings'
 import supportType from 'schemas/support'
 import supportCategoryType from 'schemas/supportCategory'
-import featuresType from 'schemas/features'
 
 const title = process.env.NEXT_PUBLIC_SANITY_PROJECT_TITLE || 'Rooted Template'
 
@@ -36,7 +36,7 @@ export default defineConfig({
       docArticleType,
       supportCategoryType,
       docCategoryType,
-      featuresType
+      featuresType,
     ],
   },
   plugins: [
@@ -58,7 +58,7 @@ export default defineConfig({
         docArticleType.name,
         supportCategoryType.name,
         docCategoryType.name,
-        featuresType.name
+        featuresType.name,
       ],
     }),
     // Add an image asset source for Unsplash

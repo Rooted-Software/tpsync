@@ -1,7 +1,8 @@
-import { UserSubscriptionPlan } from 'types'
-
-import { freePlan, proPlan } from '@/config/subscriptions'
-import { db } from '@/lib/db'
+// @ts-nocheck
+// TODO: Fix this when we turn strict mode on.
+import { UserSubscriptionPlan } from "types"
+import { freePlan, proPlan } from "@/config/subscriptions"
+import { db } from "@/lib/db"
 
 export async function getUserSubscriptionPlan(
   userId: string
@@ -17,6 +18,10 @@ export async function getUserSubscriptionPlan(
       stripePriceId: true,
     },
   })
+
+  if (!user) {
+    throw new Error("User not found")
+  }
 
   // Check if user is on a pro plan.
   const isPro =

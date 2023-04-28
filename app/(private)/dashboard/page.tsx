@@ -1,19 +1,28 @@
-import { EmptyPlaceholder } from '@/components/dashboard/empty-placeholder'
-import { DashboardHeader } from '@/components/dashboard/header'
-import { PostCreateButton } from '@/components/dashboard/post-create-button'
-import { PostItem } from '@/components/dashboard/post-item'
-import { DashboardShell } from '@/components/dashboard/shell'
-import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { getCurrentUser } from '@/lib/session'
-import { User } from '@prisma/client'
-import { redirect } from 'next/navigation'
-import { cache } from 'react'
+import { redirect } from "next/navigation"
 
-const getPostsForUser = cache(async (userId: User['id']) => {
-  return await db.post.findMany({
+import { authOptions } from "@/lib/auth"
+import { db } from "@/lib/db"
+import { getCurrentUser } from "@/lib/session"
+import { EmptyPlaceholder } from "@/components/empty-placeholder"
+import { DashboardHeader } from "@/components/header"
+import { PostCreateButton } from "@/components/post-create-button"
+import { PostItem } from "@/components/post-item"
+import { DashboardShell } from "@/components/shell"
+
+export const metadata = {
+  title: "Dashboard",
+}
+
+export default async function DashboardPage() {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect(authOptions?.pages?.signIn || "/login")
+  }
+
+  const posts = await db.post.findMany({
     where: {
-      authorId: userId,
+      authorId: user.id,
     },
     select: {
       id: true,
@@ -25,16 +34,6 @@ const getPostsForUser = cache(async (userId: User['id']) => {
       updatedAt: 'desc',
     },
   })
-})
-
-export default async function DashboardPage() {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect(authOptions.pages.signIn)
-  }
-
-  const posts = await getPostsForUser(user.id)
 
   return (
     <DashboardShell>
@@ -46,7 +45,7 @@ export default async function DashboardPage() {
       </DashboardHeader>
       <div>
         {posts?.length ? (
-          <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+          <div className="divide-y divide-border rounded-md border">
             {posts.map((post) => (
               <PostItem key={post.id} post={post} />
             ))}
@@ -58,7 +57,7 @@ export default async function DashboardPage() {
             <EmptyPlaceholder.Description>
               You don&apos;t have any posts yet. Start creating content.
             </EmptyPlaceholder.Description>
-            <PostCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+            <PostCreateButton variant="outline" />
           </EmptyPlaceholder>
         )}
       </div>

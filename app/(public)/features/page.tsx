@@ -15,16 +15,16 @@ export default async function FeaturePage() {
 
   return (
     <section className="container flex flex-col items-center gap-6 py-8 md:max-w-[64rem] md:py-12 lg:py-24">
-      <div className="mx-auto w-full p-10 rounded-lg border border-slate-200 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="flex flex-col justify-center text-center col-span-2 md:text-left">
-          <h2 className="font-bold leading-[1.1] tracking-tighter text-3xl md:text-5xl">
+      <div className="mx-auto grid w-full grid-cols-1 gap-4 rounded-lg border border-slate-200 p-10 md:grid-cols-3">
+        <div className="col-span-2 flex flex-col justify-center text-center md:text-left">
+          <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter md:text-5xl">
             Go PRO to unlock all features
           </h2>
-          <p className="text-1xl md:text-2xl mt-2 mb-2">
+          <p className="text-1xl mt-2 mb-2 md:text-2xl">
             including unlimited posts
           </p>
         </div>
-        <div className="flex flex-col items-center col-span-1">
+        <div className="col-span-1 flex flex-col items-center">
           <h3 className="text-xl font-bold sm:text-2xl">Get started now</h3>
           <div className="text-center">
             <h4 className="text-7xl font-bold">$19</h4>
@@ -32,7 +32,7 @@ export default async function FeaturePage() {
           </div>
           <Link
             href="/login"
-            className="relative inline-flex h-12 w-52 mt-4 items-center justify-center rounded-md border border-transparent bg-brand-500 py-6 text-center font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 max-w-xs"
+            className="relative mt-4 inline-flex h-12 w-52 max-w-xs items-center justify-center rounded-md border border-transparent bg-brand-500 py-6 text-center font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
           >
             Go PRO
           </Link>
@@ -43,7 +43,7 @@ export default async function FeaturePage() {
         Features included with Rooted PRO
       </h3>
 
-      <div className="w-full grid grid-cols-1 gap-20 md:grid-cols-2">
+      <div className="grid w-full grid-cols-1 gap-20 md:grid-cols-2">
         {features.map((e) => {
           let description = ''
           if (e.description) {
@@ -62,14 +62,14 @@ export default async function FeaturePage() {
                   priority={false}
                 />
               )}
-              <h2 className="text-2xl font-bold mt-3">{e.title}</h2>
+              <h2 className="mt-3 text-2xl font-bold">{e.title}</h2>
               {description && <p className="text-slate-600">{description}</p>}
             </div>
           )
         })}
       </div>
 
-      <div className="mx-auto flex flex-col text-center gap-4 md:max-w-[52rem]">
+      <div className="mx-auto flex flex-col gap-4 text-center md:max-w-[52rem]">
         <p className="leading-normal text-slate-700 sm:leading-7">
           Taxonomy is a demo app.{' '}
           <strong>You can test the upgrade and won&apos;t be charged.</strong>

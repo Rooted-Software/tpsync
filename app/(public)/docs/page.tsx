@@ -45,7 +45,7 @@ export default async function DocPage({ params }: DocPageProps) {
   const slug = process.env.DEFAULT_DOC_SLUG || 'article-1'
   /* load docs from slug */
   const doc = await getDocBySlug(slug)
-  const outline = parseOutline(doc.content)
+  // const outline = parseOutline(doc.content)
   if (!doc) {
     notFound()
   }
@@ -63,7 +63,7 @@ export default async function DocPage({ params }: DocPageProps) {
       <div className="hidden text-sm xl:block">
         <div className="sticky top-16 -mt-10 max-h-[calc(var(--vh)-4rem)] overflow-y-auto pt-10">
           {/* <DashboardTableOfContents toc={toc} /> */}
-          <TableOfContents outline={outline} />
+          {/* <TableOfContents outline={outline} />  */}
         </div>
       </div>
     </main>

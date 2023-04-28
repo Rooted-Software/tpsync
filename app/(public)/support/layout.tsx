@@ -1,5 +1,5 @@
 import { DocsSearch } from '@/components/docs/search'
-import { DocsSidebarNav } from '@/components/docs/sidebar-nav'
+// import { DocsSidebarNav } from '@/components/docs/sidebar-nav'
 import { Icons } from '@/components/icons'
 import { MainNav } from '@/components/main-nav'
 import { SiteFooter } from '@/components/site-footer'

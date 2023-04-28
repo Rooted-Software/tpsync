@@ -48,16 +48,19 @@ export default async function DashboardPage() {
   return (
     <DashboardShell>
       <DashboardHeader
-        heading="Batches"
+        heading={batches.length ? `Batches: ${batches.length}` : 'Batches'}
         text="Recent Dontation Batches from Virtuous"
       >
      
       </DashboardHeader>
+      <div className="">Get Batches
+        <VirtuousGetGiftsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+        </div> 
       <div>
         {batches?.length ? (
           <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
             {batches.map((batch) => (
-              <div key={batch.id}>{batch.batch_name} {!batch.synced ? <VirtuousSyncButton batch_name={batch.batch_name} className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" /> : null }</div>
+              <div key={batch.id} className='pt-3 pb-3 pr-3 pl-3 mb-3' >{batch.batch_name} {!batch.synced ? <VirtuousSyncButton batch_name={batch.batch_name} className="border-slate-200 float-right bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" /> : null }</div>
             ))}
           </div>
         ) : (
@@ -83,9 +86,7 @@ export default async function DashboardPage() {
       <div className="">Test RE POST  Button
         <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div> 
-      <div className="">Get Gifts
-        <VirtuousGetGiftsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> 
+   
       {/*
       <div className="">Test KeyGen
         <KeygenButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />

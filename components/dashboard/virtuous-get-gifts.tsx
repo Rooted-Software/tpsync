@@ -16,10 +16,10 @@ export function VirtuousGetGiftsButton({
 }: PostCreateButtonProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [organizationName, setOrganizationName] = React.useState<string>(''); 
+  const [dataLength, setDataLength] = React.useState<string>(''); 
   async function onClick() {
     setIsLoading(true)
-    setOrganizationName('Loading...');
+    setDataLength('Loading...');
     const response = await fetch('/api/getGifts', {
       method: 'GET',
  
@@ -49,10 +49,10 @@ export function VirtuousGetGiftsButton({
     const data = await response.json()
   
     console.log(data)
-    if (data[0]?.organizationName) {
-      setOrganizationName(data[0].organizationName) 
+    if (data?.list.length) {
+      setDataLength(data.list.length + ' Gifts') 
     } else { 
-        setOrganizationName('gifts'); 
+        setDataLength('0 Gifts'); 
     }
     // This forces a cache invalidation.
     router.refresh()
@@ -76,9 +76,9 @@ export function VirtuousGetGiftsButton({
       ) : (
         <Icons.add className="mr-2 h-4 w-4" />
       )}
-      Test Virtuous API Call
+      Get Gift Batches from Virtuous
     </button>
-    <div>Organization Name: { organizationName }</div>
+    <div>Returned Gifts to extract batches from: { dataLength }</div>
     </div>
   )
 }

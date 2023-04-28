@@ -73,6 +73,12 @@ export default async function ProjectsPage() {
       >
      
       </DashboardHeader>
+      <div className="">Get RE Projects
+        <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+      </div> 
+      <div className="">Get Virtuous Projects
+        <VirtuousGetProjectsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+        </div> 
       <div>
 { projects && feProjects ? <MappingCreateButton projects={projects} feProjects={feProjects} className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" /> : null }
       </div>
@@ -82,15 +88,10 @@ export default async function ProjectsPage() {
       <div className="">Virtuous Refresh Button
         <ApiRefreshButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div>
-      <div className="">Test RE  Button
+      <div className="">Get RE Projects
         <ReGetProjectsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div> 
-      <div className="">Test RE POST  Button
-        <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-      <div className="">Get Gifts
-        <VirtuousGetProjectsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> 
+
       {/*
       <div className="">Test KeyGen
         <KeygenButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />

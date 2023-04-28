@@ -18,7 +18,7 @@ const Accordion: FC<AccordionProps> = ({ title, items }) => (
     <Link href="/support">
       <button type="button" className="inline-flex items-center">
         <HiArrowLeft
-          className="-ml-1 mr-2 h-5 w-5 relative inline-flex items-center"
+          className="relative -ml-1 mr-2 inline-flex h-5 w-5 items-center"
           aria-hidden="true"
         />{' '}
         Back{' '}

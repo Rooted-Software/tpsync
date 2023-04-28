@@ -24,7 +24,7 @@ export default async function SupportPage({ params, searchParams }: any) {
   console.log(ca)
   return (
     <div
-      className="p-4 mt-4"
+      className="mt-4 p-4"
       style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}
     >
       {ca?.length > 0 ? (

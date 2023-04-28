@@ -31,7 +31,7 @@ export default async function SupportCategoryPage({
   }
   return (
     <div
-      className="p-4 mt-4 text-white"
+      className="mt-4 p-4 text-white"
       style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}
     >
       {categories?.length > 0 ? (

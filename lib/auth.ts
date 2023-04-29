@@ -1,14 +1,12 @@
 import { siteConfig } from '@/config/site'
 import { db } from '@/lib/db'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { Client } from 'postmark'
-const FormData = require('form-data');
-import { siteConfig } from '@/config/site'
-import { db } from '@/lib/db'
 import { Prisma } from '@prisma/client'
+import { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { Client } from 'postmark'
 
+const FormData = require('form-data')
 
 const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || '')
 
@@ -25,7 +23,7 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
-      id: "virtuous",
+      id: 'virtuous',
       // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Virtuous CMS',
       // The credentials is used to generate a suitable form on the sign in page.
@@ -38,38 +36,42 @@ export const authOptions: NextAuthOptions = {
           type: 'email',
           placeholder: 'jsmith@example.com',
         },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials, req) {
         const payload = {
           email: credentials.email,
           password: credentials.password,
-        };
+        }
         console.log(req)
-        const form = new FormData();
-        form.append('email', credentials.email);
-        form.append('password', credentials.password);
-        console.log(credentials); 
-        
+        const form = new FormData()
+        form.append('email', credentials.email)
+        form.append('password', credentials.password)
+        console.log(credentials)
+
         const res = await fetch('https://api.virtuoussoftware.com/Token', {
           method: 'POST',
-          body: 'grant_type=password&username=' + credentials.email + '&password=' + credentials.password,
-          mode: "no-cors",
-          cache: "no-cache",
+          body:
+            'grant_type=password&username=' +
+            credentials.email +
+            '&password=' +
+            credentials.password,
+          mode: 'no-cors',
+          cache: 'no-cache',
           headers: {
-            "Content-Type": "form-data",
+            'Content-Type': 'form-data',
           },
-        });
+        })
         console.log('after form')
-       
-        const user = await res.json();
-        console.log(user);
+
+        const user = await res.json()
+        console.log(user)
         if (!res.ok) {
-          throw new Error(user.message);
+          throw new Error(user.message)
         }
         // If no error and we have user data, return it
         if (res.ok && user) {
-          // save some data 
+          // save some data
           const dbUser = await db.user.findFirst({
             where: {
               email: credentials.email,
@@ -78,9 +80,9 @@ export const authOptions: NextAuthOptions = {
           console.log('finding user')
 
           if (!dbUser) {
-            console.log('no user found'); 
+            console.log('no user found')
             // create new user and account (with tokens)
-      
+
             const newUser = await db.user.create({
               data: {
                 email: credentials.email,
@@ -91,57 +93,53 @@ export const authOptions: NextAuthOptions = {
                 id: true,
               },
             })
-            
 
-            let accountData: Prisma.AccountUncheckedCreateInput = 
-              {
-                userId: newUser.id,
-                type: 'oauth', 
-                provider: 'virtuous', 
-                providerAccountId: user.userName,
-                refresh_token: user.refresh_token,
-                access_token: user.access_token,
-                expires_at: user.expires_in,
-                token_type: 'bearer',
-              }; 
+            let accountData: Prisma.AccountUncheckedCreateInput = {
+              userId: newUser.id,
+              type: 'oauth',
+              provider: 'virtuous',
+              providerAccountId: user.userName,
+              refresh_token: user.refresh_token,
+              access_token: user.access_token,
+              expires_at: user.expires_in,
+              token_type: 'bearer',
+            }
 
-              console.log('');
+            console.log('')
             const newAccount = await db.account.create({
               data: accountData,
               select: {
                 id: true,
               },
             })
-            } else { 
-              console.log('updating user'); 
-                // update account (with tokens)
-                const updatedAccount = await db.account.updateMany({
-                  where: {
-                    userId: dbUser.id,
-                    type: 'oauth', 
-                    provider: 'virtuous',
-                  },
-                  data: {
-                    access_token: user.access_token,
-                    refresh_token: user.refresh_token,
-                    expires_at: user.expires_in,
-                    token_type: 'bearer',
-                  },
-                })
-      
-            }
-            // console.log('Here is the user')
-            user.id = dbUser.id; 
-            user.email=credentials.email; 
-            // console.log(user)
-          return user;
+          } else {
+            console.log('updating user')
+            // update account (with tokens)
+            const updatedAccount = await db.account.updateMany({
+              where: {
+                userId: dbUser.id,
+                type: 'oauth',
+                provider: 'virtuous',
+              },
+              data: {
+                access_token: user.access_token,
+                refresh_token: user.refresh_token,
+                expires_at: user.expires_in,
+                token_type: 'bearer',
+              },
+            })
+          }
+          // console.log('Here is the user')
+          user.id = dbUser.id
+          user.email = credentials.email
+          // console.log(user)
+          return user
         }
 
         // Return null if user data could not be retrieved
-        return null;
+        return null
       },
     }),
-    
   ],
   callbacks: {
     async session({ token, session, user }) {
@@ -152,7 +150,6 @@ export const authOptions: NextAuthOptions = {
       // console.log('user-session')
       // console.log(user)
       if (token) {
-
         session.user.id = token.id
         session.user.name = token.name
         session.user.email = token.email
@@ -168,7 +165,7 @@ export const authOptions: NextAuthOptions = {
       // console.log(user)
       const dbUser = await db.user.findFirst({
         where: {
-          email: token.email ,
+          email: token.email,
         },
       })
       // console.log("In JWT DB USER")

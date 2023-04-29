@@ -1,12 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { unstable_getServerSession } from 'next-auth/next'
-import * as z from 'zod'
-
 import { withMethods } from '@/lib/api-middlewares/with-methods'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { RequiresProPlanError } from '@/lib/exceptions'
 import { getUserSubscriptionPlan } from '@/lib/subscription'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { unstable_getServerSession } from 'next-auth/next'
+import * as z from 'zod'
 
 const postCreateSchema = z.object({
   title: z.string().optional(),
@@ -22,7 +21,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const { user } = session
-  
+
   console.log(user)
   if (req.method === 'GET') {
     console.log('api call test - get ')
@@ -41,14 +40,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           userId: user.id,
         },
       })
-      console.log(reSettings); 
+      console.log(reSettings)
       if (!reSettings) {
         return {}
       }
-    
-    console.log('returning something else')
- 
-     res.status(200).json( reSettings)
+
+      console.log('returning something else')
+
+      res.status(200).json(reSettings)
     } catch (error) {
       return error
     }
@@ -63,17 +62,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         },
       })
 
-      console.log(reSettings); 
+      console.log(reSettings)
       if (!reSettings) {
         return res.status(200).end()
       }
-    
-    console.log('returning something else')
-    return res.status(200).end()
-  } catch (error) {
-    return res.status(400).end(error)
+
+      console.log('returning something else')
+      return res.status(200).end()
+    } catch (error) {
+      return res.status(400).end(error)
+    }
   }
-  } 
 }
 
 export default withMethods(['GET', 'DELETE'], handler)

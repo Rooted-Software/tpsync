@@ -23,9 +23,7 @@ export function MdxCard({
       {...props}
     >
       <div className="flex flex-col justify-between space-y-4">
-        <div className="">
-          {children}
-        </div>
+        <div className="">{children}</div>
       </div>
       {href && (
         <Link href={disabled ? '#' : href} className="absolute inset-0">

@@ -43,7 +43,7 @@ const TableOfContents = (props) => (
 export function parseOutline(ast): any {
   const outline = { subheadings: [] }
   const headings = findHeadings(ast)
-  const path: any[] = [];
+  const path: any[] = []
   let lastLevel = 0
 
   headings.forEach((heading) => {

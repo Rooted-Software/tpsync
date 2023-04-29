@@ -1,12 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { unstable_getServerSession } from 'next-auth/next'
-import * as z from 'zod'
-
 import { withMethods } from '@/lib/api-middlewares/with-methods'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { RequiresProPlanError } from '@/lib/exceptions'
 import { getUserSubscriptionPlan } from '@/lib/subscription'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { unstable_getServerSession } from 'next-auth/next'
+import * as z from 'zod'
 
 const mappingCreateSchema = z.object({
   virProjectID: z.string().optional(),
@@ -44,7 +43,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === 'POST') {
     try {
-    
       const body = mappingCreateSchema.parse(req.body)
 
       const mapping = await db.projectMapping.create({

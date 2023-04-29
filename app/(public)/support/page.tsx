@@ -46,7 +46,7 @@ export default async function SupportCategoryPage({
                     .height(627)
                     .fit('crop')
                     .url()
-                : ""
+                : ''
             }
             subText={category.subText}
             count={category.count}

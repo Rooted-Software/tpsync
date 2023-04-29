@@ -1,4 +1,9 @@
-import { User } from '@prisma/client'
+import { ApiCallButton } from '@/components/dashboard/api-call-button'
+import { ApiRefreshButton } from '@/components/dashboard/api-refresh-button'
+import { KeygenButton } from '@/components/dashboard/keygen-button'
+import { ReTestApiButton } from '@/components/dashboard/re-test-button'
+import { ReTestPostButton } from '@/components/dashboard/re-test-post-button'
+import { VirtuousGetGiftsButton } from '@/components/dashboard/virtuous-get-gifts'
 import { EmptyPlaceholder } from '@/components/empty-placeholder'
 import { DashboardHeader } from '@/components/header'
 import { PostCreateButton } from '@/components/post-create-button'
@@ -7,23 +12,8 @@ import { DashboardShell } from '@/components/shell'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getCurrentUser } from '@/lib/session'
+import { User } from '@prisma/client'
 import { redirect } from 'next/navigation'
-import { ApiCallButton } from '@/components/dashboard/api-call-button'
-import { ApiRefreshButton } from '@/components/dashboard/api-refresh-button'
-import { EmptyPlaceholder } from '@/components/empty-placeholder'
-import { DashboardHeader } from '@/components/dashboard/header'
-import { KeygenButton } from '@/components/dashboard/keygen-button'
-import { PostCreateButton } from '@/components/post-create-button'
-import { PostItem } from '@/components/dashboard/post-item'
-import { ReTestApiButton } from '@/components/dashboard/re-test-button'
-import { ReTestPostButton } from '@/components/dashboard/re-test-post-button'
-import { DashboardShell } from '@/components/shell'
-import { VirtuousGetGiftsButton } from '@/components/dashboard/virtuous-get-gifts'
-import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { getCurrentUser } from '@/lib/session'
-
-
 
 export const metadata = {
   title: 'Dashboard',
@@ -56,9 +46,7 @@ export default async function DashboardPage() {
       <DashboardHeader
         heading="Dashboard"
         text="Test Various API Calls"
-      >
-     
-      </DashboardHeader>
+      ></DashboardHeader>
       <div>
         {posts?.length ? (
           <div className="divide-y divide-border rounded-md border">
@@ -77,25 +65,30 @@ export default async function DashboardPage() {
           </EmptyPlaceholder>
         )}
       </div>
-      <div className="">Virtuous Test Button
+      <div className="">
+        Virtuous Test Button
         <ApiCallButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-      <div className="">Virtuous Refresh Button
+      </div>
+      <div className="">
+        Virtuous Refresh Button
         <ApiRefreshButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div>
-      <div className="">Test RE  Button
+      <div className="">
+        Test RE Button
         <ReTestApiButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-      <div className="">Test RE POST  Button
+      </div>
+      <div className="">
+        Test RE POST Button
         <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-      <div className="">Get Gifts
+      </div>
+      <div className="">
+        Get Gifts
         <VirtuousGetGiftsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> 
+      </div>
       {/*
       <div className="">Test KeyGen
         <KeygenButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> */} 
+        </div> */}
     </DashboardShell>
   )
 }

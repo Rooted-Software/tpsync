@@ -1,17 +1,16 @@
+import { RESettingsForm } from '@/components/dashboard/re-settings'
+import { VirtuousSettingsForm } from '@/components/dashboard/virtuous-settings'
+import { DashboardHeader } from '@/components/header'
+import { DashboardShell } from '@/components/shell'
+import { UserNameForm } from '@/components/user-name-form'
+import { authOptions } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { getCurrentUser } from '@/lib/session'
 import { User } from '@prisma/client'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
-import { DashboardHeader } from '@/components/header'
-import { RESettingsForm } from '@/components/dashboard/re-settings'
-import { DashboardShell } from '@/components/shell'
-import { UserNameForm } from '@/components/user-name-form'
-import { VirtuousSettingsForm } from '@/components/dashboard/virtuous-settings'
-import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { getCurrentUser } from '@/lib/session'
-
-const { AuthorizationCode } = require('simple-oauth2');
+const { AuthorizationCode } = require('simple-oauth2')
 
 const reSettingsForUser = cache(async (userId: User['id']) => {
   return await db.reSettings.findFirst({
@@ -21,7 +20,6 @@ const reSettingsForUser = cache(async (userId: User['id']) => {
       legal_entity_id: true,
       email: true,
       expires_in: true,
-
     },
     where: {
       userId: userId,
@@ -32,19 +30,19 @@ const reSettingsForUser = cache(async (userId: User['id']) => {
 const config = {
   client: {
     id: process.env.AUTH_CLIENT_ID,
-    secret: process.env.AUTH_CLIENT_SECRET
+    secret: process.env.AUTH_CLIENT_SECRET,
   },
   auth: {
-    tokenHost: 'https://app.blackbaud.com/oauth/authorize'
-  }
-};
-var crypto;
-crypto = require('crypto');
-const client = new AuthorizationCode(config);
-const stateID = crypto.randomBytes(48).toString('hex');
+    tokenHost: 'https://app.blackbaud.com/oauth/authorize',
+  },
+}
+var crypto
+crypto = require('crypto')
+const client = new AuthorizationCode(config)
+const stateID = crypto.randomBytes(48).toString('hex')
 const reAuthorizeURL = client.authorizeURL({
   redirect_uri: process.env.AUTH_REDIRECT_URI,
-  state: stateID
+  state: stateID,
 })
 console.log('here goes')
 console.log(reAuthorizeURL)
@@ -55,7 +53,7 @@ const getApiKey = cache(async (userId: User['id']) => {
     },
     select: {
       id: true,
-      virtuousAPI: true
+      virtuousAPI: true,
     },
   })
 })
@@ -68,8 +66,8 @@ export const metadata = {
 export default async function SettingsPage() {
   const user = await getCurrentUser()
   const apiKey = await getApiKey(user.id)
-  const data = await reSettingsForUser(user.id);
-  console.log(data); 
+  const data = await reSettingsForUser(user.id)
+  console.log(data)
   if (!user) {
     redirect(authOptions?.pages?.signIn || '/login')
   }
@@ -84,10 +82,17 @@ export default async function SettingsPage() {
         <UserNameForm user={{ id: user.id, name: user.name || '' }} />
       </div>
       <div className="grid gap-10">
-        <VirtuousSettingsForm user={{ id: user.id, name: user.name }} apiKey={apiKey?.virtuousAPI} />
+        <VirtuousSettingsForm
+          user={{ id: user.id, name: user.name }}
+          apiKey={apiKey?.virtuousAPI}
+        />
       </div>
       <div className="grid gap-10">
-        <RESettingsForm user={{ id: user.id, name: user.name }} reAuthorizeURL={reAuthorizeURL} reData={data}/>
+        <RESettingsForm
+          user={{ id: user.id, name: user.name }}
+          reAuthorizeURL={reAuthorizeURL}
+          reData={data}
+        />
       </div>
     </DashboardShell>
   )

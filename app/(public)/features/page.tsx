@@ -20,7 +20,7 @@ export default async function FeaturePage() {
           <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter md:text-5xl">
             Go PRO to unlock all features
           </h2>
-          <p className="text-1xl mt-2 mb-2 md:text-2xl">
+          <p className="text-1xl my-2 md:text-2xl">
             including unlimited posts
           </p>
         </div>
@@ -55,7 +55,7 @@ export default async function FeaturePage() {
               {e.coverImage && (
                 <Image
                   src={urlForImage(e.coverImage).height(1000).width(2000).url()}
-                  alt={e.title || ""}
+                  alt={e.title || ''}
                   width={804}
                   height={452}
                   className="rounded-md border border-slate-200 bg-slate-200"

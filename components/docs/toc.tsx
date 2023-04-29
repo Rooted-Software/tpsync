@@ -17,7 +17,7 @@ export function DashboardTableOfContents({ toc }: TocProps) {
             .flatMap((item) => [item.url, item?.items?.map((item) => item.url)])
             .flat()
             .filter(Boolean)
-            .map((id) => id?.split('#')[1] || "#")
+            .map((id) => id?.split('#')[1] || '#')
         : [],
     [toc]
   )

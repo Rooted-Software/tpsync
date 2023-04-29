@@ -44,13 +44,13 @@ export function DocsSidebarNavItems({
           key={index}
           href={item.disabled ? '#' : `/docs/${item.slug}`}
           className={cn(
-            'flex w-full items-center rounded-md px-2 py-2 hover:underline',
+            'flex w-full items-center rounded-md p-2 hover:underline',
             item.disabled && 'cursor-not-allowed opacity-60',
             {
               'bg-slate-100': pathname === `/docs/` + item.slug,
             }
           )}
-          target={item.external && '_blank' || "#"}
+          target={(item.external && '_blank') || '#'}
           rel={item.external ? 'noreferrer' : ''}
         >
           {item.title}
@@ -82,5 +82,7 @@ export function DocsSidebarNavItems({
       )}
         */}
     </div>
-  ) : <></>
+  ) : (
+    <></>
+  )
 }

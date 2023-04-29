@@ -1,10 +1,9 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import * as z from 'zod'
-
 import { withMethods } from '@/lib/api-middlewares/with-methods'
 import { withPost } from '@/lib/api-middlewares/with-post'
 import { db } from '@/lib/db'
 import { postPatchSchema } from '@/lib/validations/post'
+import { NextApiRequest, NextApiResponse } from 'next'
+import * as z from 'zod'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'DELETE') {

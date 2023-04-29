@@ -19,7 +19,6 @@ export function DashboardHeader({
         </h1>
 
         {text && <p className="text-neutral-500">{text}</p>}
-        
       </div>
       {children}
     </div>

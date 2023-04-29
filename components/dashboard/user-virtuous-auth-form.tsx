@@ -1,27 +1,29 @@
 'use client'
 
+import { Icons } from '@/components/icons'
+import { toast } from '@/components/ui/use-toast'
+import { cn } from '@/lib/utils'
+import { virtuousAuthSchema } from '@/lib/validations/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { getCsrfToken, signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
-import { getCsrfToken, signIn } from 'next-auth/react';
 import * as React from 'react'
-import { useState } from 'react';
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { Icons } from '@/components/icons'
-import { cn } from '@/lib/utils'
-import { virtuousAuthSchema} from '@/lib/validations/auth'
-import { toast } from '@/ui/toast'
-
-
-interface UserVirtuousAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
+interface UserVirtuousAuthFormProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   csrfToken: string
 }
 
 type FormData = z.infer<typeof virtuousAuthSchema>
 
-export function UserVirtuousAuthForm({csrfToken, className, ...props }: UserVirtuousAuthFormProps) {
-
+export function UserVirtuousAuthForm({
+  csrfToken,
+  className,
+  ...props
+}: UserVirtuousAuthFormProps) {
   const {
     register,
     handleSubmit,
@@ -32,7 +34,7 @@ export function UserVirtuousAuthForm({csrfToken, className, ...props }: UserVirt
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const searchParams = useSearchParams()
 
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null)
 
   async function onSubmit(data: FormData) {
     setIsLoading(true)
@@ -43,21 +45,21 @@ export function UserVirtuousAuthForm({csrfToken, className, ...props }: UserVirt
       password: data.password,
       callbackUrl: searchParams.get('from') || '/dashboard',
     })
-    console.log(signInResult); 
+    console.log(signInResult)
     setIsLoading(false)
 
     if (!signInResult?.ok) {
       return toast({
         title: 'Something went wrong.',
-        message: 'Your sign in request failed. Please try again.',
+        description: 'Your sign in request failed. Please try again.',
         type: 'error',
       })
     }
-    window.location.href= signInResult.url;
+    window.location.href = signInResult.url
     return toast({
       title: 'Success!',
-      message: 'You have successfully signed in.',
-      type: 'success',
+      description: 'You have successfully signed in.',
+      variant: 'destructive',
     })
   }
 
@@ -124,12 +126,11 @@ export function UserVirtuousAuthForm({csrfToken, className, ...props }: UserVirt
   )
 }
 
-
 // This is the recommended way for Next.js 9.3 or newer
 export async function getServerSideProps(context) {
   return {
     props: {
       csrfToken: await getCsrfToken(context),
     },
-  };
+  }
 }

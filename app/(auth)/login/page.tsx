@@ -1,6 +1,6 @@
+import { UserVirtuousAuthForm } from '@/components/dashboard/user-virtuous-auth-form'
 import { Icons } from '@/components/icons'
 import { buttonVariants } from '@/components/ui/button'
-import { UserVirtuousAuthForm } from '@/components/dashboard/user-virtuous-auth-form'
 import { cn } from '@/lib/utils'
 import { Metadata } from 'next'
 import Link from 'next/link'
@@ -31,15 +31,15 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome back
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             Enter your email to sign in to your account
           </p>
         </div>
         <UserVirtuousAuthForm />
-        <p className="text-muted-foreground px-8 text-center text-sm">
+        <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/register"
-            className="hover:text-brand underline underline-offset-4"
+            className="underline underline-offset-4 hover:text-brand"
           >
             Don&apos;t have an account? Sign Up
           </Link>

@@ -19,7 +19,10 @@ export function DocsSidebarNav({ items }: DocsSidebarNavProps) {
           <h4 className="mb-1 rounded-md px-2 py-1 text-sm font-medium">
             {item.title}
           </h4>
-          <DocsSidebarNavItems items={item.items || []} pathname={pathname || "#"} />
+          <DocsSidebarNavItems
+            items={item.items || []}
+            pathname={pathname || '#'}
+          />
         </div>
       ))}
     </div>
@@ -48,12 +51,14 @@ export function DocsSidebarNavItems({
               'bg-slate-100': pathname === `/docs/` + item.slug,
             }
           )}
-          target={item.external && '_blank' || undefined}
+          target={(item.external && '_blank') || undefined}
           rel={item.external ? 'noreferrer' : ''}
         >
           {item.title}
         </Link>
       ))}
     </div>
-  ) : <></>
+  ) : (
+    <></>
+  )
 }

@@ -82,7 +82,7 @@ export async function getPostAndMoreStories(
     })
     return await client.fetch(postAndMoreStoriesQuery, { slug })
   }
-  return { post: {_id: ''} , morePosts: [] }
+  return { post: { _id: '' }, morePosts: [] }
 }
 
 // Support Articles

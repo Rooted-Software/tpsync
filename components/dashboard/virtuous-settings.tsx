@@ -1,5 +1,10 @@
 'use client'
 
+import { Icons } from '@/components/icons'
+import { Card } from '@/components/ui/card'
+import { toast } from '@/components/ui/use-toast'
+import { cn } from '@/lib/utils'
+import { apiKeySchema } from '@/lib/validations/apiKey'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from '@prisma/client'
 import { apiSettings } from '@prisma/client'
@@ -8,21 +13,20 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { Icons } from '@/components/icons'
-
-import { cn } from '@/lib/utils'
-import { apiKeySchema } from '@/lib/validations/apiKey'
-import { Card } from '@/ui/card'
-import { toast } from '@/ui/toast'
-
-interface VirtuousSettingsFormProps extends React.HTMLAttributes<HTMLFormElement> {
-  user: Pick<User, 'id' | 'name'>,
+interface VirtuousSettingsFormProps
+  extends React.HTMLAttributes<HTMLFormElement> {
+  user: Pick<User, 'id' | 'name'>
   apiKey: string
 }
 
 type FormData = z.infer<typeof apiKeySchema>
 
-export function VirtuousSettingsForm({ user, apiKey, className, ...props }: VirtuousSettingsFormProps) {
+export function VirtuousSettingsForm({
+  user,
+  apiKey,
+  className,
+  ...props
+}: VirtuousSettingsFormProps) {
   const router = useRouter()
   const {
     handleSubmit,
@@ -55,13 +59,13 @@ export function VirtuousSettingsForm({ user, apiKey, className, ...props }: Virt
       console.log(response)
       return toast({
         title: 'Something went wrong.',
-        message: 'Your APIKey was not updated. Please try again.',
-        type: 'error',
+        description: 'Your APIKey was not updated. Please try again.',
+        variant: 'destructive',
       })
     }
 
     toast({
-      message: 'Your apiKey has been updated.',
+      description: 'Your apiKey has been updated.',
       type: 'success',
     })
 
@@ -93,7 +97,9 @@ export function VirtuousSettingsForm({ user, apiKey, className, ...props }: Virt
               {...register('apiKey')}
             />
             {errors?.apiKey && (
-              <p className="px-1 text-xs text-red-600">{errors.apiKey.message}</p>
+              <p className="px-1 text-xs text-red-600">
+                {errors.apiKey.message}
+              </p>
             )}
           </div>
         </Card.Content>

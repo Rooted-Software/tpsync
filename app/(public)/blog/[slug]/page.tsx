@@ -21,7 +21,7 @@ interface PostPageProps {
 export default async function PostPage({ params }: PostPageProps) {
   const settings = getSettings()
   console.log(params.slug)
-  console.log("preview data"); 
+  console.log('preview data')
   console.log(previewData())
   /*
   if (previewData()) {

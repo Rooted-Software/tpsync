@@ -1,6 +1,6 @@
 import { DashboardNav } from '@/components/dashboard/nav'
-import { UserAccountNav } from '@/components/dashboard/user-account-nav'
 import { MainNav } from '@/components/main-nav'
+import { UserAccountNav } from '@/components/user-account-nav'
 import { dashboardConfig } from '@/config/dashboard'
 import { getCurrentUser } from '@/lib/session'
 import { notFound } from 'next/navigation'

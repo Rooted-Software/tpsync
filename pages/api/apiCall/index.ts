@@ -1,12 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { unstable_getServerSession } from 'next-auth/next'
-import * as z from 'zod'
-
 import { withMethods } from '@/lib/api-middlewares/with-methods'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { RequiresProPlanError } from '@/lib/exceptions'
 import { getUserSubscriptionPlan } from '@/lib/subscription'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { unstable_getServerSession } from 'next-auth/next'
+import * as z from 'zod'
 
 const postCreateSchema = z.object({
   title: z.string().optional(),
@@ -31,32 +30,35 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           id: true,
           access_token: true,
           refresh_token: true,
-          expires_at: true, 
+          expires_at: true,
         },
         where: {
           userId: user.id,
         },
       })
-      console.log(account); 
+      console.log(account)
       if (!account) {
-        return 
+        return
       }
-      const res2 = await fetch('https://api.virtuoussoftware.com/api/Organization', {
-        method: 'GET',
-        headers: {
-          "Authorization": `Bearer ${account.access_token}`
-        },
-      });
+      const res2 = await fetch(
+        'https://api.virtuoussoftware.com/api/Organization',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${account.access_token}`,
+          },
+        }
+      )
       console.log('after form')
-      console.log(res2.status);
+      console.log(res2.status)
       if (res2.status !== 200) {
         console.log('returning status')
         return res.status(429).end()
       }
       console.log('returning something else')
-     const data=await res2.json(); 
-     console.log(data);
-     res.status(200).json( data )
+      const data = await res2.json()
+      console.log(data)
+      res.status(200).json(data)
     } catch (error) {
       return error
     }

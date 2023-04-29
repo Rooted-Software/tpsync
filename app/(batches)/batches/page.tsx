@@ -1,22 +1,21 @@
-import { User } from '@prisma/client'
-import { redirect } from 'next/navigation'
-import { cache } from 'react'
-
 import { ApiCallButton } from '@/components/dashboard/api-call-button'
 import { ApiRefreshButton } from '@/components/dashboard/api-refresh-button'
-import { EmptyPlaceholder } from '@/components/dashboard/empty-placeholder'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { KeygenButton } from '@/components/dashboard/keygen-button'
-import { PostCreateButton } from '@/components/dashboard/post-create-button'
-import { PostItem } from '@/components/dashboard/post-item'
 import { ReTestApiButton } from '@/components/dashboard/re-test-button'
 import { ReTestPostButton } from '@/components/dashboard/re-test-post-button'
-import { DashboardShell } from '@/components/dashboard/shell'
 import { VirtuousGetGiftsButton } from '@/components/dashboard/virtuous-get-gifts'
 import { VirtuousSyncButton } from '@/components/dashboard/virtuous-sync-button'
+import { EmptyPlaceholder } from '@/components/empty-placeholder'
+import { PostCreateButton } from '@/components/post-create-button'
+import { PostItem } from '@/components/post-item'
+import { DashboardShell } from '@/components/shell'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getCurrentUser } from '@/lib/session'
+import { User } from '@prisma/client'
+import { redirect } from 'next/navigation'
+import { cache } from 'react'
 
 const getBatches = async () => {
   return await db.giftBatches.findMany({
@@ -26,15 +25,13 @@ const getBatches = async () => {
       synced: true,
       syncedAt: true,
       createdAt: true,
-      updatedAt: true, 
+      updatedAt: true,
     },
     orderBy: {
       updatedAt: 'desc',
     },
   })
 }
-
-
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
@@ -50,17 +47,24 @@ export default async function DashboardPage() {
       <DashboardHeader
         heading={batches.length ? `Batches: ${batches.length}` : 'Batches'}
         text="Recent Dontation Batches from Virtuous"
-      >
-     
-      </DashboardHeader>
-      <div className="">Get Batches
+      ></DashboardHeader>
+      <div className="">
+        Get Batches
         <VirtuousGetGiftsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> 
+      </div>
       <div>
         {batches?.length ? (
           <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
             {batches.map((batch) => (
-              <div key={batch.id} className='pt-3 pb-3 pr-3 pl-3 mb-3' >{batch.batch_name} {!batch.synced ? <VirtuousSyncButton batch_name={batch.batch_name} className="border-slate-200 float-right bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" /> : null }</div>
+              <div key={batch.id} className="mb-3 p-3">
+                {batch.batch_name}{' '}
+                {!batch.synced ? (
+                  <VirtuousSyncButton
+                    batch_name={batch.batch_name}
+                    className="float-right border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                  />
+                ) : null}
+              </div>
             ))}
           </div>
         ) : (
@@ -74,23 +78,27 @@ export default async function DashboardPage() {
           </EmptyPlaceholder>
         )}
       </div>
-      <div className="">Virtuous Test Button
+      <div className="">
+        Virtuous Test Button
         <ApiCallButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-      <div className="">Virtuous Refresh Button
+      </div>
+      <div className="">
+        Virtuous Refresh Button
         <ApiRefreshButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div>
-      <div className="">Test RE  Button
+      <div className="">
+        Test RE Button
         <ReTestApiButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-      <div className="">Test RE POST  Button
+      </div>
+      <div className="">
+        Test RE POST Button
         <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div> 
-   
+      </div>
+
       {/*
       <div className="">Test KeyGen
         <KeygenButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> */} 
+        </div> */}
     </DashboardShell>
   )
 }

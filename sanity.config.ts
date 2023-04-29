@@ -2,6 +2,12 @@
  * This config is used to set up Sanity Studio that's mounted on the `/pages/studio/[[...index]].tsx` route
  */
 import { enhancedNavbar } from '@/components/studio/enhancedNavbar'
+import {
+  dashboardTool,
+  sanityTutorialsWidget,
+  projectUsersWidget,
+  projectInfoWidget,
+} from '@sanity/dashboard'
 import { visionTool } from '@sanity/vision'
 import { apiVersion, dataset, previewSecretId, projectId } from 'lib/sanity.api'
 import { previewDocumentNode } from 'plugins/previewPane'
@@ -9,6 +15,8 @@ import { productionUrl } from 'plugins/productionUrl'
 import { settingsPlugin, settingsStructure } from 'plugins/settings'
 import { defineConfig } from 'sanity'
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash'
+import { documentListWidget } from 'sanity-plugin-dashboard-widget-document-list'
+import { vercelWidget } from 'sanity-plugin-dashboard-widget-vercel'
 import { deskTool } from 'sanity/desk'
 import authorType from 'schemas/author'
 import docArticleType from 'schemas/docArticle'
@@ -18,16 +26,6 @@ import postType from 'schemas/post'
 import settingsType from 'schemas/settings'
 import supportType from 'schemas/support'
 import supportCategoryType from 'schemas/supportCategory'
-import { vercelWidget } from "sanity-plugin-dashboard-widget-vercel";
-import { documentListWidget } from "sanity-plugin-dashboard-widget-document-list";
-
-
-import {
-  dashboardTool,
-  sanityTutorialsWidget,
-  projectUsersWidget,
-  projectInfoWidget,
-} from "@sanity/dashboard";
 
 const title = process.env.NEXT_PUBLIC_SANITY_PROJECT_TITLE || 'Rooted Template'
 
@@ -50,15 +48,15 @@ export default defineConfig({
     ],
   },
   plugins: [
-    dashboardTool({ 
+    dashboardTool({
       widgets: [
         documentListWidget({
           title: 'Recent Documents',
-      }),
+        }),
         projectInfoWidget(),
         projectUsersWidget(),
         vercelWidget(),
-      ]
+      ],
     }),
     deskTool({
       structure: settingsStructure(settingsType),

@@ -13,6 +13,7 @@ import { deskTool } from 'sanity/desk'
 import authorType from 'schemas/author'
 import docArticleType from 'schemas/docArticle'
 import docCategoryType from 'schemas/docCategory'
+import featuresType from 'schemas/features'
 import postType from 'schemas/post'
 import settingsType from 'schemas/settings'
 import supportType from 'schemas/support'
@@ -45,6 +46,7 @@ export default defineConfig({
       docArticleType,
       supportCategoryType,
       docCategoryType,
+      featuresType,
     ],
   },
   plugins: [
@@ -76,6 +78,7 @@ export default defineConfig({
         docArticleType.name,
         supportCategoryType.name,
         docCategoryType.name,
+        featuresType.name,
       ],
     }),
     // Add an image asset source for Unsplash

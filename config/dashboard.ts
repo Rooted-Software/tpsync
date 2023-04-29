@@ -5,7 +5,7 @@ export const dashboardConfig: DashboardConfig = {
     {
       title: 'Features',
       href: '/features',
-      disabled: true,
+      // disabled: true,
     },
     {
       title: 'Pricing',

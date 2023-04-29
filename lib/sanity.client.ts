@@ -1,15 +1,15 @@
-import 'server-only'
-
 import { apiVersion, dataset, projectId, useCdn } from 'lib/sanity.api'
 import {
   type Post,
   type Settings,
+  type Feature,
   DocArticle,
   docBySlugQuery,
   DocCategory,
   docsCategoriesWithArticleLinksQuery,
   docSlugsQuery,
   indexQuery,
+  featuresQuery,
   postAndMoreStoriesQuery,
   postBySlugQuery,
   postSlugsQuery,
@@ -21,6 +21,7 @@ import {
   supportCategorySlugsQuery,
 } from 'lib/sanity.queries'
 import { createClient } from 'next-sanity'
+import 'server-only'
 
 /**
  * Checks if it's safe to create a client instance, as `@sanity/client` will throw an error if `projectId` is false
@@ -34,6 +35,14 @@ export async function getSettings(): Promise<Settings> {
     return (await client.fetch(settingsQuery)) || {}
   }
   return {}
+}
+
+// Features
+export async function getAllFeatures(): Promise<Feature[]> {
+  if (client) {
+    return (await client.fetch(featuresQuery)) || []
+  }
+  return []
 }
 
 // Blog
@@ -73,7 +82,7 @@ export async function getPostAndMoreStories(
     })
     return await client.fetch(postAndMoreStoriesQuery, { slug })
   }
-  return { post: null, morePosts: [] }
+  return { post: {_id: ''} , morePosts: [] }
 }
 
 // Support Articles

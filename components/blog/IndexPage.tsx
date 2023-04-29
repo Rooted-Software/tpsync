@@ -1,13 +1,12 @@
-import { compareDesc } from 'date-fns'
-import * as demo from 'lib/demo.data'
-import type { Post, Settings } from 'lib/sanity.queries'
-import Link from 'next/link'
-
+import Container from '@/components/GeneralContainer'
 import BlogHeader from '@/components/blog/BlogHeader'
 import Layout from '@/components/blog/BlogLayout'
 import HeroPost from '@/components/blog/HeroPost'
 import MoreStories from '@/components/blog/MoreStories'
-import Container from '@/components/GeneralContainer'
+import { compareDesc } from 'date-fns'
+import * as demo from 'lib/demo.data'
+import type { Post, Settings } from 'lib/sanity.queries'
+import Link from 'next/link'
 
 export default function IndexPage(props: {
   preview?: boolean
@@ -21,7 +20,7 @@ export default function IndexPage(props: {
 
   return (
     <>
-      <Layout preview={preview} loading={loading}>
+      <Layout preview={preview || false} loading={loading}>
         <Container>
           <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
             <div className="flex-1 space-y-4">

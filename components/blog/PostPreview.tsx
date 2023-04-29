@@ -1,10 +1,9 @@
+import { formatDate } from '@/lib/utils'
 import Avatar from 'components/AuthorAvatar'
 import { urlForImage } from 'lib/sanity.image'
 import type { Post } from 'lib/sanity.queries'
 import Image from 'next/image'
 import Link from 'next/link'
-
-import { formatDate } from '@/lib/utils'
 
 export default function PostPreview({
   title,
@@ -20,7 +19,7 @@ export default function PostPreview({
         {coverImage && (
           <Image
             src={urlForImage(coverImage).height(1000).width(2000).url()}
-            alt={title}
+            alt={title || ''}
             width={804}
             height={452}
             className="rounded-md border border-slate-200 bg-slate-200 transition-colors group-hover:border-slate-900"

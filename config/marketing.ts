@@ -5,7 +5,7 @@ export const marketingConfig: MarketingConfig = {
     {
       title: 'Features',
       href: '/features',
-      disabled: true,
+      // disabled: true,
     },
     {
       title: 'Pricing',

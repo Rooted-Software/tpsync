@@ -1,9 +1,8 @@
+import Date from '@/components/blog/PostDate'
 import AuthorAvatar from 'components/AuthorAvatar'
 import CoverImage from 'components/CoverImage'
 import type { Post } from 'lib/sanity.queries'
 import Link from 'next/link'
-
-import Date from '@/components/blog/PostDate'
 
 export default function HeroPost(
   props: Pick<
@@ -15,7 +14,7 @@ export default function HeroPost(
   return (
     <section>
       <div className="mb-8 md:mb-16">
-        <CoverImage slug={slug} title={title} image={coverImage} priority />
+        <CoverImage slug={slug} title={title || ''} image={coverImage} priority />
       </div>
       <div className="mb-20 md:mb-28 md:grid md:grid-cols-2 md:gap-x-16 lg:gap-x-8">
         <div>
@@ -25,7 +24,7 @@ export default function HeroPost(
             </Link>
           </h3>
           <div className="mb-4 text-lg md:mb-0">
-            <Date dateString={date} />
+            <Date dateString={date || ''} />
           </div>
         </div>
         <div>

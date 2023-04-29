@@ -9,6 +9,14 @@ const postFields = groq`
   "slug": slug.current,
   "author": author->{name, picture},
 `
+
+const featureFields = groq`
+  _id,
+  title,
+  description,
+  coverImage
+`
+
 const supportCategoryFields = groq`
       _id,
       title,
@@ -23,6 +31,11 @@ export const settingsQuery = groq`*[_type == "settings"][0]`
 export const indexQuery = groq`
 *[_type == "post"] | order(date desc, _updatedAt desc) {
   ${postFields}
+}`
+
+export const featuresQuery = groq`
+*[_type == "features"] | order(orderRank) {
+  ${featureFields}
 }`
 
 export const supportCategoryQuery = groq`
@@ -104,6 +117,13 @@ export interface DocCategory {
   slug?: string
   icon?: any
   items: any
+}
+
+export interface Feature {
+  _id: string
+  title?: string
+  description?: any
+  coverImage?: any
 }
 
 export interface Post {

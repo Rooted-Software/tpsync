@@ -1,10 +1,9 @@
 /**
  * This plugin contains all the logic for setting up the `Settings` singleton
  */
-import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 import { type DocumentDefinition, definePlugin } from 'sanity'
 import { type StructureResolver } from 'sanity/desk'
-
 
 export const settingsPlugin = definePlugin<{ type: string }>(({ type }) => {
   return {
@@ -40,7 +39,7 @@ export const settingsStructure = (
     // The `Settings` root list item
     const settingsListItem = // A singleton not using `documentListItem`, eg no built-in preview
       S.listItem()
-        .title(typeDef.title)
+        .title(typeDef.title || "")
         .icon(typeDef.icon)
         .child(
           S.editor()
@@ -51,26 +50,53 @@ export const settingsStructure = (
 
     // The default root list items (except custom ones)
     const defaultListItems = S.documentTypeListItems().filter(
-      (listItem) => listItem.getId() !== typeDef.name && listItem.getId() !== 'post'
+      (listItem) =>
+        listItem.getId() !== typeDef.name &&
+        listItem.getId() !== 'post' &&
+        listItem.getId() !== 'features'
     )
+
+    // need to figure out how to add a orderableDocumentListDeskItem for the features sidebar
+    // this will allow us to sort the list items / features
+
+    // need to figure out where the listItems are located
+    // find the name for features
+    // then add listItem.getId() !== 'feature'
 
     return S.list()
       .title('Content')
-      .items([settingsListItem, S.divider(), ...defaultListItems, orderableDocumentListDeskItem({
-        type: 'post',
-        title: 'Posts',
+      .items([
+        orderableDocumentListDeskItem({
+          type: 'post',
+          title: 'Posts',
 
-        // Required if using multiple lists of the same 'type'
-        id: 'orderable-en-projects',
-        // See notes on adding a `filter` below
-        params: {
-            lang: 'en_US'
-        },
-        // pass from the structure callback params above
-        S, 
-        context
-    }),]
-      
-      )
+          // Required if using multiple lists of the same 'type'
+          id: 'orderable-posts',
+          // See notes on adding a `filter` below
+          params: {
+            lang: 'en_US',
+          },
+          // pass from the structure callback params above
+          S,
+          context,
+        }),
+        ...defaultListItems,
+        orderableDocumentListDeskItem({
+          type: 'features',
+          title: 'Features',
+
+          // Required if using multiple lists of the same 'type'
+          id: 'orderable-features',
+          // See notes on adding a `filter` below
+          params: {
+            lang: 'en_US',
+          },
+          // pass from the structure callback params above
+          S,
+          context,
+        }),
+        S.divider(),
+        settingsListItem,
+      ])
   }
 }

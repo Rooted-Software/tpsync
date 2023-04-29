@@ -1,3 +1,5 @@
+import { siteConfig } from '@/config/site'
+import { db } from '@/lib/db'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -8,7 +10,7 @@ import { db } from '@/lib/db'
 import { Prisma } from '@prisma/client'
 
 
-const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN)
+const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || '')
 
 export const authOptions: NextAuthOptions = {
   // huh any! I know.
@@ -172,7 +174,9 @@ export const authOptions: NextAuthOptions = {
       // console.log("In JWT DB USER")
       // console.log(dbUser)
       if (!dbUser) {
-        token.id = user.id
+        if (user) {
+          token.id = user?.id
+        }
         return token
       }
 

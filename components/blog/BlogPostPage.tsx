@@ -1,17 +1,16 @@
-import SectionSeparator from 'components/SectionSeparator'
-import * as demo from 'lib/demo.data'
-import type { Post, Settings } from 'lib/sanity.queries'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-
+import Container from '@/components/GeneralContainer'
 import BlogHeader from '@/components/blog/BlogHeader'
 import Layout from '@/components/blog/BlogLayout'
 import MoreStories from '@/components/blog/MoreStories'
 import PostBody from '@/components/blog/PostBody'
 import PostHeader from '@/components/blog/PostHeader'
 import PostTitle from '@/components/blog/PostTitle'
-import Container from '@/components/GeneralContainer'
 import { Icons } from '@/components/icons'
+import SectionSeparator from 'components/SectionSeparator'
+import * as demo from 'lib/demo.data'
+import type { Post, Settings } from 'lib/sanity.queries'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
 export default function BlogPostPage(props: {
   preview?: boolean
@@ -30,7 +29,7 @@ export default function BlogPostPage(props: {
   }
 
   return (
-    <Layout preview={preview} loading={loading}>
+    <Layout preview={preview || false} loading={loading}>
       <Container>
         <Link
           href="/blog"

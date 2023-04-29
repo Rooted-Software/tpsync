@@ -20,7 +20,7 @@ export default function IndexPage(props: {
 
   return (
     <>
-      <Layout preview={preview} loading={loading}>
+      <Layout preview={preview || false} loading={loading}>
         <Container>
           <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
             <div className="flex-1 space-y-4">

@@ -1,4 +1,4 @@
-import { DocsSearch } from '@/components/docs/search'
+import { DocsSearch } from '@/components/search'
 // import { DocsSidebarNav } from '@/components/docs/sidebar-nav'
 import { Icons } from '@/components/icons'
 import { MainNav } from '@/components/main-nav'

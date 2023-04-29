@@ -50,7 +50,7 @@ export function DocsSidebarNavItems({
               'bg-slate-100': pathname === `/docs/` + item.slug,
             }
           )}
-          target={item.external && '_blank'}
+          target={item.external && '_blank' || "#"}
           rel={item.external ? 'noreferrer' : ''}
         >
           {item.title}
@@ -82,5 +82,5 @@ export function DocsSidebarNavItems({
       )}
         */}
     </div>
-  ) : null
+  ) : <></>
 }

@@ -19,7 +19,7 @@ export default async function SlugRoute({
 }) {
   // Start fetching settings early, so it runs in parallel with the post query
   const settings = getSettings()
-
+  /*
   if (previewData()) {
     const token = previewData().token || null
     const data = getPostAndMoreStories(params.slug, token)
@@ -38,7 +38,7 @@ export default async function SlugRoute({
       </PreviewSuspense>
     )
   }
-
+  */
   const data = getPostAndMoreStories(params.slug)
   return <PostPage data={await data} settings={await settings} />
 }

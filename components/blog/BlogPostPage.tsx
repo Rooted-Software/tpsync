@@ -29,7 +29,7 @@ export default function BlogPostPage(props: {
   }
 
   return (
-    <Layout preview={preview} loading={loading}>
+    <Layout preview={preview || false} loading={loading}>
       <Container>
         <Link
           href="/blog"

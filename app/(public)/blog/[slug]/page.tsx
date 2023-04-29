@@ -21,9 +21,11 @@ interface PostPageProps {
 export default async function PostPage({ params }: PostPageProps) {
   const settings = getSettings()
   console.log(params.slug)
-
+  console.log("preview data"); 
+  console.log(previewData())
+  /*
   if (previewData()) {
-    const token = previewData().token || null
+    const token = previewData()?.token || ''
     const data = getPostAndMoreStories(params.slug, token)
     console.log(data)
     return (
@@ -41,6 +43,7 @@ export default async function PostPage({ params }: PostPageProps) {
       </PreviewSuspense>
     )
   }
+  */
   const data = getPostAndMoreStories(params.slug)
   return <BlogPostPage data={await data} settings={await settings} />
 }

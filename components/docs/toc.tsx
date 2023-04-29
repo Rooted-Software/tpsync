@@ -17,7 +17,7 @@ export function DashboardTableOfContents({ toc }: TocProps) {
             .flatMap((item) => [item.url, item?.items?.map((item) => item.url)])
             .flat()
             .filter(Boolean)
-            .map((id) => id.split('#')[1])
+            .map((id) => id?.split('#')[1] || "#")
         : [],
     [toc]
   )
@@ -32,7 +32,7 @@ export function DashboardTableOfContents({ toc }: TocProps) {
     mounted && (
       <div className="space-y-2">
         <p className="font-medium">On This Page</p>
-        <Tree tree={toc} activeItem={activeHeading} />
+        <Tree tree={toc} activeItem={activeHeading || ''} />
       </div>
     )
   )
@@ -46,7 +46,7 @@ function useActiveItem(itemIds: string[]) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id)
+            // setActiveId(entry?.target?.id ) need to fix for TOC
           }
         })
       },

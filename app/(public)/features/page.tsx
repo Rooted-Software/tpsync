@@ -55,7 +55,7 @@ export default async function FeaturePage() {
               {e.coverImage && (
                 <Image
                   src={urlForImage(e.coverImage).height(1000).width(2000).url()}
-                  alt={e.title}
+                  alt={e.title || ""}
                   width={804}
                   height={452}
                   className="rounded-md border border-slate-200 bg-slate-200"

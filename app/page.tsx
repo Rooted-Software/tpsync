@@ -11,7 +11,7 @@ import Link from 'next/link'
 export default async function IndexRoute() {
   // Fetch queries in parallel
   const [settings, posts] = await Promise.all([getSettings(), getAllPosts()])
-
+  /*
   if (previewData()) {
     const token = previewData().token || null
     return (
@@ -42,7 +42,7 @@ export default async function IndexRoute() {
       </div>
     )
   }
-
+*/
   return (
     <div className="flex min-h-screen flex-col">
       <header className="container sticky top-0 z-40 bg-white">

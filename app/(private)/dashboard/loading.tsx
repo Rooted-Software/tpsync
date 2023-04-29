@@ -1,5 +1,5 @@
 import { DashboardHeader } from '@/components/dashboard/header'
-import { PostCreateButton } from '@/components/dashboard/post-create-button'
+import { PostCreateButton } from '@/components/post-create-button'
 import { PostItem } from '@/components/post-item'
 import { DashboardShell } from '@/components/shell'
 

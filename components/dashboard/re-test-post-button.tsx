@@ -19,7 +19,7 @@ export function ReTestPostButton({
   async function onClick() {
     setIsLoading(true)
     setProjects(null)
-    const response = await fetch('/api/reTestApiCall', {
+    const response = await fetch('/api/reJournalEntryBatches', {
       method: 'POST',
     })
 

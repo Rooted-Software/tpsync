@@ -1,7 +1,7 @@
 'use client'
 
 import { Icons } from '@/components/icons'
-import { Card } from '@/components/ui/card'
+import { Card, CardHeader, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card'
 import { toast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import { apiKeySchema } from '@/lib/validations/apiKey'
@@ -43,7 +43,7 @@ export function VirtuousSettingsForm({
   async function onSubmit(data: FormData) {
     setIsSaving(true)
     console.log(data)
-    const response = await fetch(`/api/virtuousSettings/${user.id}`, {
+    const response = await fetch(`/api/virSettings`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -79,13 +79,13 @@ export function VirtuousSettingsForm({
       {...props}
     >
       <Card>
-        <Card.Header>
-          <Card.Title>Virtuous API Key</Card.Title>
-          <Card.Description>
+        <CardHeader>
+          <CardTitle>Virtuous API Key</CardTitle>
+          <CardDescription>
             Please enter your virtuous Api Key.
-          </Card.Description>
-        </Card.Header>
-        <Card.Content>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="grid gap-1">
             <label className="sr-only" htmlFor="name">
               Virtuous API Key
@@ -102,8 +102,8 @@ export function VirtuousSettingsForm({
               </p>
             )}
           </div>
-        </Card.Content>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           <button
             type="submit"
             className={cn(
@@ -120,7 +120,7 @@ export function VirtuousSettingsForm({
             )}
             <span>Save</span>
           </button>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   )

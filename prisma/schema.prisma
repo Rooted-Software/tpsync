@@ -245,3 +245,14 @@ model projectMapping {
   @@index([virProjectId, feProjectId])
 
 }
+
+model reAccounts { 
+  account_code_id   Int  @id 
+  value             Int
+  category          String
+  class             String?
+  is_contra         Boolean
+  is_control        Boolean
+  description       String
+}
+

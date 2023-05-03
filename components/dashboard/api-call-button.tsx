@@ -16,7 +16,7 @@ export function ApiCallButton({ className, ...props }: PostCreateButtonProps) {
   async function onClick() {
     setIsLoading(true)
     setOrganizationName('Loading...')
-    const response = await fetch('/api/apiCall', {
+    const response = await fetch('/api/virOrg', {
       method: 'GET',
     })
 

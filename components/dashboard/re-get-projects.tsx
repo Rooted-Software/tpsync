@@ -19,7 +19,7 @@ export function ReGetProjectsButton({
   async function onClick() {
     setIsLoading(true)
     setProjects(null)
-    const response = await fetch('/api/reGetProjects', {
+    const response = await fetch('/api/reProjects', {
       method: 'GET',
     })
 
@@ -45,7 +45,6 @@ export function ReGetProjectsButton({
     }
 
     const data = await response.json()
-    console.log(data)
     if (data?.value?.length > 0) {
       setProjects(data.value)
     }

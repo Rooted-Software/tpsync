@@ -41,6 +41,11 @@ export const dashboardConfig: DashboardConfig = {
       icon: 'post',
     },
     {
+      title: 'RE Accounts',
+      href: '/reAccounts',
+      icon: 'post',
+    },
+    {
       title: 'Content Management',
       href: '/studio',
       icon: 'post',

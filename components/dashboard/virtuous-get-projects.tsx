@@ -19,7 +19,7 @@ export function VirtuousGetProjectsButton({
   async function onClick() {
     setIsLoading(true)
     setProjectCount('Loading...')
-    const response = await fetch('/api/getVirtuousProjects', {
+    const response = await fetch('/api/virProjects', {
       method: 'GET',
     })
 

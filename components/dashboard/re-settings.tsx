@@ -1,7 +1,7 @@
 'use client'
 
 import { Icons } from '@/components/icons'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardTitle, CardHeader, CardDescription, CardFooter } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from '@prisma/client'
@@ -86,23 +86,23 @@ export function RESettingsForm({
   return (
     <form className={cn(className)} onSubmit={() => onSubmit()} {...props}>
       <Card>
-        <Card.Header>
-          <Card.Title>RE Configuration</Card.Title>
-          <Card.Description>
+        <CardHeader>
+          <CardTitle>RE Configuration</CardTitle>
+          <CardDescription>
             {reData?.id
               ? `Click the button to disconnect RE`
               : `Click the button to begin the O-Auth Flow`}
-          </Card.Description>
-        </Card.Header>
-        <Card.Content>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="grid gap-1">
             <label className="sr-only" htmlFor="name">
               RE Config
             </label>
           </div>
           <div>{reData?.environment_name}</div>
-        </Card.Content>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           {!reData?.id ? (
             <button
               type="submit"
@@ -138,7 +138,7 @@ export function RESettingsForm({
               <span>Disconnect</span>
             </button>
           )}
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   )

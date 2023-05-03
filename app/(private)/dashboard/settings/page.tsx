@@ -65,7 +65,7 @@ export const metadata = {
 
 export default async function SettingsPage() {
   const user = await getCurrentUser()
-  const apiKey = await getApiKey(user.id)
+  const apiKey = await getApiKey(user?.id)
   const data = await reSettingsForUser(user.id)
   console.log(data)
   if (!user) {

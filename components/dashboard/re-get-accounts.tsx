@@ -6,25 +6,25 @@ import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-interface PostCreateButtonProps
+interface ReGetAccountsButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {}
 
-export function ApiRefreshButton({
+export function ReGetAccountsButton({
   className,
   ...props
-}: PostCreateButtonProps) {
+}: ReGetAccountsButtonProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [organizationName, setOrganizationName] = React.useState<string>('')
+  const [accounts, setAccounts] = React.useState([])
   async function onClick() {
     setIsLoading(true)
-    setOrganizationName('Loading...')
-    const response = await fetch('/api/virRefresh', {
+    setAccounts(null)
+    const response = await fetch('/api/reAccounts', {
       method: 'GET',
     })
 
     setIsLoading(false)
-
+    console.log(response)
     if (!response?.ok) {
       if (response.status === 429) {
         console.log(response)
@@ -46,8 +46,8 @@ export function ApiRefreshButton({
 
     const data = await response.json()
     console.log(data)
-    if (data.organizationName) {
-      setOrganizationName(data.organizationName)
+    if (data?.value?.length > 0) {
+      setAccounts(data.value)
     }
     // This forces a cache invalidation.
     router.refresh()
@@ -72,8 +72,17 @@ export function ApiRefreshButton({
         ) : (
           <Icons.add className="mr-2 h-4 w-4" />
         )}
-        Refresh API Token
+        Get RE Accounts
       </button>
+      {accounts && accounts.length > 0 ? (
+        <div>
+          {accounts?.map((account :any, index) => (
+            <div key={index} className="mt-2">
+              {account.description} : {account.value}
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }

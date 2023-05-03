@@ -19,7 +19,7 @@ export function VirtuousGetGiftsButton({
   async function onClick() {
     setIsLoading(true)
     setDataLength('Loading...')
-    const response = await fetch('/api/getGifts', {
+    const response = await fetch('/api/virGifts', {
       method: 'GET',
     })
 

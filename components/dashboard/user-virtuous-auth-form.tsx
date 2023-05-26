@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { Icons } from '@/components/icons'
 import { toast } from '@/components/ui/use-toast'
@@ -11,6 +11,9 @@ import * as React from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import { buttonVariants } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface UserVirtuousAuthFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -43,7 +46,7 @@ export function UserVirtuousAuthForm({
       email: data.email.toLowerCase(),
       redirect: false,
       password: data.password,
-      callbackUrl: searchParams.get('from') || '/dashboard',
+      callbackUrl: searchParams?.get('from') || '/step2',
     })
     console.log(signInResult)
     setIsLoading(false)
@@ -55,31 +58,32 @@ export function UserVirtuousAuthForm({
         type: 'error',
       })
     }
-    window.location.href = signInResult.url
+    console.log(signInResult); 
+    window.location.href = signInResult.url || '/dashboard'
     return toast({
       title: 'Success!',
       description: 'You have successfully signed in.',
-      variant: 'destructive',
+      variant: 'default',
     })
   }
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <label className="sr-only" htmlFor="email">
+        <div className="center-items xs:grid-cols-2  grid w-full gap-5 md:grid-cols-4">
+        <div className="col-span-2 md:col-span-1"> &nbsp;</div>
+          <div className="col-span-2 grid md:col-span-1">
+            <label className="my-2 text-xs" htmlFor="email">
               Email
             </label>
             <input
               id="email"
               placeholder="name@example.com"
-              className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+              className="my-0 mb-2 block h-9 w-full rounded-full border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
               type="email"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              name="email"
               disabled={isLoading}
               {...register('email')}
             />
@@ -89,18 +93,17 @@ export function UserVirtuousAuthForm({
               </p>
             )}
           </div>
-          <div className="grid gap-1">
-            <label className="sr-only" htmlFor="password">
+          <div className="col-span-2 grid gap-1 md:col-span-1 ">
+            <label className="my-2 text-xs" htmlFor="password">
               Password
             </label>
             <input
               id="password"
               placeholder="xyazb1Cfna"
-              className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+              className="my-0 mb-2 block h-9 w-full rounded-full border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
               type="password"
               autoCapitalize="none"
               autoCorrect="off"
-              name="password"
               disabled={isLoading}
               {...register('password')}
             />
@@ -111,8 +114,11 @@ export function UserVirtuousAuthForm({
             )}
           </div>
 
+          <div className="w-100 mt-8 grid pt-8"></div>
+          <div className="grid "></div>
+
           <button
-            className="inline-flex w-full items-center justify-center rounded-lg bg-[#24292F] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#24292F]/90 focus:outline-none focus:ring-4 focus:ring-[#24292F]/50 disabled:opacity-50 dark:hover:bg-[#050708]/30 dark:focus:ring-slate-500"
+            className="col-span-2 mx-auto mt-8 inline-flex w-1/2 items-center justify-center justify-self-center rounded-full bg-accent-1 px-5 py-2.5 text-center text-sm font-medium text-dark hover:bg-cyan focus:outline-none focus:ring-4 focus:ring-[#24292F]/50 disabled:opacity-50 dark:hover:bg-[#050708]/30 dark:focus:ring-slate-500"
             disabled={isLoading}
           >
             {isLoading && (

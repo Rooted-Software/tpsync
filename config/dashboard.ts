@@ -31,6 +31,11 @@ export const dashboardConfig: DashboardConfig = {
   ],
   sidebarNav: [
     {
+      title: 'Dashboard',
+      href: '/dashboard',
+      icon: 'post',
+    },
+    {
       title: 'Batch Management',
       href: '/batches',
       icon: 'post',
@@ -43,6 +48,11 @@ export const dashboardConfig: DashboardConfig = {
     {
       title: 'RE Accounts',
       href: '/reAccounts',
+      icon: 'post',
+    },
+    {
+      title: 'RE Journal',
+      href: '/reJournals',
       icon: 'post',
     },
     {

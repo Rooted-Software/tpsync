@@ -31,7 +31,7 @@ export async function PATCH(
       console.log(body) 
       // Update the post.
       // TODO: Implement sanitization for content.
-      const setting = await db.apiSettings.upsert({
+      const setting = await db.apiSetting.upsert({
         where: {
           userId: user.id,
         },

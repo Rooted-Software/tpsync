@@ -64,6 +64,7 @@ export default function ReCallBackPage(params, searchParams) {
             state: params.searchParams.state,
           }),
         })
+        console.log('use-effect resonse')
         console.log(response)
         setIsLoading(false)
 
@@ -81,13 +82,12 @@ export default function ReCallBackPage(params, searchParams) {
 
           return toast({
             title: 'Something went wrong.',
-            message: 'Your settings were not created. Please try again.',
-            type: 'error',
+            description: 'Your code was not created. Please try again.',
+            variant: 'destructive',
           })
         }
 
-        const data = await response.json()
-        console.log(data)
+  
         window.opener.location = '/dashboard/settings'
         window.close()
       }

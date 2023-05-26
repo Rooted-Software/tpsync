@@ -6,10 +6,13 @@ import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
 import { reFetch } from '@/lib/reFetch'
 
-async function upsertAccount(account) {
-  await db.reAccounts.upsert({
+async function upsertAccount(account, userId) {
+  await db.feAccount.upsert({
     where: {
-      account_code_id: account.account_code_id,
+      userId_account_code_id: { 
+        account_code_id: account.account_code_id,
+        userId: userId
+      },
     },
     update: {
       value: account.value,
@@ -27,7 +30,8 @@ async function upsertAccount(account) {
       class:  account.class,
       is_contra: account.is_contra,
       is_control: account.is_control, 
-      description: account.description
+      description: account.description,
+      userId: userId
     },
   })
 }
@@ -40,7 +44,7 @@ export async function GET(req: Request) {
       return new Response(null, { status: 403 })
     }
     const { user } = session
-    console.log('RE Accounts - get 1')
+    console.log('RE Accounts')
     try {
       const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/accounts/codes','GET', user.id
       )
@@ -53,9 +57,9 @@ export async function GET(req: Request) {
       console.log('returning something else')
       const data = await res2.json()
       data?.value.forEach((account) => {
-        upsertAccount(account)
+        upsertAccount(account, session.user.id)
       })
-      return new Response(JSON.stringify(data));
+      return new Response(JSON.stringify(data.value));
     } catch (error) {
       return error
     }

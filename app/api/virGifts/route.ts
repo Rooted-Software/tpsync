@@ -5,15 +5,19 @@ import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
 import { virFetch  } from '@/lib/virFetch'
 
-async function upsertGift(gift: string) {
-    await db.giftBatches.upsert({
+async function upsertGift(gift: string, userId) {
+    await db.giftBatch.upsert({
       where: {
-        batch_name: gift || 'none',
+        userId_batch_name: { 
+          userId: userId,
+          batch_name: gift || 'none',
+        }
       },
       update: {
         batch_name: gift || 'none',
       },
       create: {
+        userId: userId,
         batch_name: gift || 'none',
         synced: false,
       },
@@ -56,7 +60,7 @@ export async function GET(req: Request) {
           console.log(unique)
     
           unique.forEach((gift: string) => {
-            upsertGift(gift)
+            upsertGift(gift, session.user.id)
           })
     
       return new Response(JSON.stringify(data));

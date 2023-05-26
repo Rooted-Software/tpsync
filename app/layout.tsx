@@ -1,3 +1,8 @@
+import { Inter as FontSans } from "next/font/google"
+import localFont from "next/font/local"
+
+import "@/styles/globals.css"
+
 import { Analytics } from '@/components/analytics'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -5,8 +10,6 @@ import { Toaster } from '@/components/ui/toaster'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl, cn } from '@/lib/utils'
 import '@/styles/globals.css'
-import { Inter as FontSans } from 'next/font/google'
-import localFont from 'next/font/local'
 
 const fontSans = FontSans({
   subsets: ['latin'],

@@ -5,7 +5,7 @@ import { Card, CardContent, CardTitle, CardHeader, CardDescription, CardFooter }
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from '@prisma/client'
-import { reSettings } from '@prisma/client'
+import { FeSetting } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
@@ -15,7 +15,7 @@ interface REFormProps extends React.HTMLAttributes<HTMLFormElement> {
   user: Pick<User, 'id' | 'name'>
   reAuthorizeURL: string
   reData: Pick<
-    reSettings,
+    FeSetting,
     'id' | 'environment_name' | 'legal_entity_id' | 'email' | 'expires_in'
   >
 }
@@ -44,7 +44,7 @@ export function RESettingsForm({
       const popup = window.open(
         reAuthorizeURL,
         'login',
-        'height=450,width=600,'
+        'height=450,width=600, top=10, left=100'
       )
       if (window.focus) {
         popup.focus()
@@ -77,8 +77,10 @@ export function RESettingsForm({
       if (response.ok) {
         setIsSaving(false)
         setReDataFromProps(null)
+        router.refresh()
       } else {
         setIsSaving(false)
+        router.refresh()
       }
     }
   }

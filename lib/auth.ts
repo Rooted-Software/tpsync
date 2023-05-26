@@ -6,7 +6,14 @@ import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { Client } from 'postmark'
 
+type Credentials = { 
+  email: string,
+  password: string
+}
+
 const FormData = require('form-data')
+
+
 
 const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || '')
 
@@ -38,7 +45,7 @@ export const authOptions: NextAuthOptions = {
         },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials: Credentials, req) {
         const payload = {
           email: credentials.email,
           password: credentials.password,
@@ -88,6 +95,7 @@ export const authOptions: NextAuthOptions = {
                 email: credentials.email,
                 emailVerified: new Date(),
                 name: user.userName,
+                setupStep: 'two',
               },
               select: {
                 id: true,
@@ -130,7 +138,7 @@ export const authOptions: NextAuthOptions = {
             })
           }
           // console.log('Here is the user')
-          user.id = dbUser.id
+          user.id = dbUser?.id
           user.email = credentials.email
           // console.log(user)
           return user

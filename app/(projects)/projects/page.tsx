@@ -5,7 +5,7 @@ import { KeygenButton } from '@/components/dashboard/keygen-button'
 import { MappingCreateButton } from '@/components/dashboard/mapping-create-button'
 import { ReGetProjectsButton } from '@/components/dashboard/re-get-projects'
 import { ReTestPostButton } from '@/components/dashboard/re-test-post-button'
-import { VirtuousGetProjectsButton } from '@/components/dashboard/virtuous-get-projects'
+import { UniversalButton } from '@/components/dashboard/universal-button'
 import { EmptyPlaceholder } from '@/components/empty-placeholder'
 import { PostItem } from '@/components/post-item'
 import { DashboardShell } from '@/components/shell'
@@ -18,7 +18,7 @@ import { cache } from 'react'
 import * as React from 'react'
 
 const getVirtuousProjects = async () => {
-  return await db.virtuousProjects.findMany({
+  return await db.virtuousProject.findMany({
     select: {
       id: true,
       name: true,
@@ -35,7 +35,7 @@ const getVirtuousProjects = async () => {
 }
 
 const getFeProjects = async () => {
-  return await db.feProjects.findMany({
+  return await db.feProject.findMany({
     select: {
       id: true,
       project_id: true,
@@ -59,7 +59,7 @@ export default async function ProjectsPage() {
   const projects = (await getVirtuousProjects()) || []
   const feProjects = (await getFeProjects()) || []
 
-  if (!user) {
+  if (!user && authOptions.pages?.signIn) {
     redirect(authOptions.pages.signIn)
   }
 
@@ -74,8 +74,8 @@ export default async function ProjectsPage() {
         <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div>
       <div className="">
-        Get Virtuous Projects
-        <VirtuousGetProjectsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+        Get Virtuous Projects (Universal)
+        <UniversalButton title="Get Projects" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} />
       </div>
       <div>
         {projects && feProjects ? (
@@ -96,6 +96,7 @@ export default async function ProjectsPage() {
       </div>
       <div className="">
         Get RE Projects
+        <UniversalButton title="Get Projects" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} />
         <ReGetProjectsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
       </div>
 

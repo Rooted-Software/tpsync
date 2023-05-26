@@ -18,7 +18,7 @@ import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
 const getBatches = async () => {
-  return await db.giftBatches.findMany({
+  return await db.giftBatch.findMany({
     select: {
       id: true,
       batch_name: true,

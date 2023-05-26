@@ -5,9 +5,29 @@ import { getServerSession } from 'next-auth'
 import * as z from 'zod'
 
 const mappingCreateSchema = z.object({
-    virProjectID: z.string().optional(),
-    feProjectID: z.string().optional(),
+    virProjectIDs: z.string().array(),
+    feAccountID: z.string().optional(),
   })
+
+
+  async function upsertMapping(virProjectID, feAccountID, userId) {
+    await db.projectAccountMapping.upsert({
+      where: {
+        virProjectId_userId: { 
+        virProjectId:  virProjectID,
+        userId: userId
+        }
+      },
+      update: {
+        feAccountId: parseInt(feAccountID),
+      },
+      create: {
+        virProjectId:  virProjectID,
+        feAccountId: parseInt(feAccountID),
+        userId: userId
+      },
+    })
+  }
 
 export async function GET(
   req: Request,
@@ -19,19 +39,19 @@ export async function GET(
         return new Response(null, { status: 403 })
     }
     const { user } = session
-    const posts = await db.post.findMany({
+
+    const mappings = await db.projectAccountMapping.findMany({
         select: {
           id: true,
-          title: true,
-          published: true,
-          createdAt: true,
+          virProjectId: true,
+          feAccountId: true,
+      
         },
         where: {
-          authorId: user.id,
+          userId: user.id,
         },
       })
-
-      return new Response(JSON.stringify(posts), { status: 422 })
+      return new Response(JSON.stringify(mappings))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
@@ -44,6 +64,7 @@ export async function GET(
 export async function POST(
   req: Request,
 ) {
+  console.log('mapping - post')
   try {
     const session = await getServerSession(authOptions)
 
@@ -53,22 +74,15 @@ export async function POST(
   
     const { user } = session
   
-
-    // Get the request body and validate it.
-    // TODO: Implement sanitization for content.
-  
     const json = await req.json()
     const body = mappingCreateSchema.parse(json)
-
-    const mapping = await db.projectMapping.create({
-      data: {
-        virProjectId: body.virProjectID || '',
-        feProjectId: body.feProjectID || '',
-      },
-      select: {
-        id: true,
-      },
+    console.log(user)
+    console.log(body)
+    body?.virProjectIDs?.forEach((virProjectID )=> {
+      console.log(virProjectID )
+      const map = upsertMapping(virProjectID, body.feAccountID, user.id)
     })
+    
 
     return new Response(null, { status: 200 })
   } catch (error) {
@@ -79,16 +93,3 @@ export async function POST(
     return new Response(null, { status: 500 })
   }
 }
-
-async function verifyCurrentUserHasAccessToPost(postId: string) {
-  const session = await getServerSession(authOptions)
-  const count = await db.post.count({
-    where: {
-      id: postId,
-      authorId: session?.user.id,
-    },
-  })
-
-  return count > 0
-}
-

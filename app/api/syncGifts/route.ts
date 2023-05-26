@@ -11,10 +11,13 @@ const giftBatchSchema = z.object({
   })
 
 
-async function upsertGift(gift) {
-    await db.gifts.upsert({
+async function upsertGift(gift, userId) {
+    await db.gift.upsert({
       where: {
-        id: gift.id || 'none',
+        userId_id: { 
+          userId:userId,
+          id: gift.id || 'none',
+        }
       },
       update: {
         transactionSource: gift.transactionSource,
@@ -69,6 +72,7 @@ async function upsertGift(gift) {
         synced: false,
       },
       create: {
+        userId, userId,
         id: gift.id,
         transactionSource: gift.transactionSource,
         transactionId: gift.transactionId,
@@ -156,7 +160,7 @@ export async function POST(req: Request) {
     console.log(data)
 
     data.list?.forEach((gift) => {
-      upsertGift(gift)
+      upsertGift(gift, session.user.id)
     })
 
 

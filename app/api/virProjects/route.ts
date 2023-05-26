@@ -5,35 +5,40 @@ import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
 import { virFetch  } from '@/lib/virFetch'
 
-async function upsertProject(project) {
-    await db.virtuousProjects.upsert({
+async function upsertProject(project, userId) {
+    await db.virtuousProject.upsert({
       where: {
-        id: project.id,
+        userId_id: { 
+          userId: userId, 
+          id: project.id,
+        }
+        
       },
       update: {
         name: project.name,
         projectCode: project.projectCode,
-        externalAccountingCode: project.projectCode || 'none',
+        externalAccountingCode: project.externalAccountingCode || 'none',
         onlineDisplayName: project.onlineDisplayName,
         description: project.description,
-        isPublic: project.isPublic === 'true',
-        isActive: project.isActive === 'true',
-        isTaxDeductible: project.isTaxDeductible === 'true',
+        isPublic: project.isPublic === true,
+        isActive: project.isActive === true,
+        isTaxDeductible: project.isTaxDeductible === true,
         giftSpecifications: project.giftSpecifications,
         customFields: project.customFields,
         createdDateTimeUTC: new Date(project.createDateTimeUtc),
         modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
       },
       create: {
+        userId: userId,
         id: project.id,
         name: project.name,
         projectCode: project.projectCode || 'none',
-        externalAccountingCode: project.projectCode,
+        externalAccountingCode: project.externalAccountingCode,
         onlineDisplayName: project.onlineDisplayName,
         description: project.description,
-        isPublic: project.isPublic === 'true',
-        isActive: project.isActive === 'true',
-        isTaxDeductible: project.isTaxDeductible === 'true',
+        isPublic: project.isPublic === true,
+        isActive: project.isActive === true,
+        isTaxDeductible: project.isTaxDeductible === true,
         giftSpecifications: project.giftSpecifications,
         customFields: project.customFields,
         createdDateTimeUTC: new Date(project.createDateTimeUtc),
@@ -83,9 +88,9 @@ export async function GET(req: Request) {
           const data = await res.json()
           console.log(data)
           data?.list.forEach((project) => {
-            upsertProject(project)
+            upsertProject(project, session.user.id)
           })
-      return new Response(JSON.stringify(data));
+      return new Response(JSON.stringify(data.list));
     } catch (error) {
         return new Response(JSON.stringify(error.issues), { status: 422 })
     }

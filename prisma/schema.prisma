@@ -2,12 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
@@ -27,7 +27,8 @@ model Account {
   session_state     String?
   createdAt         DateTime @default(now()) @map(name: "created_at")
   updatedAt         DateTime @default(now()) @map(name: "updated_at")
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
   @@map(name: "accounts")
 }
@@ -43,22 +44,33 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
-  accounts Account[]
-  sessions Session[]
-  Post     Post[]
-  APISettings apiSettings?
-  RESettings  reSettings?
-  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
-  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
-  stripePriceId          String?   @map(name: "stripe_price_id")
-  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  id                     String                  @id @default(cuid())
+  name                   String?
+  email                  String?                 @unique
+  emailVerified          DateTime?
+  image                  String?
+  createdAt              DateTime                @default(now()) @map(name: "created_at")
+  updatedAt              DateTime                @default(now()) @map(name: "updated_at")
+  accounts               Account[]
+  sessions               Session[]
+  Post                   Post[]
+  APISettings            ApiSetting?
+  RESettings             FeSetting?
+  stripeCustomerId       String?                 @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?                 @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?                 @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime?               @map(name: "stripe_current_period_end")
+  giftBatches            GiftBatch[]
+  gifts                  Gift[]
+  virtuousProjects       VirtuousProject[]
+  feProjects             FeProject[]
+  projectMappings        ProjectMapping[]
+  reAccounts             FeAccount[]
+  reJournals             FeJournal[]
+  feAccountCodes         FeAccountCode[]
+  defaultJournal         String?
+  setupStep              String?
+  ProjectAccountMapping  ProjectAccountMapping[]
 
   @@map(name: "users")
 }
@@ -86,173 +98,252 @@ model Post {
   @@map(name: "posts")
 }
 
-model apiSettings {
-  id        String   @id @default(cuid())
-  virtuousAPI     String @db.MediumText
+model ApiSetting {
+  id          String   @id @default(cuid())
+  virtuousAPI String   @db.MediumText
+  createdAt   DateTime @default(now()) @map(name: "created_at")
+  updatedAt   DateTime @default(now()) @map(name: "updated_at")
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
 
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  userId  String  @unique
-  user User @relation(fields: [userId], references: [id])
-  @@map(name: "apiSettings")
+  @@map(name: "api_settings")
 }
 
-model reSettings {
-  id                          String   @id @default(cuid())
-  token_type                  String
-  expires_in                  Int
-  refresh_token               String?  @db.Text
-  access_token                String?  @db.Text
-  environment_id              String
-  environment_name            String
-  legal_entity_id             String
-  legal_entity_name           String
-  user_id                     String
-  email                       String
-  family_name                 String
-  given_name                  String
-  refresh_token_expires_in    Int
-  mode                        String?
-  scope                       String?
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  userId  String  @unique
-  user User @relation(fields: [userId], references: [id])
-  @@map(name: "reSettings")
+model FeSetting {
+  id                       String   @id @default(cuid())
+  token_type               String
+  expires_in               Int
+  refresh_token            String?  @db.Text
+  access_token             String?  @db.Text
+  environment_id           String
+  environment_name         String
+  legal_entity_id          String
+  legal_entity_name        String
+  user_id                  String
+  email                    String
+  family_name              String
+  given_name               String
+  refresh_token_expires_in Int
+  mode                     String?
+  scope                    String?
+  createdAt                DateTime @default(now()) @map(name: "created_at")
+  updatedAt                DateTime @default(now()) @map(name: "updated_at")
+  userId                   String   @unique
+  user                     User     @relation(fields: [userId], references: [id])
+
+  @@map(name: "fe_settings")
 }
 
-model giftBatches {
-  id                          String   @id @default(cuid())
-  batch_name                  String    @unique
-  synced                      Boolean  @default(false)
-  syncedAt                    DateTime? @map(name: "synced_at")
-  createdAt                   DateTime @default(now()) @map(name: "created_at")
-  updatedAt                   DateTime @default(now()) @map(name: "updated_at")
+model GiftBatch {
+  id         String    @id @default(cuid())
+  batch_name String    @unique
+  synced     Boolean   @default(false)
+  syncedAt   DateTime? @map(name: "synced_at")
+  createdAt  DateTime  @default(now()) @map(name: "created_at")
+  updatedAt  DateTime  @default(now()) @map(name: "updated_at")
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, batch_name])
+  @@map(name: "gift_batches")
 }
 
-model gifts {
-  gift_id                     String @id @default(cuid())
-  id                          Int  @unique
-  transactionSource           String?
-  transactionId               String?
-  contactId                   Int?
-  contactName                 String?
-  contactUrl                  String?
-  giftType                    String?
-  giftTypeFormatted           String?
-  giftDate                    DateTime? 
-  giftDateFormatted           String?
-  amount                      Decimal?
-  amountFormatted             String?
-  currencyCode                String?
-  exchangeRate                Decimal?
-  baseCurrencyCode            String?
-  batch                       String?
-  createDateTimeUtc           DateTime? 
-  createdByUser               String?
-  modifiedDateTimeUtc         DateTime?
-  modifiedByUser              String?
-  segmentId                   Int?
-  segment                     String?
-  segmentCode                 String?
-  segmentUrl                  String?
-  mediaOutletId               Int?
-  mediaOutlet                 String?
-  grantId                     Int?
-  grant                       String?
-  grantUrl                    String?
-  notes                       String?
-  tribute                     String?
-  tributeId                   Int?
-  tributeType                 String?
-  acknowledgeIndividualId    Int?
-  receiptDate                 DateTime?
-  receiptDateFormatted        String?
-  contactPassthroughId        Int?
-  contactPassthroughUrl       String?
-  contactIndividualId         Int?
-  cashAccountingCode          String?
-  giftAskId                   Int?
-  contactMembershipId         Int?
-  giftUrl                     String?
-  isTaxDeductible             Boolean?
-  giftDesignations            Json?
-  giftPremiums                Json?
-  recurringGiftPayments       Json?
-  pledgePayments              Json?
-  customFields                Json?
-  batch_name                  String
-  synced                      Boolean? 
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
+model Gift {
+  gift_id                 String    @id @default(cuid())
+  id                      Int
+  transactionSource       String?
+  transactionId           String?
+  contactId               Int?
+  contactName             String?
+  contactUrl              String?
+  giftType                String?
+  giftTypeFormatted       String?
+  giftDate                DateTime?
+  giftDateFormatted       String?
+  amount                  Decimal?
+  amountFormatted         String?
+  currencyCode            String?
+  exchangeRate            Decimal?
+  baseCurrencyCode        String?
+  batch                   String?
+  createDateTimeUtc       DateTime?
+  createdByUser           String?
+  modifiedDateTimeUtc     DateTime?
+  modifiedByUser          String?
+  segmentId               Int?
+  segment                 String?
+  segmentCode             String?
+  segmentUrl              String?
+  mediaOutletId           Int?
+  mediaOutlet             String?
+  grantId                 Int?
+  grant                   String?
+  grantUrl                String?
+  notes                   String?
+  tribute                 String?
+  tributeId               Int?
+  tributeType             String?
+  acknowledgeIndividualId Int?
+  receiptDate             DateTime?
+  receiptDateFormatted    String?
+  contactPassthroughId    Int?
+  contactPassthroughUrl   String?
+  contactIndividualId     Int?
+  cashAccountingCode      String?
+  giftAskId               Int?
+  contactMembershipId     Int?
+  giftUrl                 String?
+  isTaxDeductible         Boolean?
+  giftDesignations        Json?
+  giftPremiums            Json?
+  recurringGiftPayments   Json?
+  pledgePayments          Json?
+  customFields            Json?
+  batch_name              String
+  synced                  Boolean?
+  createdAt               DateTime  @default(now()) @map(name: "created_at")
+  updatedAt               DateTime  @default(now()) @map(name: "updated_at")
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, id])
+  @@map(name: "gifts")
 }
 
-model virtuousProjects {
-  project_id                    String @id @default(cuid())
-  id                            Int  @unique
-  name                          String?
-  projectCode                   String?
-  externalAccountingCode        String?
-  onlineDisplayName             String?
-  description                   String?
-  type                          String?
-  isPublic                      Boolean?
-  isActive                      Boolean?
-  isTaxDeductible               Boolean?
-  giftSpecifications            Json?
-  customFields                  Json?
-  createdDateTimeUTC            DateTime?
-  modifiedDateTimeUTC           DateTime?
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  projectMappings                projectMapping[]  
+model VirtuousProject {
+  project_id             String                  @id @default(cuid())
+  id                     Int
+  name                   String?
+  projectCode            String?
+  externalAccountingCode String?
+  onlineDisplayName      String?
+  description            String?
+  type                   String?
+  isPublic               Boolean?
+  isActive               Boolean?
+  isTaxDeductible        Boolean?
+  giftSpecifications     Json?
+  customFields           Json?
+  createdDateTimeUTC     DateTime?
+  modifiedDateTimeUTC    DateTime?
+  createdAt              DateTime                @default(now()) @map(name: "created_at")
+  updatedAt              DateTime                @default(now()) @map(name: "updated_at")
+  projectMappings        ProjectMapping[]
+  userId                 String
+  user                   User                    @relation(fields: [userId], references: [id])
+  ProjectAccountMapping  ProjectAccountMapping[]
+
+  @@unique([userId, id])
+  @@map(name: "virtuous_projects")
 }
 
+model FeProject {
+  id                    String           @id @default(cuid())
+  project_id            Int
+  ui_project_id         String
+  projectCode           String?
+  location              String?
+  division              String?
+  department            String?
+  type                  String?
+  status                String?
+  description           String?
+  added_by              String?
+  modified_by           String?
+  prevent_data_entry    Boolean?
+  prevent_posting_after Boolean?
+  account_restrictions  Json?
+  customFields          Json?
+  date_added            DateTime?
+  date_modified         DateTime?
+  start_date            DateTime?
+  end_date              DateTime?
+  posting_date          DateTime?
+  createdAt             DateTime         @default(now()) @map(name: "created_at")
+  updatedAt             DateTime         @default(now()) @map(name: "updated_at")
+  projectMappings       ProjectMapping[]
+  userId                String
+  user                  User             @relation(fields: [userId], references: [id])
 
-model feProjects {
-  id                            String @id @default(cuid())
-  project_id                    Int @unique
-  ui_project_id                 String @unique    
-  projectCode                   String?
-  location                      String?
-  division                      String?
-  department                    String?
-  type                          String?
-  status                        String?
-  description                   String?
-  added_by                      String?
-  modified_by                   String?
-  prevent_data_entry            Boolean?
-  prevent_posting_after         Boolean?
-  account_restrictions          Json?
-  customFields                  Json?
-  date_added                    DateTime?
-  date_modified                 DateTime?
-  start_date                    DateTime?
-  end_date                      DateTime?
-  posting_date                  DateTime?
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  projectMappings                projectMapping[]                
+  @@unique([userId, project_id])
+  @@map(name: "fe_projects")
 }
 
-model projectMapping { 
-  id String @id @default(cuid())
-  virProject    virtuousProjects      @relation(fields: [virProjectId], references: [project_id], onDelete: Cascade)
-  virProjectId  String 
-  reProject     feProjects            @relation(fields: [feProjectId], references: [id])
-  feProjectId   String
-  @@index([virProjectId, feProjectId])
+model ProjectMapping {
+  id           String          @id @default(cuid())
+  virProject   VirtuousProject @relation(fields: [virProjectId], references: [project_id])
+  virProjectId String
+  feProject    FeProject       @relation(fields: [feProjectId], references: [id])
+  feProjectId  String
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+
+  @@index([virProjectId, userId])
+  @@map(name: "project_mappings")
+}
+
+model ProjectAccountMapping {
+  id           String          @id @default(cuid())
+  virProject   VirtuousProject @relation(fields: [virProjectId], references: [project_id])
+  virProjectId String
+  feAccount    FeAccount      @relation(fields: [feAccountId, userId], references: [account_id, userId])
+  feAccountId  Int
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+  @@unique([virProjectId, userId])
+  @@map(name: "project_account_mappings")
+}
+
+model FeAccount { 
+
+  account_id            Int 
+  account_number        String
+  description           String?
+  prevent_data_entry    Boolean?
+  prevent_posting_data  Boolean?
+  class                 String?
+  cashflow              String?
+  working_capital       String?
+  custom_fields         Json?
+  default_transaction_codes Json?
+  date_added            DateTime?
+  added_by              String?
+  date_modified         DateTime?
+  modified_by           String?
+  createdAt             DateTime  @default(now()) @map(name: "created_at")
+  updatedAt             DateTime  @default(now()) @map(name: "updated_at")
+  userId                String
+  user                  User  @relation(fields: [userId], references: [id])
+  ProjectAccountMapping ProjectAccountMapping[]
+  @@id([account_id, userId])
+  @@unique([account_id, userId])
+  @@map(name: "fe_accounts")
 
 }
 
-model reAccounts { 
-  account_code_id   Int  @id 
-  value             Int
-  category          String
-  class             String?
-  is_contra         Boolean
-  is_control        Boolean
-  description       String
+model FeAccountCode {
+  account_code_id       Int                     @id
+  value                 Int
+  category              String
+  class                 String?
+  is_contra             Boolean
+  is_control            Boolean
+  description           String
+  userId                String
+  user                  User                    @relation(fields: [userId], references: [id])
+
+
+  @@unique([userId, account_code_id])
+  @@map(name: "fe_account_codes")
 }
 
+model FeJournal {
+  id      Int
+  code    String
+  journal String
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, id])
+  @@map(name: "fe_journals")
+}

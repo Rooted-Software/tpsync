@@ -77,7 +77,6 @@ export function VirtuousGetProjectsButton({
         )}
         Get Virtuous Projects
       </button>
-      <div>Virtuous Projects: {projectCount}</div>
     </div>
   )
 }

@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       return new Response(null, { status: 403 })
     }
     const { user } = session
-    const reSettings = await db.reSettings.findFirst({
+    const reSettings = await db.feSetting.findFirst({
         select: {
           id: true,
           environment_name: true,
@@ -57,7 +57,7 @@ export async function DELETE(
       // Validate the route params.
    
       // Delete the post.
-      const reSettings = await db.reSettings.delete({
+      const reSettings = await db.feSetting.delete({
         where: {
           userId: user.id,
         },

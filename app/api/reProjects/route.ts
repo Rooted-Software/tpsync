@@ -7,10 +7,13 @@ import { z } from 'zod'
 import { reFetch } from '@/lib/reFetch'
 
 
-async function upsertProject(project) {
-    await db.feProjects.upsert({
+async function upsertProject(project, userId) {
+    await db.feProject.upsert({
       where: {
-        project_id: project.project_id,
+        userId_project_id: { 
+          userId: userId,
+          project_id: project.project_id,
+      }
       },
       update: {
         projectCode: project.projectCode,
@@ -37,6 +40,7 @@ async function upsertProject(project) {
           : null,
       },
       create: {
+        userId: userId,
         project_id: project.project_id,
         projectCode: project.projectCode,
         ui_project_id: project.ui_project_id,
@@ -68,17 +72,13 @@ async function upsertProject(project) {
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session?.user || !session?.user.email) {
       return new Response(null, { status: 403 })
     }
     const { user } = session
     console.log('GET RE Projects API Route')
-
-
     const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/projects','GET', user.id)
     console.log(res2.status)
-
     if (res2.status !== 200) {
         console.log('returning status')
         return res2;
@@ -87,14 +87,13 @@ export async function GET(req: Request) {
     const data = await res2.json()
     console.log(data.value)
     data?.value.forEach((project) => {
-        upsertProject(project)
+        upsertProject(project, session.user.id)
     })
     return new Response(JSON.stringify(data));
     } catch (error) {
     if (error instanceof z.ZodError) {
         return new Response(JSON.stringify(error.issues), { status: 422 })
         }
-    
         return new Response(null, { status: 500 })
     }
 }

@@ -4,8 +4,7 @@ import { Prisma } from '@prisma/client'
 export async function reFetch(url, method, id, body = {}) { 
     //get reSettings from server
     console.log('In reFetch method')
-    JSON.stringify(JSON.stringify(body))
-    const reSettings = await db.reSettings.findFirst({
+    const reSettings = await db.feSetting.findFirst({
       select: {
         id: true,
         access_token: true,
@@ -65,7 +64,7 @@ export async function reFetch(url, method, id, body = {}) {
           })
           const data = await res3.json()
           console.log(data)
-          let reSettingsData: Prisma.reSettingsUncheckedCreateInput = {
+          let reSettingsData: Prisma.FeSettingUncheckedCreateInput = {
             userId: id,
             token_type: data.token_type,
             expires_in: data.expires_in,
@@ -86,7 +85,7 @@ export async function reFetch(url, method, id, body = {}) {
             updatedAt: new Date(),
           }
           console.log('upsert time')
-          const updateSettings = await db.reSettings.upsert({
+          const updateSettings = await db.feSetting.upsert({
               where: {
                 userId: id ,
               },

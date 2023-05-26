@@ -13,7 +13,7 @@ import { cache } from 'react'
 const { AuthorizationCode } = require('simple-oauth2')
 
 const reSettingsForUser = cache(async (userId: User['id']) => {
-  return await db.reSettings.findFirst({
+  return await db.feSetting.findFirst({
     select: {
       id: true,
       environment_name: true,
@@ -47,7 +47,7 @@ const reAuthorizeURL = client.authorizeURL({
 console.log('here goes')
 console.log(reAuthorizeURL)
 const getApiKey = cache(async (userId: User['id']) => {
-  return await db.apiSettings.findFirst({
+  return await db.apiSetting.findFirst({
     where: {
       userId: userId,
     },
@@ -65,13 +65,12 @@ export const metadata = {
 
 export default async function SettingsPage() {
   const user = await getCurrentUser()
-  const apiKey = await getApiKey(user?.id)
-  const data = await reSettingsForUser(user.id)
-  console.log(data)
-  if (!user) {
+ 
+  if (!user || user === undefined) {
     redirect(authOptions?.pages?.signIn || '/login')
   }
-
+  const apiKey = await getApiKey(user.id)
+  const data = await reSettingsForUser(user.id)
   return (
     <DashboardShell>
       <DashboardHeader
@@ -83,7 +82,7 @@ export default async function SettingsPage() {
       </div>
       <div className="grid gap-10">
         <VirtuousSettingsForm
-          user={{ id: user.id, name: user.name }}
+          user={{ id: user.id, name: user?.name }}
           apiKey={apiKey?.virtuousAPI}
         />
       </div>

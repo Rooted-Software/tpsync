@@ -11,13 +11,11 @@ import * as React from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { buttonVariants } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+
 
 interface UserVirtuousAuthFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  csrfToken: string
+  csrfToken?: string
 }
 
 type FormData = z.infer<typeof virtuousAuthSchema>
@@ -72,14 +70,14 @@ export function UserVirtuousAuthForm({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="center-items xs:grid-cols-2  grid w-full gap-5 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1"> &nbsp;</div>
-          <div className="col-span-2 grid md:col-span-1">
+          <div className="col-span-2 grid md:col-span-1 ">
             <label className="my-2 text-xs" htmlFor="email">
               Email
             </label>
             <input
               id="email"
               placeholder="name@example.com"
-              className="my-0 mb-2 block h-9 w-full rounded-full border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+              className="my-0 mb-2 block h-9 w-full rounded-full border border-slate-300 py-2 px-3 text-sm text-black placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
               type="email"
               autoCapitalize="none"
               autoComplete="email"
@@ -88,7 +86,7 @@ export function UserVirtuousAuthForm({
               {...register('email')}
             />
             {errors?.email && (
-              <p className="px-1 text-xs text-red-600">
+              <p className="text-red-600 px-1 text-xs">
                 {errors.email.message}
               </p>
             )}
@@ -108,7 +106,7 @@ export function UserVirtuousAuthForm({
               {...register('password')}
             />
             {errors?.password && (
-              <p className="px-1 text-xs text-red-600">
+              <p className="text-red-600 px-1 text-xs">
                 {errors.password.message}
               </p>
             )}

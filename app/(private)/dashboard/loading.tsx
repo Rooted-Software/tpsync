@@ -7,12 +7,12 @@ export default function DashboardLoading() {
   return (
     <DashboardShell>
       <DashboardHeader
-        heading="DB Posts"
-        text="Use the Content Manager for managed Content.  Posts below are directly to the DB"
+        heading="Dashboard"
+        text="Virtuous to Financial Edge Sync made simple"
       >
-        <PostCreateButton />
+       
       </DashboardHeader>
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+      <div className=" rounded-md">
         <PostItem.Skeleton />
         <PostItem.Skeleton />
         <PostItem.Skeleton />

@@ -11,14 +11,15 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import Link from 'next/link'
+import { ro } from 'date-fns/locale'
 
 interface REFormProps extends React.HTMLAttributes<HTMLFormElement> {
-  user: Pick<User, 'id' | 'name'>
+  user: any
   reAuthorizeURL: string
-  reData: Pick<
+  reData?: Pick<
     FeSetting,
     'id' | 'environment_name' | 'legal_entity_id' | 'email' | 'expires_in'
-  >
+  > | null
 }
 
 export function RESetupForm({
@@ -38,14 +39,14 @@ export function RESetupForm({
     setReDataFromProps(reData)
   }, [reData])
 
-  async function onSubmit() {
+  async function onSubmit(e) {
     setIsSaving(true)
 
-    if (!reData?.id) {
+    if (!reDataFromProps?.id) {
       const popup = window.open(
         reAuthorizeURL,
         'login',
-        'height=450,width=600,'
+        'top=200, left=100, height=750,width=625,'
       )
       //chaged from window.focus
       if (document.hasFocus()) {
@@ -65,6 +66,8 @@ export function RESetupForm({
       setIsSaving(false)
       router.refresh()
     } else {
+      e.preventDefault()
+      console.log('**** deleting ***')
       const response = await fetch(`/api/reSettings`, {
         method: 'DELETE',
         headers: {
@@ -76,21 +79,17 @@ export function RESetupForm({
       })
       console.log('response status: ', response.status)
       console.log(response)
-      if (response.ok) {
-        setIsSaving(false)
-        setReDataFromProps(null)
-        router.refresh()
-      } else {
-        setIsSaving(false)
-        router.refresh()
-      }
+      setReDataFromProps(null)
+      reData=null 
+      setIsSaving(false)
+      
     }
   }
   
   return (
-    <form className={cn(className)} onSubmit={() => onSubmit()} {...props}>
+    <form className={cn(className)} onSubmit={(e) => onSubmit(e)} {...props}>
       
-          {!reData?.id ? (
+          {!reDataFromProps?.id ? (
             <button
               type="submit"
               className={cn(
@@ -105,7 +104,7 @@ export function RESetupForm({
               {isSaving && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
-              <span> {reData?.id
+              <span> {reDataFromProps?.id
               ? `Re-configure Financial Edge`
               : `Connect to Financial Edge`}</span>
             </button>
@@ -142,7 +141,7 @@ export function RESetupForm({
             {isSaving && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            <span>Continue to Data Mapping</span>
+            <span>Continue</span>
           </button></Link>
           </>
           )}

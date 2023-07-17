@@ -87,29 +87,25 @@ export function RESettingsForm({
 
   return (
     <form className={cn(className)} onSubmit={() => onSubmit()} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>RE Configuration</CardTitle>
-          <CardDescription>
-            {reData?.id
-              ? `Click the button to disconnect RE`
-              : `Click the button to begin the O-Auth Flow`}
-          </CardDescription>
+      <Card className="m-0 p-0">
+        <CardHeader className="m-0 p-0" >
+          <CardTitle className="text-md font-normal text-accent-1">RE Configuration</CardTitle>
+         
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-1">
+        <CardContent className='m-0 px-0 pt-0'>
+          <div className="m-0 grid gap-1 p-0">
             <label className="sr-only" htmlFor="name">
-              RE Config
+              FE Environment
             </label>
           </div>
-          <div>{reData?.environment_name}</div>
+          <div className='text-md'>{reData?.environment_name}</div>
         </CardContent>
         <CardFooter>
           {!reData?.id ? (
             <button
               type="submit"
               className={cn(
-                'relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
+                'relative inline-flex h-9 items-center rounded-full border border-transparent bg-accent-1 px-4 py-2 text-sm font-medium text-dark hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
                 {
                   'cursor-not-allowed opacity-60': isSaving,
                 },
@@ -126,7 +122,7 @@ export function RESettingsForm({
             <button
               type="submit"
               className={cn(
-                'relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
+                'relative inline-flex h-9 items-center rounded-full border border-transparent bg-accent-1 px-4 py-2 text-sm font-medium text-dark hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
                 {
                   'cursor-not-allowed opacity-60': isSaving,
                 },

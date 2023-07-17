@@ -140,6 +140,11 @@ export const authOptions: NextAuthOptions = {
           // console.log('Here is the user')
           user.id = dbUser?.id
           user.email = credentials.email
+          user.defaultCreditAccount = dbUser?.defaultCreditAccount
+          user.defaultDebitAccount = dbUser?.defaultDebitAccount
+          user.defaultJournal = dbUser?.defaultJournal
+          user.setupStep = dbUser?.setupStep
+
           // console.log(user)
           return user
         }
@@ -162,6 +167,10 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name
         session.user.email = token.email
         session.user.image = token.picture
+        session.user.defaultDebitAccount = token.defaultDebitAccount
+        session.user.defaultCreditAccount = token.defaultCreditAccount
+        session.user.defaultJournal = token.defaultJournal
+        session.user.setupStep = token.setupStep
       }
 
       return session
@@ -190,6 +199,10 @@ export const authOptions: NextAuthOptions = {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
+        setupStep: dbUser.setupStep,
+        defaultDebitAccount: dbUser.defaultDebitAccount,
+        defaultCreditAccount: dbUser.defaultCreditAccount,
+        defaultJournal: dbUser.defaultJournal
       }
     },
   },

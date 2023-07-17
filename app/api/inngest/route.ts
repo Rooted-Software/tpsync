@@ -1,0 +1,129 @@
+import { Inngest } from "inngest";
+import { serve } from "inngest/next";
+import { db } from '@/lib/db'
+import { getVirtuousBatches} from '@/lib/virGifts'
+import { syncBatchGifts } from '@/lib/feGiftBatches'
+import { getBatches } from "@/lib/virGifts";
+
+// Create a client to send and receive events
+export const inngest = new Inngest({ name: "DonorSync" });
+
+
+
+const helloWorld = inngest.createFunction(
+  { name: "Hello World" },
+  { event: "test/hello.world" },
+  async ({ event, step }) => {
+    await step.sleep("1s");
+    return { event, body: "Hello, World!" };
+  }
+);
+
+
+// This automate getting batches function will run at daily 12:00pm 
+export const prepareAutomation = inngest.createFunction(
+  { name: "Prepare List of Accounts for Automation" },
+  { event: "app/prepare" },
+  async ({ step }) => {
+    // Load all the users from your database:
+    const users = await step.run("Load users", async() =>await db.user.findMany({
+      where: {
+        automation: true,
+      },
+      select: { 
+        id: true,
+        name: true,
+        email: true,
+      }
+    }));
+
+    // ✨ This is known as a "fan-out" pattern ✨
+
+    // 1️⃣ First, we'll create an event object for every user return in the query:
+    const events = users.map((user) => {
+      return {
+        name: "app/load.batches",
+        data: {
+          user_id: user.id,
+          email: user.email,
+        }
+      }
+    });
+
+    // 2️⃣ Now, we'll send all events in a single batch:
+    await step.sendEvent(events);
+
+    return { count: users.length };
+  }
+);
+
+// This is a regular Inngest function that will process batches for 
+// every event that is received (see the above function's inngest.send())
+
+// Since we are "fanning out" with events, these functions can all run in parallel
+export const loadBatches = inngest.createFunction(
+  { name: "Update Virtuous Batches" },
+  { event: "app/load.batches" },
+  async ({ event, step }) => {
+  
+    // 3️⃣ We can now grab the email and user id from the event payload
+    const { email, user_id } = event.data;
+  
+    // 4️⃣ Finally, prcoess batches
+    const user = {id: user_id, }; 
+    const batches =  await getVirtuousBatches(user)
+    const unSyncedBatches = batches.filter(batch => !batch.synced);
+    console.log('unSyncedBatches')
+    console.log(unSyncedBatches);
+  
+    //  map batches that are not synced and trigger sync function
+    
+   
+    const events = await unSyncedBatches.map((batch) => {
+      return {
+        name: "app/sync.batches",
+        data: {
+          user_id: user.id,
+          batch_id: batch.id,
+        }
+      }
+    }
+    );
+    await step.sendEvent(events);
+  })
+
+
+export const syncBatches = inngest.createFunction(
+  { name: "Sync Virtuous Batches" },
+  { event: "app/sync.batches" },
+  async ({ event }) => {
+    // 3️⃣ We can now grab the batch id and user id from the event payload
+    const {  user_id, batch_id } = event.data;
+    console.log('syncing batch')
+    // 4️⃣ Finally, we actually synch the batch
+    const user = {id: user_id, }; 
+    await syncBatchGifts(user_id, batch_id)
+    
+    
+    // 🎇 That's it! - We've used two functions to reliably perform a scheduled
+    // task for a large list of users!
+  },
+)
+
+
+
+
+
+// Create an API that serves zero functions
+
+
+
+
+
+
+export const { GET, POST, PUT } = serve(inngest, [
+  helloWorld,
+  prepareAutomation,
+  loadBatches,
+  syncBatches,
+], { streaming: "allow",});

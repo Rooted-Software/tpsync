@@ -88,7 +88,7 @@ export default function ReCallBackPage(params, searchParams) {
         }
 
   
-        window.opener.location = '/dashboard/settings'
+        window.opener.location = '/step3'
         window.close()
       }
       // This forces a cache invalidation.

@@ -11,11 +11,13 @@ const giftBatchSchema = z.object({
   })
 
 
-async function upsertGift(gift, userId) {
+  
+
+async function upsertGift(gift, tempUserId) {
     await db.gift.upsert({
       where: {
         userId_id: { 
-          userId:userId,
+          userId: tempUserId,
           id: gift.id || 'none',
         }
       },
@@ -68,11 +70,10 @@ async function upsertGift(gift, userId) {
         recurringGiftPayments: gift.recurringGiftPayments,
         pledgePayments: gift.pledgePayments,
         customFields: gift.customFields,
-        batch_name: gift.batch_name || 'none',
+        batch_name: gift.batch || 'none',
         synced: false,
       },
       create: {
-        userId, userId,
         id: gift.id,
         transactionSource: gift.transactionSource,
         transactionId: gift.transactionId,
@@ -122,8 +123,9 @@ async function upsertGift(gift, userId) {
         recurringGiftPayments: gift.recurringGiftPayments,
         pledgePayments: gift.pledgePayments,
         customFields: gift.customFields,
-        batch_name: gift.batch_name || 'none',
+        batch_name: gift.batch || 'none',
         synced: false,
+        userId: tempUserId
       },
     })
   }

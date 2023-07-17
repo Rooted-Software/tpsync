@@ -18,6 +18,7 @@ export function VirtuousSyncButton({
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [giftCount, setGiftCount] = React.useState<string>('')
+  
   async function onClick() {
     setIsLoading(true)
     setGiftCount('Loading...')

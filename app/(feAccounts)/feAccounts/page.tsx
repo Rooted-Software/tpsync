@@ -72,11 +72,11 @@ export default async function ReAccountsPage() {
       ></DashboardHeader>
       <div className="">
         Get RE Accounts (Universal)
-        <UniversalButton title="Get Accounts" route="/api/feAccounts" method="GET" fields={['account_code_id', 'description', 'value']} />
+        <UniversalButton title="Get Accounts" route="/api/feAccounts" method="GET" fields={['account_code_id', 'description', 'value']} icon={''} className={''} />
       </div>
       <div className="">
         Get Virtuous Projects (Universal)
-        <UniversalButton title="Get Projects" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} />
+        <UniversalButton title="Get Projects" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} icon={''} className={''} />
       </div>
       <div className="">
         Get Virtuous Projects

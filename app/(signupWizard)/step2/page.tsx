@@ -7,13 +7,6 @@ import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import Image from 'next/image'
 
-import { Icons } from '@/components/icons'
-import { buttonVariants } from '@/components/ui/button'
-import { UserAuthForm } from '@/components/user-auth-form'
-import { cn } from '@/lib/utils'
-import Link from 'next/link'
-import { Stepper } from '@/components/stepper'
-
 const { AuthorizationCode } = require('simple-oauth2')
 
 const reSettingsForUser = cache(async (userId: User['id']) => {
@@ -72,13 +65,16 @@ const config = {
 
 export default async function ConnectFEPage() {
     const user = await getCurrentUser()
+    if (!user) { 
+      redirect('/step1')
+    }
     const data = await reSettingsForUser(user.id)
   return (
-    <div className="container grid w-screen grid-cols-1 flex-col items-center bg-dark  pt-48 lg:max-w-none lg:grid-cols-2 lg:px-0">
+    <div className="container grid w-screen grid-cols-1 flex-col items-center bg-dark lg:max-w-none lg:grid-cols-2 lg:px-0">
 
-      <div className="bg-dark text-white lg:p-8">
-        <div className="flex w-full flex-col justify-center space-y-6 pl-[20%] ">
-          <div className="flex flex-col space-y-2 text-left">
+      <div className="h-screen content-center bg-dark text-white lg:p-8 ">
+        <div className="flex h-screen w-full flex-col content-center justify-center space-y-6 pl-[20%]">
+          <div className="flex flex-col space-y-2 text-left ">
            
             <p className="justify-left text-lg text-white">
               <span className='text-accent-1'>STEP 2:</span>  Now it&apos;s time to connect Financial Edge. Please be sure you if you have a pop up blocker it is disabled.
@@ -105,7 +101,7 @@ export default async function ConnectFEPage() {
         </div>
    
       </div>
-      <Stepper percent={15} />
+
     </div>
   )
 }

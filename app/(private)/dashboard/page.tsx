@@ -14,7 +14,9 @@ import { db } from '@/lib/db'
 import { getCurrentUser } from '@/lib/session'
 import { User } from '@prisma/client'
 import { redirect } from 'next/navigation'
-
+import { formatDate } from '@/lib/utils'
+import Link from 'next/link'
+import { getFeEnvironment } from '@/lib/feEnvironment'
 export const metadata = {
   title: 'Dashboard',
 }
@@ -26,14 +28,17 @@ export default async function DashboardPage() {
     redirect(authOptions?.pages?.signIn || '/login')
   }
 
-  const posts = await db.post.findMany({
+  const feEnvironment = await getFeEnvironment(user)
+
+  const batches = await db.giftBatch.findMany({
     where: {
-      authorId: user.id,
+      userId: user.id,
+      synced: false,
     },
     select: {
       id: true,
-      title: true,
-      published: true,
+      batch_name: true,
+      synced: true,
       createdAt: true,
     },
     orderBy: {
@@ -41,54 +46,97 @@ export default async function DashboardPage() {
     },
   })
 
+  const history = await db.syncHistory.findMany({
+    where: {
+      userId: user.id,
+
+    },
+    select: {
+      id: true,
+      syncType: true,
+      syncDuration: true,
+      syncDate: true,
+      syncStatus: true,
+      syncMessage: true,
+      giftBatchId: true,
+      giftBatch: true,
+    },
+    orderBy: {
+      syncDate: 'desc',
+    },
+  })
+  console.log(user.id)
   return (
     <DashboardShell>
       <DashboardHeader
         heading="Dashboard"
-        text="Test Various API Calls"
+        text="Virtuous to Financial Edge Sync made simple"
       ></DashboardHeader>
       <div>
-        {posts?.length ? (
+        {batches?.length ? (
+          
           <div className="divide-y divide-border rounded-md border">
-            {posts.map((post) => (
-              <PostItem key={post.id} post={post} />
+             <h3 className='text-xl text-accent-1'>Un-synced Virtuous Gift Batches: </h3>
+            {batches.map((batch) => (
+              <div className="flex items-center justify-between p-4">
+              <div className="grid gap-1">
+                <Link
+                  href={`/batchManagement/?batchId=${batch.id}`}
+                  className="font-semibold hover:underline"
+                >
+                  {batch.batch_name}
+                </Link>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(batch.createdAt?.toDateString())}
+                  </p>
+                </div>
+              </div>
+              
+            </div>
             ))}
           </div>
         ) : (
-          <EmptyPlaceholder>
+          <EmptyPlaceholder className='border border-white'>
             <EmptyPlaceholder.Icon name="post" />
-            <EmptyPlaceholder.Title>No posts created</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Title>No Un-synced Virtuous Gift Batches.</EmptyPlaceholder.Title>
             <EmptyPlaceholder.Description>
-              You don&apos;t have any posts yet. Start creating content.
+              Un-synced Virtuous batches will show here 
             </EmptyPlaceholder.Description>
-            <PostCreateButton variant="outline" />
+          
           </EmptyPlaceholder>
         )}
       </div>
-      <div className="">
-        Virtuous Test Button
-        <ApiCallButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+      <div>
+        {history?.length ? (
+          <div className="grid-flow-row auto-rows-max divide-y divide-border rounded-md border">
+            <h3 className='text-xl text-accent-1'>Sync History: </h3>
+            {history.map((log) => (
+              <div className="flex items-center justify-between p-4">
+                <div className="grid w-full gap-1">
+                  <div className='w-full'>Virtuous Batch: {log.giftBatch?.batch_name} - {log.syncType.charAt(0).toUpperCase() + log.syncType.slice(1)} Sync<div className='float-right'><a className='align-items-right text-xs' target='' href={`javascript:window.open('https://host.nxt.blackbaud.com/journalentry/${log.giftBatch?.reBatchNo}?envid=${feEnvironment?.environment_id}', 'financialEdge', 'width=1200,height=750');`} > FE Batch# {log.giftBatch?.reBatchNo} <span className='text-accent-1'>&nbsp; (synced)</span></a>  </div></div>
+             
+                  <div>
+                    <p className="text-sm text-muted-foreground">status: {log.syncStatus} | duration: {log.syncDuration}s | {formatDate(log.syncDate?.toDateString())}
+                    </p>
+                  </div>
+                </div>
+              
+            </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyPlaceholder className='border border-white'>
+            <EmptyPlaceholder.Icon name="post" />
+            <EmptyPlaceholder.Title>No sync activity yet.</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Description>
+              Sync history will appear here. 
+            </EmptyPlaceholder.Description>
+          
+          </EmptyPlaceholder>
+        )}
       </div>
-      <div className="">
-        Virtuous Refresh Button
-        <ApiRefreshButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div>
-      <div className="">
-        Test RE Button
-        <ReTestApiButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div>
-      <div className="">
-        Test RE POST Button
-        <ReTestPostButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div>
-      <div className="">
-        Get Gifts
-        <VirtuousGetGiftsButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div>
-      {/*
-      <div className="">Test KeyGen
-        <KeygenButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-        </div> */}
+      
     </DashboardShell>
   )
 }

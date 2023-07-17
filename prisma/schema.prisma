@@ -69,9 +69,13 @@ model User {
   reJournals             FeJournal[]
   feAccountCodes         FeAccountCode[]
   defaultJournal         String?
+  defaultCreditAccount   String?
+  defaultDebitAccount    String?
   setupStep              String?
   ProjectAccountMapping  ProjectAccountMapping[]
-
+  automation             Boolean?                @default(false) 
+  frequency              String?                 @default("daily") 
+  syncHistory            SyncHistory[]
   @@map(name: "users")
 }
 
@@ -138,12 +142,13 @@ model GiftBatch {
   id         String    @id @default(cuid())
   batch_name String    @unique
   synced     Boolean   @default(false)
+  reBatchNo  Int?  
   syncedAt   DateTime? @map(name: "synced_at")
   createdAt  DateTime  @default(now()) @map(name: "created_at")
   updatedAt  DateTime  @default(now()) @map(name: "updated_at")
   userId     String
   user       User      @relation(fields: [userId], references: [id])
-
+  syncHistory  SyncHistory[] 
   @@unique([userId, batch_name])
   @@map(name: "gift_batches")
 }
@@ -194,7 +199,7 @@ model Gift {
   contactMembershipId     Int?
   giftUrl                 String?
   isTaxDeductible         Boolean?
-  giftDesignations        Json?
+  giftDesignations        Json
   giftPremiums            Json?
   recurringGiftPayments   Json?
   pledgePayments          Json?
@@ -346,4 +351,18 @@ model FeJournal {
 
   @@unique([userId, id])
   @@map(name: "fe_journals")
+}
+
+model SyncHistory { 
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+  syncDate     DateTime
+  syncType     String
+  syncStatus   String
+  syncMessage  String?
+  syncDuration Int
+  giftBatch    GiftBatch?      @relation(fields: [giftBatchId], references: [id])
+  giftBatchId  String?
+  @@map(name: "sync_history")
 }

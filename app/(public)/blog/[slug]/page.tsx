@@ -6,7 +6,7 @@ import {
   getPostAndMoreStories,
   getSettings,
 } from 'lib/sanity.client'
-import { previewData } from 'next/headers'
+
 
 export async function generateStaticParams() {
   return await getAllPostsSlugs()
@@ -21,8 +21,7 @@ interface PostPageProps {
 export default async function PostPage({ params }: PostPageProps) {
   const settings = getSettings()
   console.log(params.slug)
-  console.log('preview data')
-  console.log(previewData())
+
   /*
   if (previewData()) {
     const token = previewData()?.token || ''

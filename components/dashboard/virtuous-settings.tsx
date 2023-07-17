@@ -96,7 +96,7 @@ export function VirtuousSettingsForm({
               {...register('apiKey')}
             />
             {errors?.apiKey && (
-              <p className="px-1 text-xs text-red-600">
+              <p className="text-red-600 px-1 text-xs">
                 {errors.apiKey.message}
               </p>
             )}

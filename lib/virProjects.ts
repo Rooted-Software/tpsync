@@ -1,0 +1,143 @@
+import { db } from '@/lib/db'
+
+export const getProjectAccountMappings = async (user) => {
+  return await db.projectAccountMapping.findMany({
+    select: {
+      id: true,
+      virProjectId: true,
+      feAccountId: true,
+      
+    }, 
+    where: {
+      userId: user.id,
+    },
+  })
+}
+
+export const getVirtuousProjects = async (user) => {
+  let projects = await db.virtuousProject.findMany({
+    select: {
+      id: true,
+      name: true,
+      project_id: true,
+      projectCode: true,
+      onlineDisplayName: true,
+      externalAccountingCode: true,
+      description: true,
+      isActive: true,
+      isPublic: true, 
+      isTaxDeductible: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      onlineDisplayName: 'asc',
+    },
+  })
+
+    if (projects.length < 1) {
+      console.log('no initial projects...querying virtuous')
+    const body = {
+      groups: [
+        {
+          conditions: [
+            {
+              parameter: 'Create Date',
+              operator: 'LessThanOrEqual',
+              value: '30 Days Ago',
+            },
+            {
+              parameter: 'Active',
+              operator: 'IsTrue',
+            },
+          ],
+        },
+      ],
+      sortBy: 'Last Modified Date',
+      descending: 'true',
+    }
+    const res = await virFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.id, body)
+
+    console.log('after virFetch')
+    console.log(res.status)
+    if (res.status !== 200) {
+      console.log('no projects')
+
+    }
+    console.log('returning data')
+    const data = await res.json()
+    console.log(data)
+    data?.list.forEach((project) => {
+      upsertProject(project, user.id)
+    })
+    return await db.virtuousProject.findMany({
+      select: {
+        id: true,
+        name: true,
+        project_id: true,
+        projectCode: true,
+        onlineDisplayName: true,
+        externalAccountingCode: true,
+        description: true,
+        isActive: true,
+        isPublic: true, 
+        isTaxDeductible: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        onlineDisplayName: 'asc',
+      },
+    })
+
+  }
+ return projects 
+}
+
+export async function upsertProject(project, userId) {
+    await db.virtuousProject.upsert({
+      where: {
+        userId_id: { 
+          userId: userId, 
+          id: project.id,
+        }
+        
+      },
+      update: {
+        name: project.name,
+        projectCode: project.projectCode,
+        externalAccountingCode: project.externalAccountingCode || 'none',
+        onlineDisplayName: project.onlineDisplayName,
+        description: project.description,
+        isPublic: project.isPublic === true,
+        isActive: project.isActive === true,
+        isTaxDeductible: project.isTaxDeductible === true,
+        giftSpecifications: project.giftSpecifications,
+        customFields: project.customFields,
+        createdDateTimeUTC: new Date(project.createDateTimeUtc),
+        modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
+      },
+      create: {
+        userId: userId,
+        id: project.id,
+        name: project.name,
+        projectCode: project.projectCode || 'none',
+        externalAccountingCode: project.externalAccountingCode,
+        onlineDisplayName: project.onlineDisplayName,
+        description: project.description,
+        isPublic: project.isPublic === true,
+        isActive: project.isActive === true,
+        isTaxDeductible: project.isTaxDeductible === true,
+        giftSpecifications: project.giftSpecifications,
+        customFields: project.customFields,
+        createdDateTimeUTC: new Date(project.createDateTimeUtc),
+        modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
+      },
+    })
+  }

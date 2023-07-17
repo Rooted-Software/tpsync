@@ -48,19 +48,10 @@ export default async function BillingPage() {
       <div className="grid gap-8">
         <Alert className="!pl-14">
           <Icons.warning />
-          <AlertTitle>This is a demo app.</AlertTitle>
+          <AlertTitle>This is a beta app.</AlertTitle>
           <AlertDescription>
-            Taxonomy app is a demo app using a Stripe test environment. You can
-            find a list of test card numbers on the{' '}
-            <a
-              href="https://stripe.com/docs/testing#cards"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-8"
-            >
-              Stripe docs
-            </a>
-            .
+            The Virtuous - Financial Edge sync tool is still in beta.  We will give notice before we start charging for the service.  You can cancel at any time.
+            
           </AlertDescription>
         </Alert>
         <BillingForm

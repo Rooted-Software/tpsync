@@ -1,51 +1,10 @@
 import { authOptions } from '@/lib/auth'
-import { absoluteUrl } from '@/lib/utils'
-import { db } from '@/lib/db'
+
 import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
 import { virFetch  } from '@/lib/virFetch'
+import { upsertProject } from '@/lib/virProjects'
 
-async function upsertProject(project, userId) {
-    await db.virtuousProject.upsert({
-      where: {
-        userId_id: { 
-          userId: userId, 
-          id: project.id,
-        }
-        
-      },
-      update: {
-        name: project.name,
-        projectCode: project.projectCode,
-        externalAccountingCode: project.externalAccountingCode || 'none',
-        onlineDisplayName: project.onlineDisplayName,
-        description: project.description,
-        isPublic: project.isPublic === true,
-        isActive: project.isActive === true,
-        isTaxDeductible: project.isTaxDeductible === true,
-        giftSpecifications: project.giftSpecifications,
-        customFields: project.customFields,
-        createdDateTimeUTC: new Date(project.createDateTimeUtc),
-        modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
-      },
-      create: {
-        userId: userId,
-        id: project.id,
-        name: project.name,
-        projectCode: project.projectCode || 'none',
-        externalAccountingCode: project.externalAccountingCode,
-        onlineDisplayName: project.onlineDisplayName,
-        description: project.description,
-        isPublic: project.isPublic === true,
-        isActive: project.isActive === true,
-        isTaxDeductible: project.isTaxDeductible === true,
-        giftSpecifications: project.giftSpecifications,
-        customFields: project.customFields,
-        createdDateTimeUTC: new Date(project.createDateTimeUtc),
-        modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
-      },
-    })
-  }
 
 export async function GET(req: Request) {
   try {
@@ -58,23 +17,8 @@ export async function GET(req: Request) {
     console.log('Virtuous Projects - API Route')
     try {
         const body = {
-            groups: [
-              {
-                conditions: [
-                  {
-                    parameter: 'Create Date',
-                    operator: 'LessThanOrEqual',
-                    value: '30 Days Ago',
-                  },
-                  {
-                    parameter: 'Active',
-                    operator: 'IsTrue',
-                  },
-                ],
-              },
-            ],
-            sortBy: 'Last Modified Date',
-            descending: 'true',
+     
+          
           }
         const res = await virFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.id, body)
 

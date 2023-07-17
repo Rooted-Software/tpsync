@@ -4,25 +4,8 @@ import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
 import { virFetch  } from '@/lib/virFetch'
+import { upsertGift } from '@/lib/virGifts'
 
-async function upsertGift(gift: string, userId) {
-    await db.giftBatch.upsert({
-      where: {
-        userId_batch_name: { 
-          userId: userId,
-          batch_name: gift || 'none',
-        }
-      },
-      update: {
-        batch_name: gift || 'none',
-      },
-      create: {
-        userId: userId,
-        batch_name: gift || 'none',
-        synced: false,
-      },
-    })
-  }
 
 export async function GET(req: Request) {
   try {

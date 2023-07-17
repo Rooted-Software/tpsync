@@ -3,13 +3,13 @@ import PreviewIndexPage from '@/components/blog/PreviewIndexPage'
 import { PreviewSuspense } from 'components/PreviewSuspense'
 import { compareDesc } from 'date-fns'
 import { getAllPosts, getSettings } from 'lib/sanity.client'
-import { previewData } from 'next/headers'
+
 
 export default async function BlogPage() {
   // Fetch queries in parallel
   const [settings, posts] = await Promise.all([getSettings(), getAllPosts()])
 
-  console.log(previewData(), settings, posts)
+
   // previeData() currently returns false
   /*
   if (previewData()) {

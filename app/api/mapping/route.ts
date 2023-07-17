@@ -4,6 +4,28 @@ import { postPatchSchema } from '@/lib/validations/post'
 import { getServerSession } from 'next-auth'
 import * as z from 'zod'
 
+const userUpdateSchema = z.object({
+  selectValue: z.string().optional(),
+})
+
+
+
+async function verifyCurrentUserHasAccessToMapping(mappingId: string, userId) {
+  const session = await getServerSession(authOptions)
+  const count = await db.projectAccountMapping.count({
+    where: {
+      id: mappingId,
+      userId: userId,
+    },
+  })
+  return count > 0
+}
+
+const mappingSchema = z.object({
+  id: z.string()
+})
+
+
 const mappingCreateSchema = z.object({
     virProjectIDs: z.string().array(),
     feAccountID: z.string().optional(),
@@ -61,6 +83,7 @@ export async function GET(
   }
 }
 
+
 export async function POST(
   req: Request,
 ) {
@@ -78,11 +101,29 @@ export async function POST(
     const body = mappingCreateSchema.parse(json)
     console.log(user)
     console.log(body)
-    body?.virProjectIDs?.forEach((virProjectID )=> {
-      console.log(virProjectID )
-      const map = upsertMapping(virProjectID, body.feAccountID, user.id)
-    })
-    
+    if (body?.virProjectIDs?.length == 0) {
+     
+      const userSettings = await db.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          defaultDebitAccount: body.feAccountID,
+        },
+        select: {
+          id: true
+        }
+      })
+      
+      return new Response(null, { status: 200 })
+
+    } else {
+
+      body?.virProjectIDs?.forEach((virProjectID )=> {
+        console.log(virProjectID )
+        const map = upsertMapping(virProjectID, body.feAccountID, user.id)
+      })
+    }
 
     return new Response(null, { status: 200 })
   } catch (error) {

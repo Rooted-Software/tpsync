@@ -4,7 +4,6 @@ import { absoluteUrl } from '@/lib/utils'
 import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
-import { reFetch } from '@/lib/reFetch'
 
 
 export async function GET(req: Request) {

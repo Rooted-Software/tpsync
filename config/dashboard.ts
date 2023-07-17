@@ -37,27 +37,12 @@ export const dashboardConfig: DashboardConfig = {
     },
     {
       title: 'Batch Management',
-      href: '/batches',
+      href: '/batchManagement',
       icon: 'post',
     },
     {
-      title: 'Project Management',
-      href: '/projects',
-      icon: 'post',
-    },
-    {
-      title: 'RE Accounts',
-      href: '/reAccounts',
-      icon: 'post',
-    },
-    {
-      title: 'RE Journal',
-      href: '/reJournals',
-      icon: 'post',
-    },
-    {
-      title: 'Content Management',
-      href: '/studio',
+      title: 'Project Mapping',
+      href: '/projectMapping',
       icon: 'post',
     },
     {

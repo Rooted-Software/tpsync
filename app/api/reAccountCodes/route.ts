@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { reFetch } from '@/lib/reFetch'
 
 async function upsertAccount(account, userId) {
-  await db.feAccount.upsert({
+  await db.feAccountCode.upsert({
     where: {
       userId_account_code_id: { 
         account_code_id: account.account_code_id,

@@ -29,6 +29,7 @@ export async function reFetch(url, method, id, body = {}) {
           headers: {
             Authorization: `Bearer ${reSettings.access_token}`,
             'Bb-Api-Subscription-Key': process.env.AUTH_SUBSCRIPTION_KEY || "",
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(body)
         }
@@ -47,6 +48,7 @@ export async function reFetch(url, method, id, body = {}) {
     }
       if (res2.status !== 200) {
         console.log('Initial response')
+        console.log(res2)
         if (res2.status === 401) {
           console.log('401 - need to refresh')
           const authStuff = `Basic ${Buffer.from(
@@ -108,6 +110,7 @@ export async function reFetch(url, method, id, body = {}) {
                     headers: {
                       Authorization: `Bearer ${reSettings.access_token}`,
                       'Bb-Api-Subscription-Key': process.env.AUTH_SUBSCRIPTION_KEY || "",
+                      'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(body)
                   }
@@ -134,6 +137,7 @@ export async function reFetch(url, method, id, body = {}) {
         }
         return {json: ()=>null, status: res2.status}
       }
+      
       return res2
       } catch (err) { 
         console.log(err) 

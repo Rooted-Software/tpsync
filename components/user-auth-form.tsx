@@ -74,7 +74,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               {...register('email')}
             />
             {errors?.email && (
-              <p className="px-1 text-xs text-red-600">
+              <p className="text-red-600 px-1 text-xs">
                 {errors.email.message}
               </p>
             )}

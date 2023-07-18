@@ -41,14 +41,14 @@ export const metadata = {
   ],
   authors: [
     {
-      name: 'shadcn',
+      name: 'Rooted Software',
       url: 'https://shadcn.com',
     },
   ],
-  creator: 'shadcn',
+  creator: 'Rooted Software',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+
   ],
   openGraph: {
     type: 'website',
@@ -63,7 +63,7 @@ export const metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [`${siteConfig.url}/og.jpg`],
-    creator: '@shadcn',
+    creator: '@rooted.software',
   },
   icons: {
     icon: '/favicon.ico',
@@ -84,7 +84,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontHeading.variable
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
           <Analytics />
           <Toaster />

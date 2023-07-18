@@ -38,7 +38,7 @@ export default function LoginPage() {
         <UserVirtuousAuthForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
-            href="/register"
+            href="/step1"
             className="underline underline-offset-4 hover:text-brand"
           >
             Don&apos;t have an account? Sign Up

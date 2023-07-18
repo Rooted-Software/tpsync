@@ -42,7 +42,7 @@ export const metadata = {
   authors: [
     {
       name: 'Rooted Software',
-      url: 'https://shadcn.com',
+      url: 'https://rooted.software',
     },
   ],
   creator: 'Rooted Software',

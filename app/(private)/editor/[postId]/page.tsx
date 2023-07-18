@@ -22,7 +22,7 @@ export default async function EditorPage({ params }: EditorPageProps) {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || '/login')
+    redirect(authOptions?.pages?.signIn || '/login?from=/dashboard')
   }
 
   const post = await getPostForUser(params.postId, user.id)

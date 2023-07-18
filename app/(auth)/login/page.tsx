@@ -40,7 +40,7 @@ export default function LoginPage() {
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/step1"
-            className="underline underline-offset-4 hover:text-brand"
+            className="underline underline-offset-4 hover:text-accent-1"
           >
             Don&apos;t have an account? Sign Up
           </Link>

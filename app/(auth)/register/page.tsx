@@ -14,7 +14,7 @@ export default function RegisterPage() {
   return (
     <div className="container grid w-screen  flex-col items-center bg-dark  pt-48 lg:max-w-none lg:grid-cols-1 lg:px-0">
       <Link
-        href="/login"
+        href="/login?from=/dashboard"
         className={cn(
           buttonVariants({ variant: 'ghost' }),
           'absolute right-4 top-4 text-white md:right-8 md:top-8'

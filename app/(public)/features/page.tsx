@@ -27,20 +27,20 @@ export default async function FeaturePage() {
         <div className="col-span-1 flex flex-col items-center">
           <h3 className="text-xl font-bold sm:text-2xl">Get started now</h3>
           <div className="text-center">
-            <h4 className="text-7xl font-bold">$19</h4>
+            <h4 className="text-7xl font-bold">$0</h4>
             <p className="text-sm font-medium text-slate-600">Billed Monthly</p>
           </div>
           <Link
-            href="?from=/dashboard"
+            href="/step1"
             className="relative mt-4 inline-flex h-12 w-52 max-w-xs items-center justify-center rounded-md border border-transparent bg-brand-500 py-6 text-center font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
           >
-            Go PRO
+            Get Started
           </Link>
         </div>
       </div>
 
       <h3 className="text-xl font-bold sm:text-2xl">
-        Features included with Rooted PRO
+        Features included with DonorSync
       </h3>
 
       <div className="grid w-full grid-cols-1 gap-20 md:grid-cols-2">
@@ -71,8 +71,8 @@ export default async function FeaturePage() {
 
       <div className="mx-auto flex flex-col gap-4 text-center md:max-w-[52rem]">
         <p className="leading-normal text-slate-700 sm:leading-7">
-          Taxonomy is a demo app.{' '}
-          <strong>You can test the upgrade and won&apos;t be charged.</strong>
+          DonorSync is a beta app.{' '}
+          <strong>You can get started for free with all the features and won&apos;t be charged.</strong>
         </p>
       </div>
     </section>

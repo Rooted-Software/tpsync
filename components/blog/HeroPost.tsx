@@ -32,12 +32,12 @@ export default function HeroPost(
             <Date dateString={date || ''} />
           </div>
         </div>
-        <div><br/>
-          {excerpt && <p className="display-block mb-4 text-lg leading-relaxed text-white">{excerpt}</p>}
+        <div>
+        </div>
+        <div>{excerpt && <p className="display-block mb-4 text-lg leading-relaxed text-white">{excerpt}</p>}
           {author && (
             <AuthorAvatar name={author.name} picture={author.picture} />
-          )}
-        </div>
+          )}</div>
       </div>
     </section>
   )

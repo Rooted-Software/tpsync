@@ -33,7 +33,7 @@ export default function HeroPost(
           </div>
         </div>
         <div>
-          {excerpt && <p className="mb-4 text-lg leading-relaxed">{excerpt}</p>}
+          {excerpt && <p className="mb-4 text-lg leading-relaxed text-white">{excerpt}</p>}
           {author && (
             <AuthorAvatar name={author.name} picture={author.picture} />
           )}

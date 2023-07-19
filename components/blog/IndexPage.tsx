@@ -24,17 +24,16 @@ export default function IndexPage(props: {
         <Container>
           <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
             <div className="flex-1 space-y-4">
-              <h1 className="inline-block text-4xl font-extrabold tracking-tight text-slate-900 lg:text-5xl">
-                Blog
+              <h1 className="inline-block text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
+                Virtuous to Financial Edge Sync Made Easy
               </h1>
               <p className="text-xl text-slate-600">
-                A blog built using Sanity.io Posts are written using Portable
-                Text.
+               Get started for free during DonorSync&apos;s beta period!
               </p>
             </div>
             <Link
               href="/step1"
-              className="relative inline-flex h-11 items-center rounded-md border border-slate-900 bg-white px-8 py-2 text-center font-medium text-slate-900 transition-colors hover:bg-slate-900 hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+              className="relative inline-flex h-11 items-center rounded-md border border-slate-100 bg-white px-8 py-2 text-center font-medium text-slate-900 transition-colors hover:bg-slate-900 hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
             >
               Sign Up
             </Link>

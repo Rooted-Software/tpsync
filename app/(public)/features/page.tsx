@@ -18,10 +18,10 @@ export default async function FeaturePage() {
       <div className="mx-auto grid w-full grid-cols-1 gap-4 rounded-lg border border-slate-200 p-10 md:grid-cols-3">
         <div className="col-span-2 flex flex-col justify-center text-center md:text-left">
           <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter md:text-5xl">
-            Go PRO to unlock all features
+            Join during the beta to use all features for free!
           </h2>
           <p className="text-1xl my-2 md:text-2xl">
-            including unlimited posts
+            including batch gift syncing, project mapping, and more
           </p>
         </div>
         <div className="col-span-1 flex flex-col items-center">

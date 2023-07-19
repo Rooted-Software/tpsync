@@ -27,7 +27,7 @@ export default function IndexPage(props: {
               <h1 className="inline-block text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
                 Virtuous to Financial Edge Sync Made Easy
               </h1>
-              <p className="text-xl text-slate-600">
+              <p className="text-xl text-slate-300">
                Get started for free during DonorSync&apos;s beta period!
               </p>
             </div>

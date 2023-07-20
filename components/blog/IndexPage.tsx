@@ -25,7 +25,7 @@ export default function IndexPage(props: {
         <Container>
           <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
             <div className="flex-1 space-y-4">
-              <h1 className="text-34xl inline-block font-extrabold tracking-tight text-slate-100 lg:text-5xl">
+              <h1 className="text-34xl inline-block font-extrabold tracking-tight text-slate-100 lg:text-3xl">
                 <span className='text-accent-1'>DonorSync: <br/> </span>Virtuous to Financial Edge Sync Made Easy
               </h1>
               <p className="text-xl text-slate-300">

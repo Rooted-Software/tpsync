@@ -26,7 +26,7 @@ export default function PostPreview({
             priority={false}
           />
         )}
-        <h2 className="text-2xl font-extrabold">{title}</h2>
+        <h2 className="text-xl font-normal text-accent-1">{title}</h2>
         {excerpt && <p className="text-slate-600">{excerpt}</p>}
         {date && <p className="text-sm text-slate-600">{formatDate(date)}</p>}
         <Link href={`/blog/${slug}`} className="absolute inset-0">

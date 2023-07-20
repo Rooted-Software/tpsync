@@ -33,7 +33,7 @@ export default function BlogPostPage(props: {
       <Container>
         <Link
           href="/blog"
-          className="relative  -left-[200px] hidden items-center justify-center text-sm font-medium text-slate-600 hover:text-slate-900 xl:inline-flex"
+          className="relative  -left-[200px] hidden items-center justify-center text-sm font-medium text-slate-200 hover:text-slate-900 xl:inline-flex"
         >
           <Icons.chevronLeft className="mr-2 h-4 w-4" />
           See all posts

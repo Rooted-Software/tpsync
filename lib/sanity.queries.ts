@@ -29,7 +29,7 @@ const supportCategoryFields = groq`
 export const settingsQuery = groq`*[_type == "settings"][0]`
 
 export const indexQuery = groq`
-*[_type == "post"] | order(date desc, _updatedAt desc) {
+*[_type == "post"] | order(orderRank asc, date desc, _updatedAt desc) {
   ${postFields}
 }`
 
@@ -63,7 +63,7 @@ export const postAndMoreStoriesQuery = groq`
     content,
     ${postFields}
   },
-  "morePosts": *[_type == "post" && slug.current != $slug] | order(date desc, _updatedAt desc) [0...2] {
+  "morePosts": *[_type == "post" && slug.current != $slug] | order(orderRank asc, date desc, _updatedAt desc) [0...2] {
     content,
     ${postFields}
   }

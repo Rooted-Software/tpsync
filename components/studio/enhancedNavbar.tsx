@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation'
 export function enhancedNavbar(props: any) {
   return (
     <Stack>
-      <header className="container sticky top-0 z-40 bg-white">
+      <header className="container sticky top-0 z-40 bg-dark">
         <div className="flex h-16 items-center justify-between border-b border-b-slate-200 py-4">
           <MainNav items={dashboardConfig.mainNav} />
         </div>

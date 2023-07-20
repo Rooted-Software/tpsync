@@ -29,13 +29,13 @@ export default async function SupportCategoryPage({
   } catch (error) {
     // log an error
   }
-  return (
-    <div
-      className="mt-4 p-4 text-white"
-      style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}
-    >
+  return (<>
+ 
+    
       {categories?.length > 0 ? (
-        categories?.map((category: any, index: number) => (
+        categories?.map((category: any, index: number) => (   <div
+          className="text-white"
+          style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
           <Card
             key={index}
             title={category.title}
@@ -51,14 +51,14 @@ export default async function SupportCategoryPage({
             subText={category.subText}
             count={category.count}
             slug={`/support/` + category.slug}
-          />
+          /></div>
         ))
       ) : (
         <div>
           <h3>No categories found</h3>
         </div>
       )}
-    </div>
+    </>
   )
 }
 

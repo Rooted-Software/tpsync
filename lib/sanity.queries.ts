@@ -92,9 +92,9 @@ export const docBySlugQuery = groq`
 } 
 `
 
-export const docsCategoriesWithArticleLinksQuery = groq`*[_type == "docCategory"] | order(date asc, _updatedAt asc) {
+export const docsCategoriesWithArticleLinksQuery = groq`*[_type == "docCategory"] | order(orderRank asc, _updatedAt asc) {
   title,
-  "items" : *[_type == "documentation" && references(^._id) ] { title, "slug" : slug.current} ,
+  "items" : *[_type == "documentation" && references(^._id)  ] | order(orderRank asc, _updatedAt asc) { title, "slug" : slug.current} ,
   }`
 
 export interface Author {

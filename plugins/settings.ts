@@ -53,7 +53,9 @@ export const settingsStructure = (
       (listItem) =>
         listItem.getId() !== typeDef.name &&
         listItem.getId() !== 'post' &&
-        listItem.getId() !== 'features'
+        listItem.getId() !== 'features' &&
+        listItem.getId() !== 'documentation' &&
+        listItem.getId() !== 'docCategory'
     )
 
     // need to figure out how to add a orderableDocumentListDeskItem for the features sidebar
@@ -72,6 +74,34 @@ export const settingsStructure = (
 
           // Required if using multiple lists of the same 'type'
           id: 'orderable-posts',
+          // See notes on adding a `filter` below
+          params: {
+            lang: 'en_US',
+          },
+          // pass from the structure callback params above
+          S,
+          context,
+        }),
+        orderableDocumentListDeskItem({
+          type: 'documentation',
+          title: 'Documentation Articles',
+
+          // Required if using multiple lists of the same 'type'
+          id: 'orderable-documentation',
+          // See notes on adding a `filter` below
+          params: {
+            lang: 'en_US',
+          },
+          // pass from the structure callback params above
+          S,
+          context,
+        }),
+        orderableDocumentListDeskItem({
+          type: 'docCategory',
+          title: 'Documentation Category',
+
+          // Required if using multiple lists of the same 'type'
+          id: 'orderable-docCategory',
           // See notes on adding a `filter` below
           params: {
             lang: 'en_US',

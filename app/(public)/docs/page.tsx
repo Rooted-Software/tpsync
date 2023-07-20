@@ -57,7 +57,7 @@ export default async function DocPage({ params }: DocPageProps) {
       <div className={`mx-auto w-full min-w-0 ${styles.portabletext} `}>
         <DocsPageHeader heading={doc.title} text={''} />
         <PortableText value={doc.content} />
-        <hr className="my-4 border-slate-200 md:my-6" />
+        <hr className="my-4 border-slate-800 md:my-6" />
         {/* <DocsPager doc={doc} /> */}
       </div>
       <div className="hidden text-sm xl:block">

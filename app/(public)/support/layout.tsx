@@ -12,5 +12,5 @@ export default function SupportLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <div className="container flex-1">{children}</div>
+  return <div className='mt-4 pt-4'><div className="container mt-4 grid grid-cols-1 gap-4 pt-4 lg:grid-cols-2">{children}</div></div>
 }

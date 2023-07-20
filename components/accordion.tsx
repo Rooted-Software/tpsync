@@ -14,7 +14,7 @@ function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ')
 }
 const Accordion: FC<AccordionProps> = ({ title, items }) => (
-  <div className="bg-gray-50 p-4">
+  <div className="bg-gray-50 p-4 text-black">
     <Link href="/support">
       <button type="button" className="inline-flex items-center">
         <HiArrowLeft

@@ -45,10 +45,10 @@ export function DocsSidebarNavItems({
           key={index}
           href={item.disabled ? '#' : `/docs/${item.slug}`}
           className={cn(
-            'flex w-full items-center rounded-md p-2 hover:underline',
+            'flex w-full items-center rounded-md p-2 hover:bg-slate-600',
             item.disabled && 'cursor-not-allowed opacity-60',
             {
-              'bg-slate-100': pathname === `/docs/` + item.slug,
+              'bg-slate-900': pathname === `/docs/` + item.slug,
             }
           )}
           target={(item.external && '_blank') || undefined}

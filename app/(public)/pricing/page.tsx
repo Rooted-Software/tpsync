@@ -42,7 +42,7 @@ export default function PricingPage() {
         </div>
         <div className="flex flex-col gap-4 text-center">
           <div>
-            <h4 className="text-7xl font-bold">$19</h4>
+            <h4 className="text-7xl font-bold">$0</h4>
             <p className="text-sm font-medium text-muted-foreground">
               Billed Monthly
             </p>

@@ -1,4 +1,5 @@
-"use client"
+'use client'
+
 import { Fragment } from 'react'
 import { Icons } from '@/components/icons'
 import { toast } from '@/components/ui/use-toast'
@@ -53,6 +54,7 @@ export function UniversalSelect({
     setIsLoading(true)
     setReturnedData([])
     setFilterValue('')
+    console.log(route)
     const response = await fetch(route, {
       method: 'GET',
     })

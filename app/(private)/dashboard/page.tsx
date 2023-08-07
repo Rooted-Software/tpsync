@@ -1,4 +1,3 @@
-import { ApiCallButton } from '@/components/dashboard/api-call-button'
 import { ApiRefreshButton } from '@/components/dashboard/api-refresh-button'
 import { KeygenButton } from '@/components/dashboard/keygen-button'
 import { ReTestApiButton } from '@/components/dashboard/re-test-button'

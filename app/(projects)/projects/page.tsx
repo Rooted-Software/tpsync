@@ -1,4 +1,4 @@
-import { ApiCallButton } from '@/components/dashboard/api-call-button'
+
 import { ApiRefreshButton } from '@/components/dashboard/api-refresh-button'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { KeygenButton } from '@/components/dashboard/keygen-button'
@@ -86,10 +86,7 @@ export default async function ProjectsPage() {
           />
         ) : null}
       </div>
-      <div className="">
-        Virtuous Test Button
-        <ApiCallButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
-      </div>
+  
       <div className="">
         Virtuous Refresh Button
         <ApiRefreshButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />

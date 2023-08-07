@@ -20,16 +20,25 @@ export async function virFetch(url, method, id, body) {
       return {json: ()=>null, status: 429}
     }
     try { 
+        const params = body ? {
+          method: method,
+          headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${account.access_token}`,
+          },
+          body: JSON.stringify(body),
+      } : {
+        method: method,
+        headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${account.access_token}`,
+        },
+     
+    }
+
         const res2 = await fetch(
             url,
-            {
-                method: method,
-                headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${account.access_token}`,
-                },
-                body: JSON.stringify(body),
-            }
+            params,
             )
       if (res2.status !== 200) {
         console.log('Initial response failed - this could indicate a failed refresh token')
@@ -69,16 +78,23 @@ export async function virFetch(url, method, id, body) {
        
             //retry original query
             console.log('retrying original query')
+            const params2 = body? {
+              method: method,
+              headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data.access_token}`,
+              },
+              body: JSON.stringify(body),
+          } : {
+            method: method,
+            headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data.access_token}`,
+            },
+        }
             const res4 = await fetch(
                 url,
-                {
-                    method: method,
-                    headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${account.access_token}`,
-                    },
-                    body: JSON.stringify(body),
-                }
+                params2
                 )
             if (res4.status !== 200) {
               console.log('returning status')

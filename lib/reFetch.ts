@@ -108,7 +108,7 @@ export async function reFetch(url, method, id, body = {}) {
                   {
                     method: method,
                     headers: {
-                      Authorization: `Bearer ${reSettings.access_token}`,
+                      Authorization: `Bearer ${reSettingsData.access_token}`,
                       'Bb-Api-Subscription-Key': process.env.AUTH_SUBSCRIPTION_KEY || "",
                       'Content-Type': 'application/json'
                     },
@@ -121,7 +121,7 @@ export async function reFetch(url, method, id, body = {}) {
                       {
                         method: method,
                         headers: {
-                          Authorization: `Bearer ${reSettings.access_token}`,
+                          Authorization: `Bearer ${reSettingsData.access_token}`,
                           'Bb-Api-Subscription-Key': process.env.AUTH_SUBSCRIPTION_KEY || "",
                         },
                       }

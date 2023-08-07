@@ -76,6 +76,10 @@ model User {
   automation             Boolean?                @default(false) 
   frequency              String?                 @default("daily") 
   syncHistory            SyncHistory[]
+  virtuousOrg             String?
+  virtuousOrgName        String?
+  virtuousOrgTimeZone    String?
+
   @@map(name: "users")
 }
 

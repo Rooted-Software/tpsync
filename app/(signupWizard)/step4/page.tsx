@@ -36,7 +36,7 @@ export default async function ConnectFEDebitAccount() {
               <span className='text-accent-1'>STEP 4:</span>  Select your default DEBIT account.
               
             </p>
-            <UniversalSelect title="Save and Continue" route="/api/feAccounts" method="GET" subType='debit' fields={['account_id', 'account_number', 'description', 'class']} selected={user?.team?.defaultDebitAccount} redirect='/step4b' />
+            <UniversalSelect title="Save and Continue" route={process.env.NEXT_PUBLIC_APP_URL +'/api/feAccounts'} method="GET" subType='debit' fields={['account_id', 'account_number', 'description', 'class']} selected={user?.team?.defaultDebitAccount} redirect='/step4b' />
           </div>
         </div>
    

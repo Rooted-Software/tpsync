@@ -405,7 +405,7 @@ export function BatchPreview({
             </p>
           </div>
         <div className="flex w-full flex-row space-y-2 text-center">      
-            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="Get More Batches" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} />
+            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="Get More Batches" route={process.env.NEXT_PUBLIC_APP_URL + '/api/virProjects'} method="GET" fields={['id', 'name', 'projectCode']} />
         </div>
       <div className='justify-stretch flex w-full flex-row'>
             {batches?.length ? (
@@ -446,7 +446,7 @@ export function BatchPreview({
                 </p>
             </div>
             <div className="flex w-full flex-row space-y-2 text-center">      
-            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="Refresh Gifts" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} />
+            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="Refresh Gifts" route={process.env.NEXT_PUBLIC_APP_URL +'/api/virProjects'} method="GET" fields={['id', 'name', 'projectCode']} />
         </div>
         <div className='flex w-full flex-row'><div className='justify-left col-span-6 w-full overflow-scroll bg-whiteSmoke p-4 text-left text-dark' style={{height: '45vh'}}>
             {gifts?.length ? (<>

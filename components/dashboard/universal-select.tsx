@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import { Icons } from '@/components/icons'
 import { toast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { any } from 'prop-types'
 import * as React from 'react'
 import { set } from 'date-fns'
@@ -55,8 +55,9 @@ export function UniversalSelect({
     setReturnedData([])
     setFilterValue('')
     console.log(route)
-    const host = process.env.NEXTAUTH_URL || 'https://donorsync.org'
-    const response = await fetch(host + route, {
+    
+
+    const response = await fetch(route, {
       method: 'GET',
     })
 
@@ -170,8 +171,9 @@ export function UniversalSelect({
     }
      router.push(redirect)
   }
-
+ 
   if (!isLoading && returnedData?.length < 1) { 
+    
         const user =  getInitialData()
   }
   return (

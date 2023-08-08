@@ -17,7 +17,7 @@ export default async function ConnectVirtuousOrg() {
             <p className="justify-left text-lg text-white">
               <span className='text-accent-1'>STEP 1b:</span>  Select your Virtuous Organization for this sync.
             </p>
-            <UniversalSelect title="Save and Continue" route="/api/virOrg" method="GET" fields={['organizationUserId', 'organizationName', 'organizationTimeZone']} selected='' redirect='/step2' />
+            <UniversalSelect title="Save and Continue" route={process.env.NEXT_PUBLIC_APP_URL +'/api/virOrg'} method="GET" fields={['organizationUserId', 'organizationName', 'organizationTimeZone']} selected='' redirect='/step2' />
           </div>
         </div>
    

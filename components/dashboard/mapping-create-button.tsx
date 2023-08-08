@@ -321,7 +321,7 @@ export function MappingCreateButton({
                 Filter
               </button>
             </div>   
-            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="" route="/api/virProjects" method="GET" fields={['id', 'name', 'projectCode']} />
+            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="" route={process.env.NEXT_PUBLIC_APP_URL +'/api/virProjects'} method="GET" fields={['id', 'name', 'projectCode']} />
         </div>
       <div className='flex w-full flex-row'>
             {filteredProjects?.length ? (
@@ -398,7 +398,7 @@ export function MappingCreateButton({
                 Filter
               </button>
             </div>   
-            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="" route="/api/feAccounts" method="GET" fields={['account_id', 'description', 'account_number']}  />
+            <UniversalButton icon='refresh' className='bg-tightWhite text-dark' title="" route={process.env.NEXT_PUBLIC_APP_URL +'/api/feAccounts'} method="GET" fields={['account_id', 'description', 'account_number']}  />
         </div>
         <div className='flex w-full flex-row'>
             {filteredAccounts?.length ? (

@@ -50,12 +50,13 @@ export function UniversalSelect({
 
   async function getInitialData() {
     console.log('getInitialData')
-    if (isLoading) {return}
+    if (isLoading && route) {return}
     setIsLoading(true)
     setReturnedData([])
     setFilterValue('')
     console.log(route)
-    const response = await fetch(route, {
+    const host = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const response = await fetch(host + route, {
       method: 'GET',
     })
 

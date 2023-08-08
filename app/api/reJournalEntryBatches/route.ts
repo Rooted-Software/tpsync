@@ -166,6 +166,11 @@ export async function POST(req: Request) {
         return account?.account_number
       }
 
+      function lookupAccountClass(accountId) { 
+        const account = feAccounts.find(a => a.account_id === accountId)
+        return account?.class
+      }
+
       function lookupAccountTransactionCodes(accountId) { 
         const account = feAccounts.find(a => a.account_id === accountId)
         return account?.default_transaction_codes
@@ -259,16 +264,18 @@ export async function POST(req: Request) {
           totalDesignations= totalDesignations + (designation?.amountDesignated || 0);
           console.log('designation')
           console.log(designation)
+          const accno = lookupMapping(designation?.projectId)
           journalEntries.push(
             {
               type_code: "Credit",
-              account_number: lookupMapping(designation?.projectId), //lookup account
+              account_number: accno, //lookup account
               post_date: "2018-07-02T00:00:00Z",
               encumbrance: "Regular",
               journal: defaultJournal?.journal, //lookup default journal
               reference: "DonorSync",
               amount: designation && designation.amountDesignated ? designation.amountDesignated : 0,
               notes: "From DonorSync",
+              class: lookupAccountClass(accno), 
               distributions: subDistributions
             }
             )}
@@ -279,6 +286,7 @@ export async function POST(req: Request) {
               {
                 type_code: "Credit",
                 account_number: lookupAccountNumber(defaultCreditAccount), //lookup account
+                class: lookupAccountClass(defaultCreditAccount),
                 post_date: "2018-07-02T00:00:00Z",
                 encumbrance: "Regular",
                 journal: defaultJournal?.journal, //lookup default journal
@@ -295,6 +303,7 @@ export async function POST(req: Request) {
               {
                 type_code: "Credit",
                 account_number: lookupAccountNumber(defaultCreditAccount), //lookup account
+                class: lookupAccountClass(defaultCreditAccount),
                 post_date: "2018-07-02T00:00:00Z",
                 encumbrance: "Regular",
                 journal: defaultJournal?.journal, //lookup default journal
@@ -318,6 +327,7 @@ export async function POST(req: Request) {
             {
               type_code: "Debit",
               account_number: lookupAccountNumber(defaultDebitAccount), //lookup account
+              class: lookupAccountClass(defaultDebitAccount),
               post_date: "2018-07-02T00:00:00Z",
               encumbrance: "Regular",
               journal: defaultJournal?.journal, //lookup default journal

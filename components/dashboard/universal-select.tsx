@@ -55,7 +55,7 @@ export function UniversalSelect({
     setReturnedData([])
     setFilterValue('')
     console.log(route)
-    const host = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const host = process.env.NEXTAUTH_URL || 'https://donorsync.org'
     const response = await fetch(host + route, {
       method: 'GET',
     })

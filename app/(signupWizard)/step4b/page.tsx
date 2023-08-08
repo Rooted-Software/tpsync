@@ -36,7 +36,7 @@ export default async function ConnectFECreditAccount() {
               <span className='text-accent-1'>STEP 4b:</span>  Select your default Credit account.  This is where all unmapped transactions will be posted.
               
             </p>
-            <UniversalSelect title="Save and Continue" route="/api/feAccounts" method="GET" fields={['account_id', 'account_number', 'description', 'class']} subType='credit' selected={user?.defaultCreditAccount} redirect='/step5' />
+            <UniversalSelect title="Save and Continue" route="/api/feAccounts" method="GET" fields={['account_id', 'account_number', 'description', 'class']} subType='credit' selected={user?.team?.defaultCreditAccount} redirect='/step5' />
           </div>
         </div>
    

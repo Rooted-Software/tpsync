@@ -15,7 +15,7 @@ export const getFeAccounts = async (user) => {
     
       },
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
       orderBy: {
         description: 'asc',
@@ -24,7 +24,7 @@ export const getFeAccounts = async (user) => {
 
     if (accounts && accounts.length < 1) {
       console.log('call blackbaud api')
-      const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/accounts','GET', user.id)
+      const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/accounts','GET', user.team.id)
       if (res2.status !== 200) {
         console.log('no accounts found')
 
@@ -32,7 +32,7 @@ export const getFeAccounts = async (user) => {
         console.log('got accounts')
         const data = await res2.json()
         data?.value.forEach((account) => {
-          upsertFeAccount(account, user.id)
+          upsertFeAccount(account, user.team.id)
         })
       }
      return accounts =  await db.feAccount.findMany({
@@ -46,7 +46,7 @@ export const getFeAccounts = async (user) => {
           default_transaction_codes: true, 
         },
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
         orderBy: {
           description: 'asc',
@@ -57,13 +57,13 @@ export const getFeAccounts = async (user) => {
   }
 
 
-export async function upsertFeAccount(account, userId) {
+export async function upsertFeAccount(account, teamId) {
   console.log('upsert account');
     await db.feAccount.upsert({
       where: {
-        account_id_userId: { 
+        account_id_teamId: { 
           account_id: account.account_id,
-          userId: userId
+          teamId: teamId
         },
       },
       update: {         
@@ -81,7 +81,7 @@ export async function upsertFeAccount(account, userId) {
         date_modified: new Date(account.date_modified),
         modified_by: account.modified_by,
         updatedAt: new Date(),       
-        userId: userId,                  
+        teamId: teamId,                  
       },
       create: {
         account_id: account.account_id,
@@ -99,7 +99,7 @@ export async function upsertFeAccount(account, userId) {
         date_modified: new Date(account.date_modified),
         modified_by: account.modified_by,
         updatedAt: new Date(),       
-        userId: userId,              
+        teamId: teamId,              
       },
     })
 

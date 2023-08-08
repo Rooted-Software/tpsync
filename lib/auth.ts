@@ -2,6 +2,7 @@ import { siteConfig } from '@/config/site'
 import { db } from '@/lib/db'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Prisma } from '@prisma/client'
+import { th } from 'date-fns/locale'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { Client } from 'postmark'
@@ -13,6 +14,25 @@ type Credentials = {
 
 const FormData = require('form-data')
 
+const setDefaultNewTeam = async (user: any) => {
+  // create a team
+  const newTeam = await db.team.create({
+    data: {
+      name: user.email,
+      users: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  })
+  return newTeam
+}
+  // update user with team
+  
 
 
 const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || '')
@@ -50,11 +70,11 @@ export const authOptions: NextAuthOptions = {
           email: credentials.email,
           password: credentials.password,
         }
-        console.log(req)
+   
         const form = new FormData()
         form.append('email', credentials.email)
         form.append('password', credentials.password)
-        console.log(credentials)
+      
 
         const res = await fetch('https://api.virtuoussoftware.com/Token', {
           method: 'POST',
@@ -69,23 +89,25 @@ export const authOptions: NextAuthOptions = {
             'Content-Type': 'form-data',
           },
         })
-        console.log('after form')
+      
 
         const user = await res.json()
-        console.log(user)
+     
         if (!res.ok) {
           throw new Error(user.message)
         }
         // If no error and we have user data, return it
         if (res.ok && user) {
           // save some data
-          const dbUser = await db.user.findFirst({
+          var dbUser = await db.user.findFirst({
             where: {
               email: credentials.email,
             },
+            include: {
+              team: true, 
+            }
           })
-          console.log('finding user')
-
+     
           if (!dbUser) {
             console.log('no user found')
             // create new user and account (with tokens)
@@ -95,13 +117,30 @@ export const authOptions: NextAuthOptions = {
                 email: credentials.email,
                 emailVerified: new Date(),
                 name: user.userName,
-                setupStep: 'two',
               },
               select: {
                 id: true,
-              },
+                teamId: true,
+                team: true,
+              }
+            
             })
-
+            // check to see if there is a team? 
+            if (newUser && !newUser.teamId) {
+              const newTeam = await setDefaultNewTeam(newUser); 
+            
+            }
+            dbUser = await db.user.findFirst({
+              where: {
+                email: credentials.email,
+              },
+              include: {
+                team: true, 
+              }
+            })
+            if (!dbUser) { throw new Error('No user found') 
+              return null 
+            }
             let accountData: Prisma.AccountUncheckedCreateInput = {
               userId: newUser.id,
               type: 'oauth',
@@ -113,7 +152,7 @@ export const authOptions: NextAuthOptions = {
               token_type: 'bearer',
             }
 
-            console.log('')
+          
             const newAccount = await db.account.create({
               data: accountData,
               select: {
@@ -121,7 +160,7 @@ export const authOptions: NextAuthOptions = {
               },
             })
           } else {
-            console.log('updating user')
+           
             // update account (with tokens)
             const updatedAccount = await db.account.updateMany({
               where: {
@@ -137,16 +176,32 @@ export const authOptions: NextAuthOptions = {
               },
             })
           }
-          // console.log('Here is the user')
-          user.id = dbUser?.id
-          user.email = credentials.email
-          user.defaultCreditAccount = dbUser?.defaultCreditAccount
-          user.defaultDebitAccount = dbUser?.defaultDebitAccount
-          user.defaultJournal = dbUser?.defaultJournal
-          user.setupStep = dbUser?.setupStep
+         console.log('finishing login ')
+          if (!dbUser?.teamId) {
+            const newTeam = await setDefaultNewTeam(dbUser); 
+            dbUser.teamId = newTeam.id
+            dbUser = await db.user.findFirst({
+              where: {
+                email: credentials.email,
+              },
+              include: {
+                team: true, 
+              }
+            })
+          }
 
-          // console.log(user)
-          return user
+          if (!dbUser || !dbUser?.teamId) { 
+            console.log('failed to fund user or team')
+            // failed to fund user or team, which should not happen at this stage
+            return null 
+          }
+    
+          
+          console.log('Here is the user')
+          let loggedInUser: any = {id: dbUser.id, email: credentials.email, team: dbUser.team, teamId: dbUser.teamId}
+
+
+          return loggedInUser
         }
 
         // Return null if user data could not be retrieved
@@ -162,28 +217,31 @@ export const authOptions: NextAuthOptions = {
       // console.log(session)
       // console.log('user-session')
       // console.log(user)
+      if (!token.teamId) { return session } 
       if (token) {
         session.user.id = token.id
         session.user.name = token.name
         session.user.email = token.email
         session.user.image = token.picture
-        session.user.defaultDebitAccount = token.defaultDebitAccount
-        session.user.defaultCreditAccount = token.defaultCreditAccount
-        session.user.defaultJournal = token.defaultJournal
-        session.user.setupStep = token.setupStep
+        session.user.team = token.team
+        session.user.teamId = token.teamId
       }
-
+    
+      console.log('returning session')
+      // console.log(session)
       return session
     },
     async jwt({ token, user }) {
-      // console.log('jwt-token')
+      console.log('in jwt-token')
       // console.log(token)
       // console.log('jwt-user')
       // console.log(user)
       const dbUser = await db.user.findFirst({
         where: {
           email: token.email,
-        },
+        },include: { 
+          team: true, 
+        }
       })
       // console.log("In JWT DB USER")
       // console.log(dbUser)
@@ -199,10 +257,9 @@ export const authOptions: NextAuthOptions = {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        setupStep: dbUser.setupStep,
-        defaultDebitAccount: dbUser.defaultDebitAccount,
-        defaultCreditAccount: dbUser.defaultCreditAccount,
-        defaultJournal: dbUser.defaultJournal
+        setupStep: dbUser.team?.setupStep,
+        team: dbUser.team,
+        teamId: dbUser.teamId,
       }
     },
   },

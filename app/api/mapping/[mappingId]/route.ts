@@ -42,13 +42,13 @@ export async function DELETE(
 
 async function verifyCurrentUserHasAccessToMapping(mappingId: string) {
   const session = await getServerSession(authOptions)
-  console.log(session?.user.id)
+  console.log(session?.user.team.id)
   console.log('verifying session has access to')
   console.log(mappingId)
   const count = await db.projectAccountMapping.count({
     where: {
       id: mappingId,
-      userId: session?.user.id,
+      teamId: session?.user.team.id,
     },
   })
   console.log(count)

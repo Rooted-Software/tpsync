@@ -307,7 +307,7 @@ export function MappingCreateButton({
                 value={textFilter}
                 onChange={(e)=> {setTextFilter(e.target.value);  filterProjects(e.target.value)}}
                 placeholder="Search"
-                className="w-full rounded-lg border border-gray-400 p-2"
+                className="w-full rounded-lg border border-gray-400 p-2 text-brand-400"
               />
           </div>
           <div className='align-right items-right my-auto mx-2 basis-1/3'>
@@ -328,7 +328,7 @@ export function MappingCreateButton({
       <div className='justify-left col-span-6 w-full overflow-scroll bg-whiteSmoke p-4 text-left text-dark' style={{height: '45vh'}}>
         {filteredProjects && filteredProjects.map((project) => (<div className='p-1' key={project.project_id}>
         <div className="flex flex-row items-center" >
-          <input id={`checked-checkbox-${project.project_id}`}  type="checkbox" value={project.project_id} onClick={(e)=>{if ((e.target as HTMLInputElement).checked) {addVirProject((e.target as HTMLInputElement).value)} else {removeVirProject((e.target as HTMLInputElement).value)} }} className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600" />
+          <input id={`checked-checkbox-${project.project_id}`}  type="checkbox" value={project.project_id} onClick={(e)=>{if ((e.target as HTMLInputElement).checked) {addVirProject((e.target as HTMLInputElement).value)} else {removeVirProject((e.target as HTMLInputElement).value)} }} className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 " />
           <label htmlFor={`checked-checkbox-${project.project_id}`} className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{project.name} </label>
                 
         </div>{project.onlineDisplayName
@@ -384,7 +384,7 @@ export function MappingCreateButton({
                 value={textFeFilter}
                 onChange={(e)=> {setTextFeFilter(e.target.value);  filterFeAccounts(e.target.value)}}
                 placeholder="Search"
-                className="w-full rounded-lg border border-gray-400 p-2"
+                className="w-full rounded-lg border border-gray-400 p-2 text-brand-400"
               />
           </div>
           <div className='align-right items-right my-auto mx-2 basis-1/3'>
@@ -461,7 +461,7 @@ export function MappingCreateButton({
           <br/> <span className='text-sm text-dark'>Transaction Codes:</span> <br/>
           {feAccountObj?.default_transaction_codes?.map((tc)=> { 
             return (<span key={'tc' + tc?.name}className='text-sm'>
-            {tc?.name}  {tc?.value && tc?.value !== 'None' ? tc?.value : null}  <br/>
+            {tc?.name}: {tc?.value && tc?.value !== 'None' ? tc?.value : 'None'}  <br/>
             </span>
 
             )

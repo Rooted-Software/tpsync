@@ -27,7 +27,7 @@ const getFeEnvironment = async (user) => {
      
     }, 
     where: {
-      userId: user.id,
+      teamId: user.team.id,
     }
   })
 }
@@ -38,14 +38,14 @@ const getFeEnvironment = async (user) => {
   }
 
 // get FE journal name based on user's default journal
-const getFeJournalName = async (journalId, userId) => {
+const getFeJournalName = async (journalId, teamId) => {
   return await db.feJournal.findFirst({
     select: {
       journal: true,
       id: true, 
     },
     where: {
-        userId: userId,
+        teamId: teamId,
         id: parseInt(journalId),
     },
   })
@@ -65,7 +65,7 @@ export default async function ReveiwDataPage() {
     const mappingData = getProjectAccountMappings(user)
     const batchData = getVirtuousBatches(user)
     const feEnvironmentData = getFeEnvironment(user)
-    const feGetJournalName = getFeJournalName(user?.defaultJournal, user.id)
+    const feGetJournalName = getFeJournalName(user?.team.defaultJournal, user.team.id)
     const [projects, feAccounts, mappings, batches, feEnvironment, journalName] = await Promise.all([projectsData, feAccountsData, mappingData, batchData, feEnvironmentData, feGetJournalName  ])
     
     if (!feEnvironment) { 
@@ -94,9 +94,9 @@ export default async function ReveiwDataPage() {
            projects={projects}
            feAccounts={feAccounts}
            mappings={mappings}
-           defaultCreditAccount={user?.defaultCreditAccount}
-           defaultDebitAccount={user?.defaultDebitAccount}
-           defaultJournal={user?.defaultJournal} 
+           defaultCreditAccount={user?.team.defaultCreditAccount}
+           defaultDebitAccount={user?.team.defaultDebitAccount}
+           defaultJournal={user?.team.defaultJournal} 
            feEnvironment={feEnvironment.environment_id}
            journalName={journalName.journal}
            className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"

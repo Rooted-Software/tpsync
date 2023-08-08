@@ -7,7 +7,7 @@ import { MappingCreateButton } from '@/components/dashboard/mapping-create-butto
 import { upsertFeAccount } from '@/lib/feAccounts'
 import { reFetch } from '@/lib/reFetch'
 import { upsertProject } from '@/lib/virProjects'
-import { virFetch } from '@/lib/virFetch'
+import { virApiFetch } from '@/lib/virApiFetch'
 
 
   export const metadata = {
@@ -32,7 +32,7 @@ import { virFetch } from '@/lib/virFetch'
         updatedAt: true,
       },
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
       orderBy: {
         onlineDisplayName: 'asc',
@@ -60,9 +60,9 @@ import { virFetch } from '@/lib/virFetch'
         sortBy: 'Last Modified Date',
         descending: 'true',
       }
-      const res = await virFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.id, body)
+      const res = await virApiFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.team.id, body)
 
-      console.log('after virFetch')
+      console.log('after virApiFetch')
       console.log(res.status)
       if (res.status !== 200) {
         console.log('no projects')
@@ -90,7 +90,7 @@ import { virFetch } from '@/lib/virFetch'
           updatedAt: true,
         },
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
         orderBy: {
           onlineDisplayName: 'asc',
@@ -116,7 +116,7 @@ import { virFetch } from '@/lib/virFetch'
         updatedAt: true,
       }, 
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
       orderBy: {
         description: 'asc',
@@ -133,7 +133,7 @@ import { virFetch } from '@/lib/virFetch'
         
       }, 
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
     })
   }
@@ -152,7 +152,7 @@ import { virFetch } from '@/lib/virFetch'
     
       },
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
       orderBy: {
         description: 'asc',
@@ -169,7 +169,7 @@ import { virFetch } from '@/lib/virFetch'
         console.log('got accounts')
         const data = await res2.json()
         data?.value.forEach((account) => {
-          upsertFeAccount(account, user.id)
+          upsertFeAccount(account, user.team.id)
         })
       }
      return accounts =  await db.feAccount.findMany({
@@ -183,7 +183,7 @@ import { virFetch } from '@/lib/virFetch'
           default_transaction_codes: true, 
         },
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
         orderBy: {
           description: 'asc',

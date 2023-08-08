@@ -27,7 +27,7 @@ export async function GET(req: Request) {
           updatedAt: true,
         },
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
       })
       console.log(reSettings)
@@ -59,7 +59,7 @@ export async function DELETE(
       // Delete the post.
       const reSettings = await db.feSetting.delete({
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
       })
   

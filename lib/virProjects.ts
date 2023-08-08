@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { virApiFetch } from './virApiFetch'
 
 export const getProjectAccountMappings = async (user) => {
   return await db.projectAccountMapping.findMany({
@@ -9,7 +10,7 @@ export const getProjectAccountMappings = async (user) => {
       
     }, 
     where: {
-      userId: user.id,
+      teamId: user.team.id,
     },
   })
 }
@@ -31,7 +32,7 @@ export const getVirtuousProjects = async (user) => {
       updatedAt: true,
     },
     where: {
-      userId: user.id,
+      teamId: user.team.id,
     },
     orderBy: {
       onlineDisplayName: 'asc',
@@ -59,9 +60,9 @@ export const getVirtuousProjects = async (user) => {
       sortBy: 'Last Modified Date',
       descending: 'true',
     }
-    const res = await virFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.id, body)
+    const res = await virApiFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.team.id, body)
 
-    console.log('after virFetch')
+    console.log('after virApiFetch')
     console.log(res.status)
     if (res.status !== 200) {
       console.log('no projects')
@@ -71,7 +72,7 @@ export const getVirtuousProjects = async (user) => {
     const data = await res.json()
     console.log(data)
     data?.list.forEach((project) => {
-      upsertProject(project, user.id)
+      upsertProject(project, user.team.id)
     })
     return await db.virtuousProject.findMany({
       select: {
@@ -89,7 +90,7 @@ export const getVirtuousProjects = async (user) => {
         updatedAt: true,
       },
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
       orderBy: {
         onlineDisplayName: 'asc',
@@ -100,11 +101,11 @@ export const getVirtuousProjects = async (user) => {
  return projects 
 }
 
-export async function upsertProject(project, userId) {
+export async function upsertProject(project, teamId) {
     await db.virtuousProject.upsert({
       where: {
-        userId_id: { 
-          userId: userId, 
+        teamId_id: { 
+          teamId: teamId, 
           id: project.id,
         }
         
@@ -124,7 +125,7 @@ export async function upsertProject(project, userId) {
         modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
       },
       create: {
-        userId: userId,
+        teamId: teamId,
         id: project.id,
         name: project.name,
         projectCode: project.projectCode || 'none',
@@ -141,3 +142,16 @@ export async function upsertProject(project, userId) {
       },
     })
   }
+
+
+export async function insertManyProject(data, teamId) {
+  await db.virtuousProject.deleteMany({
+    where: {
+      teamId: teamId,
+  }}) 
+
+  await db.virtuousProject.createMany({
+    data: data,
+    skipDuplicates: true, 
+  })
+}

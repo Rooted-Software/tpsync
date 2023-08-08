@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { virFetch } from './virFetch'
+import { virApiFetch } from './virApiFetch'
 
 
 export const getBatches = async (user) => {
@@ -14,7 +14,7 @@ export const getBatches = async (user) => {
         updatedAt: true,
       },
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
       orderBy: {
         updatedAt: 'desc',
@@ -41,7 +41,7 @@ export const getVirtuousBatches = async (user) => {
             descending: 'true',
           }
       
-    const res = await virFetch('https://api.virtuoussoftware.com/api/Gift/Query/FullGift?skip=0&take=1000', 'POST', user.id, body)
+    const res = await virApiFetch('https://api.virtuoussoftware.com/api/Gift/Query/FullGift?skip=0&take=1000', 'POST', user.team.id, body)
 
     
     if (res.status !== 200) {
@@ -56,17 +56,17 @@ export const getVirtuousBatches = async (user) => {
     console.log(unique)
 
     unique.forEach((gift: string) => {
-      upsertGift(gift, user.id)
+      upsertGift(gift, user.team.id)
     })
   }
   return await getBatches(user)
 }
 
-  export async function upsertGift(gift: string, userId) {
+  export async function upsertGift(gift: string, teamId) {
     await db.giftBatch.upsert({
       where: {
-        userId_batch_name: { 
-          userId: userId,
+        teamId_batch_name: { 
+          teamId: teamId,
           batch_name: gift || 'none',
         }
       },
@@ -74,7 +74,7 @@ export const getVirtuousBatches = async (user) => {
         batch_name: gift || 'none',
       },
       create: {
-        userId: userId,
+        teamId: teamId,
         batch_name: gift || 'none',
         synced: false,
       },

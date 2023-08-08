@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     const { user } = session
     console.log('RE Accounts')
     try {
-      const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/accounts','GET', user.id)
+      const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/accounts','GET', user.team.id)
       console.log('after form')
       console.log(res2.status)
       if (res2.status !== 200) {
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
       console.log('returning something else')
       const data = await res2.json()
       data?.value.forEach((account) => {
-        upsertFeAccount(account, session.user.id)
+        upsertFeAccount(account, session.user.team.id)
       })
       return new Response(JSON.stringify(data.value));
     } catch (error) {
@@ -72,9 +72,9 @@ export async function POST(
     console.log('Test Subtype');
     console.log(body.subType); 
     if (body.subType === 'credit') {
-      const userSettings = await db.user.update({
+      const userSettings = await db.team.update({
         where: {
-          id: user.id,
+          id: user.team.id,
         },
         data: {
           defaultCreditAccount: body.selectValue,
@@ -84,9 +84,9 @@ export async function POST(
         }
       })
     } else {
-      const userSettings = await db.user.update({
+      const userSettings = await db.team.update({
         where: {
-          id: user.id,
+          id: user.team.id,
         },
         data: {
           defaultDebitAccount: body.selectValue,

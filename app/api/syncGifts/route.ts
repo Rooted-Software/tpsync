@@ -2,7 +2,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { RequiresProPlanError } from '@/lib/exceptions'
 import { getUserSubscriptionPlan } from '@/lib/subscription'
-import { virFetch } from '@/lib/virFetch'
+import { virApiFetch } from '@/lib/virApiFetch'
 import { getServerSession } from 'next-auth/next'
 import * as z from 'zod'
 
@@ -10,14 +10,11 @@ const giftBatchSchema = z.object({
     batch_name: z.string(),
   })
 
-
-  
-
-async function upsertGift(gift, tempUserId) {
+async function upsertGift(gift, tempTeamId) {
     await db.gift.upsert({
       where: {
-        userId_id: { 
-          userId: tempUserId,
+        teamId_id: { 
+          teamId: tempTeamId,
           id: gift.id || 'none',
         }
       },
@@ -125,7 +122,7 @@ async function upsertGift(gift, tempUserId) {
         customFields: gift.customFields,
         batch_name: gift.batch || 'none',
         synced: false,
-        userId: tempUserId
+        teamId: tempTeamId
       },
     })
   }
@@ -155,14 +152,14 @@ export async function POST(req: Request) {
         sortBy: 'Last Modified Date',
         descending: 'true',
       }
-    const res = await virFetch('https://api.virtuoussoftware.com/api/Gift/Query/FullGift?skip=0&take=1000', 'POST', user.id, bodyJSON)
+    const res = await virApiFetch('https://api.virtuoussoftware.com/api/Gift/Query/FullGift?skip=0&take=1000', 'POST', user.team.id, bodyJSON)
 
     const data = await res.json()
 
     console.log(data)
 
     data.list?.forEach((gift) => {
-      upsertGift(gift, session.user.id)
+      upsertGift(gift, session.user.team.id)
     })
 
 

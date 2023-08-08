@@ -49,11 +49,11 @@ export async function POST(req: Request) {
     // save some data
     const reSettings = await db.feSetting.findFirst({
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       },
     })
     let reSettingsData = {
-      userId: user.id,
+      teamId: user.team.id,
       token_type: data.token_type,
       expires_in: data.expires_in,
       refresh_token: data.refresh_token,

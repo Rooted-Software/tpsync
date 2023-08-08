@@ -26,26 +26,26 @@ export const prepareAutomation = inngest.createFunction(
   { event: "app/prepare" },
   async ({ step }) => {
     // Load all the users from your database:
-    const users = await step.run("Load users", async() =>await db.user.findMany({
+    const teams = await step.run("Load users", async() =>await db.team.findMany({
       where: {
         automation: true,
       },
       select: { 
         id: true,
         name: true,
-        email: true,
+        automation: true,
       }
     }));
 
     // ✨ This is known as a "fan-out" pattern ✨
 
     // 1️⃣ First, we'll create an event object for every user return in the query:
-    const events = users.map((user) => {
+    const events = teams.map((team) => {
       return {
         name: "app/load.batches",
         data: {
-          user_id: user.id,
-          email: user.email,
+          team_id: team.id,
+          name: team.name,
         }
       }
     });
@@ -53,7 +53,7 @@ export const prepareAutomation = inngest.createFunction(
     // 2️⃣ Now, we'll send all events in a single batch:
     await step.sendEvent(events);
 
-    return { count: users.length };
+    return { count: teams.length };
   }
 );
 

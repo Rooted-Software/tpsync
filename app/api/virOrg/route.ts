@@ -4,7 +4,7 @@ import { absoluteUrl } from '@/lib/utils'
 import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
-import { virFetch } from '@/lib/virFetch'
+import { virApiFetch } from '@/lib/virApiFetch'
 
 
 
@@ -19,9 +19,9 @@ export async function GET(req: Request) {
     console.log('Virtuous Projects - API Route')
     try {
         const body = null
-        const res = await virFetch('https://api.virtuoussoftware.com/api/Organization', 'GET', user.id, body)
+        const res = await virApiFetch('https://api.virtuoussoftware.com/api/Organization/Current', 'GET', user.team.id, body)
 
-          console.log('after virFetch')
+          console.log('after virApiFetch')
           console.log(res.status)
           if (res.status !== 200) {
             console.log('returning status')
@@ -76,15 +76,15 @@ try {
   const org = {
     "organizationUserId": body.selectValue
   }
-  const res2 = await virFetch('https://api.virtuoussoftware.com/api/Organization/Switch', 'PUT', user.id, org)
+  const res2 = await virApiFetch('https://api.virtuoussoftware.com/api/Organization/Switch', 'PUT', user.team.id, org)
   const body2 = null
-  const res3 = await virFetch('https://api.virtuoussoftware.com/api/Organization/Current', 'GET', user.id, body2)
-  console.log('after virFetch of new org ')
+  const res3 = await virApiFetch('https://api.virtuoussoftware.com/api/Organization/Current', 'GET', user.team.id, body2)
+  console.log('after virApiFetch of new org ')
   const data = await res3.json()
   console.log(data)
-  const userSettings = await db.user.update({
+  const userSettings = await db.team.update({
     where: {
-      id: user.id,
+      id: user.team.id,
     },
     data: {
       virtuousOrg: data.organizationUserId.toString(),

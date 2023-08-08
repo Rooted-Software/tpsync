@@ -14,14 +14,13 @@ import * as z from 'zod'
 
 interface VirtuousSettingsFormProps
   extends React.HTMLAttributes<HTMLFormElement> {
-  user: Pick<User, 'id' | 'name'>
-  apiKey: string
+
+  apiKey?: string
 }
 
 type FormData = z.infer<typeof apiKeySchema>
 
 export function VirtuousSettingsForm({
-  user,
   apiKey,
   className,
   ...props
@@ -38,7 +37,7 @@ export function VirtuousSettingsForm({
     },
   })
   const [isSaving, setIsSaving] = React.useState<boolean>(false)
-
+  const [label, setLabel] = React.useState<string>('Save')
   async function onSubmit(data: FormData) {
     setIsSaving(true)
     console.log(data)
@@ -91,8 +90,7 @@ export function VirtuousSettingsForm({
             </label>
             <input
               id="apiKey"
-              className="my-0 mb-2 block h-9 w-[350px] rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
-              name="apiKey"
+              className="mx-auto my-0 mb-2 block h-9 w-[350px] rounded-md border border-slate-300 py-2 px-3 text-sm text-slate-600 placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
               {...register('apiKey')}
             />
             {errors?.apiKey && (
@@ -102,11 +100,12 @@ export function VirtuousSettingsForm({
             )}
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className='w-100 items-center text-center '>
           <button
             type="submit"
+            
             className={cn(
-              'relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
+              'w-sm mx-auto h-9  rounded-full border border-transparent bg-accent-1 px-4 py-2 text-sm font-medium text-dark focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
               {
                 'cursor-not-allowed opacity-60': isSaving,
               },
@@ -117,7 +116,7 @@ export function VirtuousSettingsForm({
             {isSaving && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            <span>Save</span>
+            <span className='mx-auto'>{label}</span>
           </button>
         </CardFooter>
       </Card>

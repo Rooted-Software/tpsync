@@ -3,7 +3,7 @@ import { absoluteUrl } from '@/lib/utils'
 import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
-import { virFetch  } from '@/lib/virFetch'
+import { virApiFetch  } from '@/lib/virApiFetch'
 import { upsertGift } from '@/lib/virGifts'
 
 
@@ -26,9 +26,9 @@ export async function GET(req: Request) {
             sortBy: 'Last Modified Date',
             descending: 'true',
           }
-        const res = await virFetch('https://api.virtuoussoftware.com/api/Gift/Query/FullGift?skip=0&take=1000', 'POST', user.id, body)
+        const res = await virApiFetch('https://api.virtuoussoftware.com/api/Gift/Query/FullGift?skip=0&take=1000', 'POST', user.team.id, body)
 
-          console.log('after virFetch')
+          console.log('after virApiFetch')
           console.log(res.status)
           if (res.status !== 200) {
             console.log('returning status')

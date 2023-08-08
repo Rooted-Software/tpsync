@@ -14,7 +14,7 @@ import { UniversalSelect } from '@/components/dashboard/universal-select'
 
 const { AuthorizationCode } = require('simple-oauth2')
 
-const reSettingsForUser = cache(async (userId: User['id']) => {
+const reSettingsForUser = cache(async (teamId) => {
   return await db.feSetting.findFirst({
     select: {
       id: true,
@@ -24,7 +24,7 @@ const reSettingsForUser = cache(async (userId: User['id']) => {
       expires_in: true,
     },
     where: {
-      userId: userId,
+      teamId: teamId,
     },
   })
 })
@@ -48,10 +48,10 @@ const reAuthorizeURL = client.authorizeURL({
 })
 console.log('here goes')
 console.log(reAuthorizeURL)
-const getApiKey = cache(async (userId: User['id']) => {
+const getApiKey = cache(async (teamId) => {
   return await db.apiSetting.findFirst({
     where: {
-      userId: userId,
+      teamId: teamId,
     },
     select: {
       id: true,
@@ -71,8 +71,8 @@ export default async function SettingsPage() {
   if (!user || user === undefined) {
     redirect(authOptions?.pages?.signIn || '/login')
   }
-  const apiKey = await getApiKey(user.id)
-  const data = await reSettingsForUser(user.id)
+  const apiKey = await getApiKey(user.team.id)
+  const data = await reSettingsForUser(user.team.id)
   return (
     <DashboardShell>
       <DashboardHeader

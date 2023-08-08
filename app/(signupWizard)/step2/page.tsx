@@ -9,7 +9,8 @@ import Image from 'next/image'
 
 const { AuthorizationCode } = require('simple-oauth2')
 
-const reSettingsForUser = cache(async (userId: User['id']) => {
+const reSettingsForUser = cache(async (teamId: string) => {
+  if (!teamId) return null
   return await db.feSetting.findFirst({
     select: {
       id: true,
@@ -19,7 +20,7 @@ const reSettingsForUser = cache(async (userId: User['id']) => {
       expires_in: true,
     },
     where: {
-      userId: userId,
+      teamId: teamId,
     },
   })
 })
@@ -44,10 +45,11 @@ const config = {
   })
   console.log('here goes')
   console.log(reAuthorizeURL)
-  const getApiKey = cache(async (userId: User['id']) => {
+  const getApiKey = cache(async (teamId: User['teamId']) => {
+    if (!teamId) return null
     return await db.apiSetting.findFirst({
       where: {
-        userId: userId,
+        teamId: teamId,
       },
       select: {
         id: true,
@@ -68,7 +70,7 @@ export default async function ConnectFEPage() {
     if (!user) { 
       redirect('/step1')
     }
-    const data = await reSettingsForUser(user.id)
+    const data = await reSettingsForUser(user?.teamId)
   return (
     <div className="container grid w-screen grid-cols-1 flex-col items-center bg-dark lg:max-w-none lg:grid-cols-2 lg:px-0">
 

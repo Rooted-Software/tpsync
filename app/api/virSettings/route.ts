@@ -33,13 +33,13 @@ export async function PATCH(
       // TODO: Implement sanitization for content.
       const setting = await db.apiSetting.upsert({
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
         update: {
           virtuousAPI: body.apiKey,
         },
         create: {
-          userId: user.id,
+          teamId: user.team.id,
           virtuousAPI: body.apiKey,
         },
       })

@@ -8,12 +8,12 @@ import { reFetch } from '@/lib/reFetch'
 import { User } from '@prisma/client'
 import { any } from 'prop-types'
 
-async function upsertJournal(journal, userId) {
+async function upsertJournal(journal, teamId) {
     await db.feJournal.upsert({
       where: {
-        userId_id: { 
+        teamId_id: { 
         id: journal.journal_code_id,
-        userId: userId
+        teamId: teamId
         }
       },
       update: {
@@ -24,7 +24,7 @@ async function upsertJournal(journal, userId) {
         id: journal.journal_code_id,
         code: journal.code,
         journal: journal.journal,
-        userId: userId
+        teamId: teamId
       },
     })
   }
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     }
     const { user } = session
     console.log('GET RE Journals API Route')
-    const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/journalcodes','GET', user.id)
+    const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/journalcodes','GET', user.team.id)
     console.log(res2.status)
     if (res2.status !== 200) {
         console.log('returning status')
@@ -48,7 +48,7 @@ export async function GET(req: Request) {
     const data = await res2.json()
     console.log(data)
     data?.forEach((journal) => {
-        upsertJournal(journal, session.user.id)
+        upsertJournal(journal, session.user.team.id)
     })
     return new Response(JSON.stringify(data));
     } catch (error) {
@@ -87,9 +87,9 @@ export async function POST(
     
     const body = userUpdateSchema.parse(json)
    
-    const userSettings = await db.user.update({
+    const userSettings = await db.team.update({
       where: {
-        id: user.id,
+        id: user.team.id,
       },
       data: {
         defaultJournal: body.selectValue,

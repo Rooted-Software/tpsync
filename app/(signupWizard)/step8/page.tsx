@@ -26,12 +26,6 @@ import Link from 'next/link'
 export default async function CompletePage() {
     const user = await getCurrentUser()
     if (!user) { return null}
-    const feAccountsData = getFeAccounts(user)
-    const projectsData = getVirtuousProjects(user)
-    const mappingData = getProjectAccountMappings(user)
-    const batchData = getVirtuousBatches(user)
-    const [projects, feAccounts, mappings, batches] = await Promise.all([projectsData, feAccountsData, mappingData, batchData])
-    
 
   return (<>
     <div className="container mx-auto grid h-screen  w-screen  grid-cols-1 flex-col  bg-dark  text-center lg:max-w-none lg:grid-cols-1 ">

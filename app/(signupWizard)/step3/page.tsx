@@ -17,7 +17,7 @@ export default async function ConnectFEPage() {
             <p className="justify-left text-lg text-white">
               <span className='text-accent-1'>STEP 3:</span>  Select your journal from Financial Edge.
             </p>
-            <UniversalSelect title="Save and Continue" route="/api/reJournals" method="GET" fields={['journal_code_id', 'code', 'journal']} selected={user?.defaultJournal} redirect='/step4' />
+            <UniversalSelect title="Save and Continue" route="/api/reJournals" method="GET" fields={['journal_code_id', 'code', 'journal']} selected={user?.team?.defaultJournal} redirect='/step4' />
           </div>
         </div>
    

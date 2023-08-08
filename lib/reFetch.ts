@@ -12,7 +12,7 @@ export async function reFetch(url, method, id, body = {}) {
         expires_in: true,
       },
       where: {
-        userId: id,
+        teamId: id,
       },
     })
     console.log(reSettings)
@@ -67,7 +67,7 @@ export async function reFetch(url, method, id, body = {}) {
           const data = await res3.json()
           console.log(data)
           let reSettingsData: Prisma.FeSettingUncheckedCreateInput = {
-            userId: id,
+            teamId: id,
             token_type: data.token_type,
             expires_in: data.expires_in,
             refresh_token: data.refresh_token,
@@ -89,7 +89,7 @@ export async function reFetch(url, method, id, body = {}) {
           console.log('upsert time')
           const updateSettings = await db.feSetting.upsert({
               where: {
-                userId: id ,
+                teamId: id ,
               },
               update: 
                 reSettingsData,

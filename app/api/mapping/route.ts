@@ -10,12 +10,12 @@ const userUpdateSchema = z.object({
 
 
 
-async function verifyCurrentUserHasAccessToMapping(mappingId: string, userId) {
+async function verifyCurrentUserHasAccessToMapping(mappingId: string, teamId) {
   const session = await getServerSession(authOptions)
   const count = await db.projectAccountMapping.count({
     where: {
       id: mappingId,
-      userId: userId,
+      teamId: teamId,
     },
   })
   return count > 0
@@ -32,12 +32,12 @@ const mappingCreateSchema = z.object({
   })
 
 
-  async function upsertMapping(virProjectID, feAccountID, userId) {
+  async function upsertMapping(virProjectID, feAccountID, teamId) {
     await db.projectAccountMapping.upsert({
       where: {
-        virProjectId_userId: { 
+        virProjectId_teamId: { 
         virProjectId:  virProjectID,
-        userId: userId
+        teamId: teamId
         }
       },
       update: {
@@ -46,7 +46,7 @@ const mappingCreateSchema = z.object({
       create: {
         virProjectId:  virProjectID,
         feAccountId: parseInt(feAccountID),
-        userId: userId
+        teamId: teamId
       },
     })
   }
@@ -70,7 +70,7 @@ export async function GET(
       
         },
         where: {
-          userId: user.id,
+          teamId: user.team.id,
         },
       })
       return new Response(JSON.stringify(mappings))
@@ -102,10 +102,10 @@ export async function POST(
     console.log(user)
     console.log(body)
     if (body?.virProjectIDs?.length == 0) {
-     
-      const userSettings = await db.user.update({
+      // update default account if nothing is set....this is defunct
+      const userSettings = await db.team.update({
         where: {
-          id: user.id,
+          id: user.team.id,
         },
         data: {
           defaultDebitAccount: body.feAccountID,
@@ -121,7 +121,7 @@ export async function POST(
 
       body?.virProjectIDs?.forEach((virProjectID )=> {
         console.log(virProjectID )
-        const map = upsertMapping(virProjectID, body.feAccountID, user.id)
+        const map = upsertMapping(virProjectID, body.feAccountID, user.team.id)
       })
     }
 

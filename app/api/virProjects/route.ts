@@ -2,7 +2,7 @@ import { authOptions } from '@/lib/auth'
 
 import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
-import { virFetch  } from '@/lib/virFetch'
+import { virApiFetch  } from '@/lib/virApiFetch'
 import { upsertProject } from '@/lib/virProjects'
 
 
@@ -20,9 +20,9 @@ export async function GET(req: Request) {
      
           
           }
-        const res = await virFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.id, body)
+        const res = await virApiFetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=1000', 'POST', user.team.id, body)
 
-          console.log('after virFetch')
+          console.log('after virApiFetch')
           console.log(res.status)
           if (res.status !== 200) {
             console.log('returning status')
@@ -30,10 +30,36 @@ export async function GET(req: Request) {
           }
           console.log('returning data')
           const data = await res.json()
-          console.log(data)
+        
           data?.list.forEach((project) => {
-            upsertProject(project, session.user.id)
+           const proj =  upsertProject(project, session.user.team.id)
+           console.log(proj)
           })
+
+            /*
+          var shapedData: any = []
+
+          data?.list.forEach((project) => {
+            shapedData.push({
+              teamId: user.team.id,
+              id: project.id,
+              name: project.name,
+              projectCode: project.projectCode || 'none',
+              externalAccountingCode: project.externalAccountingCode,
+              onlineDisplayName: project.onlineDisplayName,
+              description: project.description,
+              isPublic: project.isPublic === true,
+              isActive: project.isActive === true,
+              isTaxDeductible: project.isTaxDeductible === true,
+              giftSpecifications: project.giftSpecifications,
+              customFields: project.customFields,
+              createdDateTimeUTC: new Date(project.createDateTimeUtc),
+              modifiedDateTimeUTC: new Date(project.modifiedDateTimeUtc),
+              }
+            )
+           const proj =  insertManyProject(shapedData, session.user.team.id)
+          })
+          */
       return new Response(JSON.stringify(data.list));
     } catch (error) {
         return new Response(JSON.stringify(error.issues), { status: 422 })

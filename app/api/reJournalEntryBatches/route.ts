@@ -13,7 +13,7 @@ import { getVirtuousProjects } from '@/lib/virProjects'
 import { getFeAccounts } from '@/lib/feAccounts'
 import { getProjectAccountMappings } from '@/lib/virProjects'
 import { getVirtuousBatches} from '@/lib/virGifts'
-import { Decimal } from '@prisma/client/runtime'
+
 const util = require('util')
 
 export type DesignationType = {
@@ -28,12 +28,12 @@ const giftBatchSchema = z.object({
 })
 
 
-async function updateGiftBatch(batchName, reBatchNo, userId) {
+async function updateGiftBatch(batchName, reBatchNo, teamId) {
   return await db.giftBatch.update({
     where: {
-      userId_batch_name: { 
+      teamId_batch_name: { 
       batch_name: batchName,
-      userId: userId
+      teamId: teamId
       }
     },
     data: {
@@ -48,22 +48,23 @@ async function updateGiftBatch(batchName, reBatchNo, userId) {
   })
 }
 
-async function createSyncHistory(batchId, status, duration ,userId) {
+async function createSyncHistory(batchId, status, duration ,teamId, userId) {
   await db.syncHistory.create({
     data: {
-      userId: userId,
+      teamId: teamId,
       giftBatchId: batchId,
       syncType: 'manual',
       syncMessage: status,
       syncStatus: status,
       syncDuration: duration,
       syncDate: new Date(),
+      userId: userId,
     },
    
   })
 }
 
-export async function getBatchGifts(user, batchName) {
+export async function getBatchGifts(teamId, batchName) {
   const gifts = await db.gift.findMany({
     select: {
       id: true,
@@ -79,7 +80,7 @@ export async function getBatchGifts(user, batchName) {
       updatedAt: true,
     },
     where: {
-      userId: user.id,
+      teamId: teamId,
       batch: batchName,
     },
     orderBy: {
@@ -101,7 +102,7 @@ export async function GET(req: Request) {
  
 
 
-    const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/projects','GET', user.id)
+    const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/projects','GET', user.team.id)
     console.log(res2.status)
     if (res2.status !== 200) {
         console.log('returning status')
@@ -134,19 +135,16 @@ export async function POST(req: Request) {
       console.log('POST RE Journal Entry Batches (test) API Route')
       const start = performance.now();
 
-
-
-
       const feAccountsData = getFeAccounts(user)
       const projectsData = getVirtuousProjects(user)
       const mappingData = getProjectAccountMappings(user)
       const batchData = getVirtuousBatches(user)
       const [projects, feAccounts, mappings, batches] = await Promise.all([projectsData, feAccountsData, mappingData, batchData])
-      const defaultCreditAccount = parseInt(user?.defaultCreditAccount)
-      const defaultDebitAccount = parseInt(user?.defaultDebitAccount)
+      const defaultCreditAccount = parseInt(user?.team.defaultCreditAccount)
+      const defaultDebitAccount = parseInt(user?.team.defaultDebitAccount)
       console.log('default credit account')
       console.log(defaultCreditAccount)
-
+      console.log(defaultDebitAccount)
       function lookupProject(projectId) { 
         const project = projects.find(p => p.project_id === projectId)
         return project?.name
@@ -174,20 +172,30 @@ export async function POST(req: Request) {
       }
 
       function lookupMapping(projectId) { 
+        console.log('project id: ' + projectId)
+        console.log(typeof(projectId))
         const tempProj = projects.find(p => p.id === projectId)
         console.log(tempProj)
         const mapping = mappings.find(m => m.virProjectId === tempProj?.project_id)
+        console.log('mapping found')
         console.log(mapping)
-        if (!mapping) { lookupAccount(defaultCreditAccount)} 
+        if (!mapping || mapping===undefined || mapping===null) { 
+            console.log('mapping not found -- looking up default credit account')
+            return lookupAccount(defaultCreditAccount)
+          } 
         return lookupAccountNumber(mapping?.feAccountId)
       }
 
       function lookupMappingTransCode(projectId) { 
-        const tempProj = projects.find(p => p.id === projectId)
+        const tempProj = projects.find(p => p.id == projectId)
         console.log(tempProj)
-        const mapping = mappings.find(m => m.virProjectId === tempProj?.project_id)
+        console.log(typeof(tempProj))
+        const mapping = mappings.find(m => m.virProjectId == tempProj?.project_id)
         console.log(mapping)
-        if (!mapping || mapping===null) { lookupAccount(defaultCreditAccount)} 
+        if (!mapping || mapping===null || mapping===undefined) { 
+          console.log(defaultCreditAccount)
+            return lookupAccountTransactionCodes(defaultCreditAccount)
+          }
         return lookupAccountTransactionCodes(mapping?.feAccountId)
       }
 
@@ -195,14 +203,14 @@ export async function POST(req: Request) {
       const body = giftBatchSchema.parse(json)
       console.log('should have batch no')
       console.log(body)
-      const gifts = await getBatchGifts(user.id, body.batchName)
+      const gifts = await getBatchGifts(user.team.id, body.batchName)
       console.log(gifts)
       var journalEntries = [] as Array<any>
-      console.log(user.defaultJournal);
+      console.log(user.team.defaultJournal);
       const defaultJournal = await db.feJournal.findUnique({where: {
-          userId_id: { 
-          id: parseInt(user.defaultJournal),
-          userId: user.id
+          teamId_id: { 
+          id: parseInt(user.team.defaultJournal),
+          teamId: user.team.id
           }, 
           
         },
@@ -243,14 +251,14 @@ export async function POST(req: Request) {
        
           subDistributions.push(
             {
-
-             
               "transaction_code_values": designation && designation?.projectId !==undefined  && designation?.projectId !==null ? lookupMappingTransCode(designation?.projectId) : {}, //lookup default transaction codes
               "percent": 100.0,
               "amount": gift.amount?.toNumber(),
           })
         
           totalDesignations= totalDesignations + (designation?.amountDesignated || 0);
+          console.log('designation')
+          console.log(designation)
           journalEntries.push(
             {
               type_code: "Credit",
@@ -258,9 +266,9 @@ export async function POST(req: Request) {
               post_date: "2018-07-02T00:00:00Z",
               encumbrance: "Regular",
               journal: defaultJournal?.journal, //lookup default journal
-              reference: "Re-Sync",
+              reference: "DonorSync",
               amount: designation && designation.amountDesignated ? designation.amountDesignated : 0,
-              notes: "From Re-Sync",
+              notes: "From DonorSync",
               distributions: subDistributions
             }
             )}
@@ -274,9 +282,9 @@ export async function POST(req: Request) {
                 post_date: "2018-07-02T00:00:00Z",
                 encumbrance: "Regular",
                 journal: defaultJournal?.journal, //lookup default journal
-                reference: "Re-Sync",
+                reference: "DonorSync",
                 amount: gift?.amount.toNumber()  - totalDesignations,
-                notes: "From Re-Sync",
+                notes: "From DonorSync",
                 distributions: overflowDistributions
               }
               )
@@ -290,9 +298,9 @@ export async function POST(req: Request) {
                 post_date: "2018-07-02T00:00:00Z",
                 encumbrance: "Regular",
                 journal: defaultJournal?.journal, //lookup default journal
-                reference: "Re-Sync",
+                reference: "DonorSync",
                 amount:  gift?.amount?.toNumber() || 0,
-                notes: "From Re-Sync",
+                notes: "From DonorSync",
                 distributions: overflowDistributions
               }
               )
@@ -313,9 +321,9 @@ export async function POST(req: Request) {
               post_date: "2018-07-02T00:00:00Z",
               encumbrance: "Regular",
               journal: defaultJournal?.journal, //lookup default journal
-              reference: "Re-Sync",
+              reference: "DonorSync",
               amount: batchTotal,
-              notes: "From Re-Sync",
+              notes: "From DonorSync",
               distributions: distributions
             }
             )
@@ -330,7 +338,7 @@ export async function POST(req: Request) {
         console.log(util.inspect(bodyJson, false, null, true /* enable colors */));
         console.log('journal entries')
         console.log(journalEntries)
-        const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/journalentrybatches','POST', user.id, bodyJson)
+        const res2 = await reFetch('https://api.sky.blackbaud.com/generalledger/v1/journalentrybatches','POST', user.team.id, bodyJson)
         var synced= false;
         var status= 'failed'
         console.log("back from call")
@@ -342,7 +350,7 @@ export async function POST(req: Request) {
         if (res2.status === 200) {
           // update batch status
           
-          info  = await  updateGiftBatch(body.batchName, data.record_id , user.id)
+          info  = await  updateGiftBatch(body.batchName, data.record_id , user.team.id)
 
           synced = true;
           status = 'success'
@@ -351,7 +359,7 @@ export async function POST(req: Request) {
       const total = end-start;
       console.log (Math.trunc(total /1000))
       console.log(info)
-      createSyncHistory(info.id,  status, Math.trunc(total /1000), user.id)
+      createSyncHistory(info.id,  status, Math.trunc(total /1000), user.team.id, user.id)
         
       
       return new Response(JSON.stringify({synced: synced, record_id: data?.record_id}), {status: 200 })

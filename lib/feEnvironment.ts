@@ -9,7 +9,7 @@ export const getFeEnvironment = async (user) => {
        
       }, 
       where: {
-        userId: user.id,
+        teamId: user.team.id,
       }
     })
   }

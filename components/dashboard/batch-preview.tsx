@@ -273,16 +273,16 @@ export function BatchPreview({
     if (!response?.ok) {
       if (response.status === 402) {
         return toast({
-          title: 'Something Went Wrong 3.',
+          title: 'Debug 3.',
           description: 'Your Mapping was not created.',
-          variant: 'destructive',
+          variant: 'success',
         })
       }
 
       return toast({
-        title: 'Something went wrong4.',
+        title: 'Debug 4.',
         description: 'Your batch was not synced. Please try again.',
-        variant: 'destructive',
+        variant: 'success',
       })
     }
 
@@ -298,6 +298,7 @@ export function BatchPreview({
       if (data.record_id && pathname === '/step6') {
       router.push(`/step7?batchId=${batchId}&batchName=${batchName}&defaultJournal=${defaultJournal}&synced=${data.synced}&record_id=${data.record_id}&envid=${feEnvironment}`)
     }
+    router.refresh()
   }, 400);
     
   }
@@ -374,9 +375,9 @@ export function BatchPreview({
       }
 
       return toast({
-        title: 'Something went wrong.',
+        title: 'Debug Gifts.',
         description: 'Your gifts were not synced. Please try again.',
-        variant: 'destructive',
+        variant: 'success',
       })
     }
 

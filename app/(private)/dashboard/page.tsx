@@ -31,7 +31,7 @@ export default async function DashboardPage() {
 
   const batches = await db.giftBatch.findMany({
     where: {
-      userId: user.id,
+      teamId: user.team.id,
       synced: false,
     },
     select: {
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
 
   const history = await db.syncHistory.findMany({
     where: {
-      userId: user.id,
+      teamId: user.team.id,
 
     },
     select: {

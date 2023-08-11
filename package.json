@@ -1,10 +1,10 @@
 {
-  "name": "taxonomy-sanity",
-  "version": "0.2.0",
+  "name": "DonorSync",
+  "version": "0.3.0",
   "private": true,
   "author": {
-    "name": "Rooted Template - Taxonomy + Sanity",
-    "url": "https://twitter.com/shadcn"
+    "name": "DonorSync",
+    "url": "https://twitter.com/rootedSoftware"
   },
   "scripts": {
     "build": "next build",

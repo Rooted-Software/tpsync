@@ -1,6 +1,6 @@
 {
-  "name": "Taxonomy",
-  "short_name": "Taxonomy",
+  "name": "DonorSync",
+  "short_name": "DonorSync",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

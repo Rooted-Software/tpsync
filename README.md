@@ -1,10 +1,8 @@
-# Taxonomy - Sanity
+# Donorsync
 
 An open source application built using the new router, server components and everything new in Next.js 13. Forked from shadcn to use Sanity.io / PortableText rather than MDX and Contentlayer (Contentlayer doesn't yet support Sanity)
 
-> **Warning**
-> This app is a work in progress. I'm building this in public. You can follow the progress on Twitter [@shadcn](https://twitter.com/shadcn).
-> See the roadmap below.
+
 
 Things Broken: Styling on the Docs page text and the Docs Toc (It actually works with the custome headings components, but for some reason they aren't passing linting/typechecks)
 
@@ -22,10 +20,6 @@ A few people have asked me to turn this into a starter. I think we could do that
 
 ## Note on Performance
 
-> **Warning**
-> This app is using the unstable releases for Next.js 13 and React 18. The new router and app dir is still in beta and not production-ready.
-> **Expect some performance hits when testing the dashboard**.
-> If you see something broken, you can ping me [@shadcn](https://twitter.com/shadcn).
 
 ## Features
 
@@ -92,7 +86,5 @@ pnpm dev
 ```
 
 ## License
-
-Licensed under the [MIT license](https://github.com/shadcn/taxonomy/blob/main/LICENSE.md).
 
 Thanks to https://kittygiraudel.com/2022/05/19/table-of-contents-with-sanity-portable-text/ for the TOC generation from portabletext

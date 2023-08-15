@@ -1,16 +1,22 @@
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
-
-
+import crypto from 'crypto'
 
 
 export async function POST(req: Request) {
-  console.log('in webhook req')
+  const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
+  const body = await req.json()
+  console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
-  console.log(signature)
+ 
   //attempt whole body...not just text
-  const body = await req.body
-  console.log(body)
+  const hmac = crypto.createHmac('sha256', SECRET_KEY);
+  hmac.update(body);
+  const hmacDigest = hmac.digest('hex');
+  console.log(hmacDigest)
+  console.log(signature)
+  
+
   
   try {
     console.log('in webhook')
@@ -23,7 +29,9 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const SC=process.env.ANEDOT_WEBHOOK_SECRET
   console.log('in webhook req')
+  console.log(SC)
   const signature = headers().get('X-Request-Signature') as string
   console.log(signature)
   const body = await req.text()

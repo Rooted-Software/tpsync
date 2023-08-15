@@ -8,7 +8,6 @@ export async function POST(req: Request) {
   const reqBuffer = await req.text()
   console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
- 
   //attempt whole body...not just text as above
   const hmac = crypto.createHmac('sha256', SECRET_KEY);
   hmac.update(reqBuffer);
@@ -16,8 +15,12 @@ export async function POST(req: Request) {
   console.log(hmacDigest)
   console.log(signature)
   
-
-  
+  if (hmacDigest === signature) {
+    console.log("Success! This request came from Anedot.")
+    
+  }else { 
+    return new Response(`Webhook Error: Key did not match`, { status: 400 })
+  }
   try {
     console.log('in webhook')
   } catch (error) {

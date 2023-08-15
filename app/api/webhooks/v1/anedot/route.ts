@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
  
-  //attempt whole body...not just text
+  //attempt whole body...not just text as above
   const hmac = crypto.createHmac('sha256', SECRET_KEY);
   hmac.update(reqBuffer);
   const hmacDigest = hmac.digest('hex');

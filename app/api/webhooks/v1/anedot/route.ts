@@ -5,7 +5,7 @@ import crypto from 'crypto'
 
 export async function POST(req: Request) {
   const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
-  const body = await req.json()
+  const body = await req.text()
   console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
  

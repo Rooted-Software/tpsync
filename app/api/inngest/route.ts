@@ -6,7 +6,7 @@ import { syncBatchGifts } from '@/lib/feGiftBatches'
 import { getBatches } from "@/lib/virGifts";
 
 // Create a client to send and receive events
-export const inngest = new Inngest({ name: "DonorSync" });
+export const inngest = new Inngest({ name: "TPSync" });
 
 
 

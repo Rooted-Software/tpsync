@@ -10,7 +10,7 @@ export async function POST(req) {
 
   const json = await req.json()
   console.log('in webhook req post')
-  // 
+  console.log(process.env.NEXTAUTH_URL)
   const signature = headers().get('X-Request-Signature') as string
   //attempt whole body...not just text as above
   const hmac = crypto.createHmac('sha256', SECRET_KEY);
@@ -23,8 +23,20 @@ export async function POST(req) {
     data: {
       event: json.event,
       payload: json.payload,
+      env: process.env.NEXTAUTH_URL || 'local',
     },
   })
+  if (json.event === 'donation_complete') {
+    db.anedotDonation.create({
+      data: json.payload,
+
+
+
+     })
+
+
+  }
+
 }
 
   

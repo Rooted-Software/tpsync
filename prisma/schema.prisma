@@ -384,9 +384,10 @@ model AnedotEvent {
   id           String          @id @default(cuid())
   event        String?
   payload      Json?
+  src          String?
+  env          String?
   createdAt             DateTime  @default(now()) @map(name: "created_at")
   updatedAt             DateTime  @default(now()) @map(name: "updated_at")
-
 }
 model AnedotDonation { 
   id           String          @id @default(cuid())
@@ -426,6 +427,7 @@ model AnedotDonation {
   custom_fields Json?
   items        Json?
   originating_uid String?
+  address     Json?
   @@map(name: "anedot_donations")
 
 }

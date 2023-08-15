@@ -5,7 +5,7 @@ import { buffer } from "micro";
 
 export async function POST(req: Request) {
   const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
-  const reqBuffer = req.body
+  const reqBuffer = await req.text()
   console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
  

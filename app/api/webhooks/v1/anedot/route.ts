@@ -3,11 +3,11 @@ import { headers } from 'next/headers'
 import crypto from 'crypto'
 import { buffer } from "micro";
 import getRawBody from 'raw-body'
+import { request } from 'http';
 
 export async function POST(req) {
   const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
-  const body = await getRawBody(req)
-
+  const body = await req.getBuffer()
   console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
   //attempt whole body...not just text as above

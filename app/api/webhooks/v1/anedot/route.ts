@@ -2,15 +2,17 @@ import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 import crypto from 'crypto'
 import { buffer } from "micro";
+import getRawBody from 'raw-body'
 
-export async function POST(req: Request) {
+export async function POST(req) {
   const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
-  const reqBuffer = await req.text()
+  const body = await getRawBody(req)
+
   console.log('in webhook req post')
   const signature = headers().get('X-Request-Signature') as string
   //attempt whole body...not just text as above
   const hmac = crypto.createHmac('sha256', SECRET_KEY);
-  hmac.update(reqBuffer);
+  hmac.update(body);
   const hmacDigest = hmac.digest('hex');
   console.log(hmacDigest)
   console.log(signature)

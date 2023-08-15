@@ -8,7 +8,8 @@ export async function POST(req: Request) {
   console.log('in webhook req')
   const signature = headers().get('X-Request-Signature') as string
   console.log(signature)
-  const body = await req.text()
+  //attempt whole body...not just text
+  const body = await req.body
   console.log(body)
   
   try {

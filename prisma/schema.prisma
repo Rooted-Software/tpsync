@@ -229,11 +229,11 @@ model Gift {
 model VirtuousProject {
   project_id             String                  @id @default(cuid())
   id                     Int
-  name                   String?
+  name                   String?  @db.VarChar(254)
   projectCode            String?
   externalAccountingCode String?
   onlineDisplayName      String?
-  description            String?
+  description            String?  @db.VarChar(254)
   type                   String?
   isPublic               Boolean?
   isActive               Boolean?
@@ -379,3 +379,54 @@ model SyncHistory {
   giftBatchId  String?
   @@map(name: "sync_history")
 }
+
+model AnedotEvent {
+  id           String          @id @default(cuid())
+  event        String?
+  payload      Json?
+  createdAt             DateTime  @default(now()) @map(name: "created_at")
+  updatedAt             DateTime  @default(now()) @map(name: "updated_at")
+
+}
+model AnedotDonation { 
+  id           String          @id @default(cuid())
+  campaign_uid String
+  uid          String
+  name         String
+  amount_in_dollars Float
+  event_amount String
+  source       String
+  source_code  String?
+  origin       String
+  date         DateTime
+  processed_date DateTime
+  status       String
+  donor_type   String
+  organization_name String
+  is_recurring_commitment Boolean
+  recurring    Boolean
+  frequency    String
+  email        String
+  title        String?
+  first_name   String
+  middle_initial String?
+  last_name    String
+  suffix       String?
+  street       String
+  street_2     String?
+  city         String
+  state        String
+  zip          String
+  country      String
+  phone        String
+  employer     String?
+  occupation   String?
+  comments     String?
+  check_number String?
+  custom_fields Json?
+  items        Json?
+  originating_uid String?
+  @@map(name: "anedot_donations")
+
+}
+

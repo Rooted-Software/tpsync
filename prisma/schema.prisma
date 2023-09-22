@@ -386,6 +386,22 @@ model AnedotEvent {
   payload      Json?
   src          String?
   env          String?
+  recurringGiftId String? 
+  recurringGiftMatch Boolean? @default(false)
+  updateRecurring Boolean?     @default(false)
+  synced       Boolean?        @default(false)
+  status       String?
+  projectMatch  Boolean? 
+  contactMatch  Boolean?
+  segmentMatch Boolean?
+  addressMatch Boolean?
+  matchQuality  Int? 
+  virtuousContact Int? 
+  virtuousProject Int?
+  virtuousSegment Int?
+  attention     Boolean? 
+  attentionReason String?
+  virtuousQuery String?   @db.LongText
   createdAt             DateTime  @default(now()) @map(name: "created_at")
   updatedAt             DateTime  @default(now()) @map(name: "updated_at")
 }

@@ -22,6 +22,7 @@ import {
   SunMedium,
   Trash,
   Twitter,
+  FlaskConical,
   User,
   X,
   type Icon as LucideIcon,
@@ -31,6 +32,7 @@ export type Icon = LucideIcon
 
 export const Icons = {
   logo: Command,
+  testTube: FlaskConical, 
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,

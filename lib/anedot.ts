@@ -36,6 +36,7 @@ async function getRecurringMatch(commitment_uid) {
 
 
 export const blockedEmails = ['Null@anedot.com', 'Join@tpusa.com,', 'xxxx@tpusa.com','xxx@tpusa.com', 'null@anedot.com', 'join@tpusa.com', 'xxxxx@tpusa.com', '', 'marshal@rooted.software', 'nomail@tpusa.com']
+// we may be able to clear *@tpusa.net 
 
 export const anedotGiftTypeToVirtuous = { 
   cash: "Cash",
@@ -237,7 +238,7 @@ if (!projectId) {
     "sortBy": "Create Date",
     "descending": "True"
 }`
-  const resProject = await fetch('https://api.virtuoussoftware.com/api/Project/Query', {
+  const resProject = await fetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=10', {
   method: 'POST',
     headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
@@ -247,9 +248,11 @@ if (!projectId) {
   })
   const projectData = await resProject.json();
   console.log('project: ', projectData)
-  projectMatch = projectData?.list.length > 0;
+  projectMatch = projectData?.list?.length > 0;
   if (projectMatch) { 
     projectId = projectData.list[0].id
+  } else { 
+    console.log('error project payload:', projectQuery)
   }
 } 
 if (!segmentId) {

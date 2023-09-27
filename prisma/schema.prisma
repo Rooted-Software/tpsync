@@ -400,7 +400,7 @@ model AnedotEvent {
   virtuousProject Int?
   virtuousSegment Int?
   attention     Boolean? 
-  attentionReason String?
+  attentionReason String? @db.MediumText
   virtuousQuery String?   @db.LongText
   createdAt             DateTime  @default(now()) @map(name: "created_at")
   updatedAt             DateTime  @default(now()) @map(name: "updated_at")

@@ -2,6 +2,14 @@ import { db } from '@/lib/db'
 import { virApiFetch } from './virApiFetch'
 
 // Helper Functions
+function normalizePhone(phone) {
+  if (phone && phone.length === 11 && phone[0] === '1') {
+    phone = phone.slice(1)
+  }
+  // remove all non numeric characters
+  phone = phone.replace(/\D/g, '')
+  return phone
+}
 
 async function getRecurringMatch(commitment_uid) {
   const recQuery = `{
@@ -23,7 +31,7 @@ async function getRecurringMatch(commitment_uid) {
   const resRecurringGift = await fetch('https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10', {
     method: 'POST',
     headers: {
-        Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
         'Content-Type': 'application/json',
     },
     body: recQuery,
@@ -37,6 +45,7 @@ async function getRecurringMatch(commitment_uid) {
 
 export const blockedEmails = ['Null@anedot.com', 'Join@tpusa.com,', 'xxxx@tpusa.com','xxx@tpusa.com', 'null@anedot.com', 'join@tpusa.com', 'xxxxx@tpusa.com', '', 'marshal@rooted.software', 'nomail@tpusa.com']
 // we may be able to clear *@tpusa.net 
+export const blockedPhoneNumbers = ['5555555555', '15555555555', '5034200536', '15034200536']
 
 export const anedotGiftTypeToVirtuous = { 
   cash: "Cash",
@@ -181,6 +190,9 @@ let attentionString = ''
 let projectId = 0; 
 let segmentId = 0; 
 let contactId = 0; 
+// purge contact phone number 
+blockedEmails.indexOf(json.payload.email) === -1 ?  json.payload.email = json.payload.email : json.payload.email = ''
+blockedPhoneNumbers.indexOf(json.payload.phone) === -1 ?  json.payload.phone = json.payload.phone : json.payload.phone = ''
 
 // determine if the payload is recurring or not....if so, then we need to create or update a recurring gift record: {Origin}		Create Recurring Gift		TRUE	Hosted = false, recurring = true
 const payloadRecurring = json.payload.origin === 'recurring'
@@ -241,7 +253,7 @@ if (!projectId) {
   const resProject = await fetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=10', {
   method: 'POST',
     headers: {
-        Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
         'Content-Type': 'application/json',
     },
     body: projectQuery
@@ -263,7 +275,7 @@ if (!segmentId) {
   const resSegment = await fetch('https://api.virtuoussoftware.com/api/Segment/Search', {
   method: 'POST',
     headers: {
-        Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
         'Content-Type': 'application/json',
     },
     body: segmentQuery
@@ -285,12 +297,13 @@ if (recurringGiftData?.list?.length > 0 && recurringGiftData.list[0].contactId) 
 const resContact = await fetch('https://api.virtuoussoftware.com/api/Contact/' + recurringGiftData.list[0].contactId, {
   method: 'GET',
   headers: {
-      Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+      Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
       'Content-Type': 'application/json',
   },
 })
 const contactData = await resContact.json();
 console.log('contact: ', contactData)
+
 contact = contactData;
 } else { 
   // check contact match for one time gifts
@@ -341,19 +354,55 @@ contact = contactData;
   const resSearchContact = await fetch('https://api.virtuoussoftware.com/api/Contact/Query', {
   method: 'POST',
   headers: {
-      Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+      Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
       'Content-Type': 'application/json',
   },
   body: contactQuery
 })
-const contactSearchData = await resSearchContact.json();
+console.log('contact query: ', contactQuery)
+var contactSearchData = await resSearchContact.json();
 console.log('contact: ', contactSearchData)
+
+///contact search ranking if Virtuous returns more than 1
+if (contactSearchData?.list?.length > 1) {
+  // for each contact assign a match score based on if its values contain the related json payload values
+  // 1 point for each match
+  console.log('score search results')  
+  var tempContact = {matchScore: 0}
+  contactSearchData?.list.forEach((contact) => {
+    contact.matchScore = 0;
+    console.log(contact)
+    contact.phone = normalizePhone(contact.phone)
+    contact.name.indexOf(json.payload.first_name) > -1 ? contact.matchScore++ : null
+    contact.name.indexOf(' ' + json.payload.last_name) > -1 ? contact.matchScore++ : null // the space is normal in front of the last name, and will help elleviate false positives
+    contact.phone.indexOf(normalizePhone(json.payload.phone)) > -1 ? contact.matchScore++ : null
+    contact.address.indexOf(json.payload.address_line_1) > -1 ? contact.matchScore++ : null
+    contact.address.indexOf(json.payload.address_postal_code) > -1 ? contact.matchScore++ : null
+
+ 
+    if (contact.matchScore > tempContact.matchScore) {
+      tempContact = contact
+    }
+  })
+  console.log('tempContact: ', tempContact)
+  // sort the contacts by match score
+   contactSearchData.list.sort((a, b) => (a.matchScore < b.matchScore) ? 1 : -1)
+   console.log(  contactSearchData.list)
+  // use the highest match score
+  // contact = contactSearchData.list[0]
+  // if that just worked, we already have our best one at the begining of the list, which makes the rest of things work, lol
+
+
+
+}
+
+
 if (contactSearchData?.list?.length > 0) {
 // get the contact so our details are normalized wether or not we had an id from recurring or not
 const resContact = await fetch('https://api.virtuoussoftware.com/api/Contact/' + contactSearchData.list[0].id, {
   method: 'GET',
   headers: {
-      Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+      Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
       'Content-Type': 'application/json',
   },
 })
@@ -366,9 +415,11 @@ contact = contactData;
 if (contact && contact.id) {
   // we're just going to try to match the first individual, but we could do more here
   contactId = contact.id
-  // we have to turn contact nulls into blank strings for the match to work
+  // we have to turn contact nulls and undefined into blank strings for the match to work
   contact.contactIndividuals[0].prefix = contact.contactIndividuals[0].prefix || ''
+  contact.contactIndividuals[0].prefix === null ? contact.contactIndividuals[0].prefix = '' : null
   contact.contactIndividuals[0].suffix = contact.contactIndividuals[0].suffix || ''
+  contact.contactIndividuals[0].suffix === null ? contact.contactIndividuals[0].suffix = '' : null
   contact.contactIndividuals[0].email = contact.contactIndividuals[0].email || ''
   contact.contactIndividuals[0].phone = contact.contactIndividuals[0].phone || ''
   contact.address.address1 = contact.address.address1 || ''
@@ -379,28 +430,37 @@ if (contact && contact.id) {
   contact.address.postal = contact.address.postal || ''
   console.log('contactMethods: ', contact.contactIndividuals[0].contactMethods)
   // check if phone and email are in contactMethods
-  const phoneMatch = contact.contactIndividuals[0]?.contactMethods.filter((method) =>  method.value === json.payload.phone).length > 0
-  const emailMatch = contact.contactIndividuals[0]?.contactMethods.filter((method) => method.value === json.payload.email).length > 0
+  // handle phone numbers that have a 1 prefix...
+  json.payload.phone = normalizePhone(json.payload.phone)
+  
+
+
+  const phoneMatch = (contact.contactIndividuals[0]?.contactMethods.filter((method) =>  {
+    // handle method values that have a 1 prefix...
+    let tempValue = normalizePhone(method.value)
+    return tempValue === json.payload.phone}).length > 0 || json.payload.phone === '')
+  const emailMatch = (contact.contactIndividuals[0]?.contactMethods.filter((method) => method.value === json.payload.email).length > 0 || json.payload.email === '')
   console.log('phoneMatch: ', phoneMatch)
   console.log('emailMatch: ', emailMatch)
 
-
+  json.payload.suffix === null ? json.payload.suffix = '' : null
+  json.payload.title === null ? json.payload.title = '' : null
   
-  nameMatch = phoneMatch && emailMatch && contact.contactType=== "Household" && contact.contactIndividuals[0].firstName === json.payload.first_name && contact.contactIndividuals[0].lastName === json.payload.last_name  && contact.contactIndividuals[0].prefix === json.payload.title && contact.contactIndividuals[0].suffix === json.payload.suffix
+  nameMatch = phoneMatch && emailMatch&& contact.contactType=== "Household" && contact.contactIndividuals[0].firstName === (json.payload.first_name || '') && contact.contactIndividuals[0].lastName === (json.payload.last_name || '')   // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
   addressMatch = (contact.address.address1 === json.payload.address_line_1, contact.address.address2 === json.payload.address_line_2 && contact.address.city === json.payload.address_city && contact.address.state === json.payload.address_region && contact.address.country === anedotCountryNormalization[json.payload.address_country] && contact.address.postal === json.payload.address_postal_code)
   if (!nameMatch) {
-    phoneMatch ? attentionString = attentionString + "Phone Not Found on Contact" + json.payload.phone + "<br/>"   : null
-    emailMatch ? attentionString = attentionString + "Email Not Found on Contact" + json.payload.email + "<br/>"   : null
+    !phoneMatch ? attentionString = attentionString + "Phone Not Found on Contact: " + json.payload.phone + "<br/>"   : null
+    !emailMatch ? attentionString = attentionString + "Email Not Found on Contact: " + json.payload.email + "<br/>"   : null
     contact.contactType !== "Household" ? attentionString = attentionString + "Contact Type:  " + contact.type + 'not equal to Household' + "<br/>"   : null
     contact.contactIndividuals[0].firstName !== json.payload.first_name ? attentionString = attentionString + "First Name:  " + contact.contactIndividuals[0].firstName + 'not equal to ' + json.payload.first_name + "<br/>"   : null
     contact.contactIndividuals[0].lastName !== json.payload.last_name ? attentionString = attentionString + "Last Name:  " + contact.contactIndividuals[0].lastName + 'not equal to ' + json.payload.last_name + "<br/>"   : null
-    contact.contactIndividuals[0].prefix !== json.payload.title ? attentionString = attentionString + "Title:  " + contact.contactIndividuals[0].prefix + 'not equal to ' + json.payload.title + "<br/>"   : null
-    contact.contactIndividuals[0].suffix !== json.payload.suffix ? attentionString = attentionString + "Suffix:  " + contact.contactIndividuals[0].suffix + 'not equal to ' + json.payload.suffix + "<br/>"   : null
+    contact.contactIndividuals[0].prefix !== (json.payload.title || '') ? attentionString = attentionString + "Title:  " + contact.contactIndividuals[0].prefix + 'not equal to ' + json.payload.title + "<br/>"   : null
+    contact.contactIndividuals[0].suffix !== (json.payload.suffix || '')  ? attentionString = attentionString + "Suffix:  " + contact.contactIndividuals[0].suffix + 'not equal to ' + json.payload.suffix + "<br/>"   : null
   }
 
   if (!addressMatch) {
-    contact.address.address1 !== json.payload.address_line_1 ? attentionString = attentionString + "Address 1:  " + contact.address.address1 + 'not equal to ' + json.payload.address_line_1 + "<br/>"   : null
-    contact.address.address2 !== json.payload.address_line_2 ? attentionString = attentionString + "Address 2:  " + contact.address.address2 + 'not equal to ' + json.payload.address_line_2 + "<br/>"   : null
+    contact.address.address1 !== (json.payload.address_line_1 || json.payload.street ) ? attentionString = attentionString + "Address 1:  " + contact.address.address1 + 'not equal to ' + (json.payload.address_line_1 || json.payload.street ) + "<br/>"   : null
+    contact.address.address2 !== (json.payload.address_line_2 || json.payload.street_2)  ? attentionString = attentionString + "Address 2:  " + contact.address.address2 + 'not equal to ' + (json.payload.address_line_2 || json.payload.street_2 ) + "<br/>"   : null
     contact.address.city !== json.payload.address_city ? attentionString = attentionString + "City:  " + contact.address.city + 'not equal to ' + json.payload.address_city + "<br/>"   : null
     contact.address.state !== json.payload.address_region ? attentionString = attentionString + "State:  " + contact.address.state + 'not equal to ' + json.payload.address_region + "<br/>"   : null
     contact.address.country !== anedotCountryNormalization[json.payload.address_country] ? attentionString = attentionString + "Country:  " + contact.address.country + 'not equal to ' + anedotCountryNormalization[json.payload.address_country] + "<br/>"   : null

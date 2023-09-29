@@ -1,156 +1,274 @@
-import { db } from '@/lib/db'
-import { headers } from 'next/headers'
-import crypto from 'crypto'
-import { buffer } from "micro";
-import getRawBody from 'raw-body'
-import { get, request } from 'http';
-import { getAnedotGiftToVirtuousQuery } from '@/lib/anedot'
-import { any } from 'prop-types';
-import { match } from 'assert';
-import { updateAnedotEvent } from '@/lib/anedot';
-
-
+import { getAnedotGiftToVirtuousQuery } from "@/lib/anedot"
+import { updateAnedotEvent } from "@/lib/anedot"
+import { db } from "@/lib/db"
+import { match } from "assert"
+import crypto, { sign } from "crypto"
+import { get, request } from "http"
+import { buffer } from "micro"
+import { headers } from "next/headers"
+import { any } from "prop-types"
+import getRawBody from "raw-body"
 
 export async function POST(req) {
-  const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
+  const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
   const json = await req.json()
-  console.log('in webhook req post')
+  const text = await req.text()
+  const body = await getRawBody(req)
+
+  console.log("in webhook req post")
   console.log(json)
   console.log(process.env.NEXTAUTH_URL)
-  const signature = headers().get('X-Request-Signature') as string
-  //attempt whole body...not just text as above
-  const hmac = crypto.createHmac('sha256', SECRET_KEY);
-  // hmac.update(body);
-  // const hmacDigest = hmac.digest('hex');
-  // console.log(hmacDigest)
-  // console.log(signature)
+  const signature = headers().get("X-Request-Signature") as string
+  const webhookId = headers().get("X-Request-Id") as string
+  const integrationId = headers().get("X-Request-Integration-Id") as string
+
+  // Signatures are provided for each webhook request to verify the authenticity of the request. Verify the signature by producing a SHA-256 HMAC hexdigest using the webhook's secret token as the private key and the webhook body represented as a JSON string.
+  // The hexdigest you calculate should match the value in our "X-Request-Signature" header for that webhook request.
+  if (process.env.ANEDOT_WEBHOOK_SECRET) {
+    const hash = crypto
+      .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
+      .update(body)
+      .digest("hex")
+
+    console.log(hash, signature)
+    console.log(hash === signature)
+  }
+
   if (json.event) {
-  const anEvent = await db.anedotEvent.create({
-    data: {
-      event: json.event,
-      payload: json.payload,
-      env: process.env.NEXTAUTH_URL || 'local',
-    },
-  })
-  const queryObj = await getAnedotGiftToVirtuousQuery(json) 
-  const query = queryObj.query || ''
-  const meta= queryObj.meta || ''
-  const updated=await updateAnedotEvent(anEvent.id, false, 'created', meta, query)
-  console.log('event created')
-
-
-
-}
+    const anEvent = await db.anedotEvent.create({
+      data: {
+        webhookId: webhookId,
+        integrationId: integrationId,
+        signature: signature,
+        event: json.event,
+        payload: json.payload,
+        env: process.env.NEXTAUTH_URL || "local",
+      },
+    })
+    const queryObj = await getAnedotGiftToVirtuousQuery(json)
+    const query = queryObj.query || ""
+    const meta = queryObj.meta || ""
+    const updated = await updateAnedotEvent(
+      anEvent.id,
+      false,
+      "created",
+      meta,
+      query
+    )
+    console.log("event created")
+  }
   try {
-    console.log('in webhook')
+    console.log("in webhook")
   } catch (error) {
     return new Response(`Webhook Error: ${error.message}`, { status: 400 })
   }
-  
 
   return new Response(null, { status: 200 })
 }
 
 export async function GET(req: Request) {
-  const SC=process.env.ANEDOT_WEBHOOK_SECRET
-  console.log('in webhook req')
+  const SC = process.env.ANEDOT_WEBHOOK_SECRET
+  console.log("in webhook req")
 
-
-  //verify webhook signature - wip
-  const signature = headers().get('X-Request-Signature') as string
-  console.log(SC)
-  console.log(signature)
+  //verify webhook signature - wip sample signature:
+  const signature =
+    "7594f9ca067122b1617aafacde7f537c1fde381055c26f97e676f5d1d6d30358"
+  const testjson = `{
+    event: "donation_completed",
+    payload: {
+      date: "2023-09-29 18:41:09 UTC",
+      name: "Richard Kersten",
+      email: "radicaldestin2@gmail.com",
+      phone: "8505853302",
+      title: "",
+      origin: "hosted",
+      source: "credit_card",
+      status: "completed",
+      suffix: "",
+      donation: {
+        id: "d8fb6b0d7d2d92e8a4a52",
+        fees: {
+          anedot_fees: {
+            amount: "1.03",
+          },
+          vendor_fees: [],
+        },
+        fund: {
+          id: "eede7ac9-9ea1-4d69-b8ef-324fea912ed6",
+          name: "General Fund",
+          identifier: "General Fund",
+        },
+        products: [],
+        card_type: "master",
+        card_last_digits: "8041",
+        donation_project: "",
+        credit_card_expiration: "12/2025",
+      },
+      referrer:
+        "https://secure.anedot.com/turning-point-usa/11a8efc6-e33f-4f8d-b4e4-31843ae47664?source_code=TPUSA11506&express_checkout_method=applepay",
+      utm_term: "",
+      frequency: "once",
+      last_name: "Kersten",
+      recurring: "false",
+      created_at: "2023-09-29 18:41:09 UTC",
+      first_name: "Richard",
+      ip_address: "2600:8807:9208:d500:5ccf:26de:aae4:7756",
+      net_amount: "23.97",
+      occupation: "",
+      updated_at: "2023-09-29 18:41:09 UTC",
+      utm_medium: "",
+      utm_source: "",
+      account_uid: "a65655106ea9c404245e7",
+      middle_name: "",
+      source_code: "TPUSA11506",
+      utm_content: "",
+      account_name: "TURNING POINT USA",
+      address_city: "Niceville",
+      check_number: "",
+      date_iso8601: "2023-09-29T18:41:09Z",
+      event_amount: "25.00",
+      organization: "",
+      utm_campaign: "",
+      employer_name: "",
+      submission_id: "daea75fd-4461-49be-906e-0645036b4e62",
+      action_page_id: "16f6862f-8ad9-4c53-bdb2-c315a6367a0c",
+      address_line_1: "129 Baywind Dr.",
+      address_line_2: "",
+      address_region: "FL",
+      commitment_uid: "",
+      address_country: "US",
+      action_page_name: "TPUSA Sept 2023 C3 - A",
+      commitment_index: "",
+      donor_profile_id: "",
+      referrer_to_form: "",
+      amount_in_dollars: "25.0",
+      payment_method_id: "5c375f5d-7673-485c-8d40-4a1474bc5389",
+      created_at_iso8601: "2023-09-29T18:41:09Z",
+      currently_employed: "true",
+      updated_at_iso8601: "2023-09-29T18:41:09Z",
+      address_postal_code: "32578",
+      payment_description: "MasterCard •••• 8041 (ApplePay)",
+      custom_field_responses: {
+        segment_name: "AE_HF_Sept2023_LiveFreeTour",
+      },
+      is_recurring_commitment: "false",
+      commitment_recurring_until: "",
+      communications_consent_email: "false",
+      communications_consent_phone: "false",
+    },
+  }`
+  if (process.env.ANEDOT_WEBHOOK_SECRET) {
+    const verify = crypto
+      .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
+      .update(testjson)
+      .digest("hex")
+    console.log(verify, signature)
+  }
   const body = await req.text()
 
-// sample payload 
-const json = {payload :
-{ "date": "2023-03-20 19:22:46 -0600", 
-  "name": "Marshal Morse", 
-  "email": "marshal@rooted.software", 
-  "phone": "7859258099", 
-  "title": "",
-   "origin": "hosted", 
-   "source": "credit_card", 
-   "status": "completed", 
-   "suffix": "", 
-   "donation": 
-        {"id": "d3269849e2a3643c7571c", 
-        "fees": {"anedot_fees": {"amount": "1.03"}, "vendor_fees": []}, 
-        "fund": {"id": "eede7ac9-9ea1-4d69-b8ef-324fea912ed6", "name": "General Fund", "identifier": "General Fund"}, 
-        "products": [], 
-        "card_type": "visa", 
-        "card_last_digits": "5679", 
-        "donation_project": "", 
-        "credit_card_expiration": "12/2026"}, 
-
-    "referrer": "https://secure.anedot.com/turning-point-usa/ce3bbd04-9b5d-4e5c-be0a-68a606c8d164?source_code=CONI236955&leadcreated=false", 
-    "frequency": "monthly", 
-    "last_name": "Morse", 
-    "recurring": "false", 
-    "created_at": "2023-03-20 19:22:46 -0600", 
-    "first_name": "Marshal", 
-    "ip_address": "2600:1700:290:44d0:f12c:a9a2:1ed1:1944", 
-    "net_amount": "23.97", 
-    "occupation": "", 
-    "updated_at": "2023-03-20 19:22:46 -0600", 
-    "account_uid": "a65655106ea9c404245e7", 
-    "middle_name": "", 
-    "source_code": "CONI236955", 
-    "account_name": "TURNING POINT USA", 
-    "address_city": "Ozawkie", 
-    "check_number": "", 
-    "date_iso8601": "2023-03-20T19:22:46-06:00", 
-    "event_amount": "25.00", 
-    "organization": "", 
-    "employer_name": "", 
-    "submission_id": "00352841-dc19-43ed-8158-97c896395c1b", 
-    "action_page_id": "00331e69-0ce0-477d-8272-d291e056510c", 
-    "address_line_1": "6257 Westlake Rd", "address_line_2": "", "address_region": "KS", 
-    "commitment_uid": "12345", "address_country": "US", 
-    "action_page_name": "TPUSA Mar 2023 CO", 
-    "commitment_index": "4", 
-    "donor_profile_id": "", 
-    "referrer_to_form": "", 
-    "amount_in_dollars": "25.0", 
-    "payment_method_id": "4fedaa79-24c3-4664-888a-c6a0d0bb0170", 
-    "created_at_iso8601": "2023-03-20T19:22:46-06:00", 
-    "currently_employed": "true", 
-    "updated_at_iso8601": "2023-03-20T19:22:46-06:00", 
-    "address_postal_code": "66070-4187", 
-    "payment_description": "Visa •••• 5679", 
-    "custom_field_responses": {"campaign_source": "DE0923OT",  "promotion_item": "Founding Documents Bundle", "segment_name": "Summer 2023 Gateway donation processing", "tee_shirt_size": "XL"}, 
-    "is_recurring_commitment": "false", 
-    "commitment_recurring_until": "", 
-    "communications_consent_email": "false", 
-    "communications_consent_phone": "false",
-    "comments" : "This is a test comment", 
-    "in_honor_of" : "My Mother"
-    
-  }
-}
-// set date constants
- const queryObj = await getAnedotGiftToVirtuousQuery(json) 
-const query = queryObj.query || ''
-  try {
-    
-    const res = await fetch('https://api.virtuoussoftware.com/api/v2/Gift/Transaction', {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
-            'Content-Type': 'application/json',
+  // sample payload
+  const json = {
+    payload: {
+      date: "2023-03-20 19:22:46 -0600",
+      name: "Marshal Morse",
+      email: "marshal@rooted.software",
+      phone: "7859258099",
+      title: "",
+      origin: "hosted",
+      source: "credit_card",
+      status: "completed",
+      suffix: "",
+      donation: {
+        id: "d3269849e2a3643c7571c",
+        fees: { anedot_fees: { amount: "1.03" }, vendor_fees: [] },
+        fund: {
+          id: "eede7ac9-9ea1-4d69-b8ef-324fea912ed6",
+          name: "General Fund",
+          identifier: "General Fund",
         },
-        body: query ,
-    })
-  
+        products: [],
+        card_type: "visa",
+        card_last_digits: "5679",
+        donation_project: "",
+        credit_card_expiration: "12/2026",
+      },
+
+      referrer:
+        "https://secure.anedot.com/turning-point-usa/ce3bbd04-9b5d-4e5c-be0a-68a606c8d164?source_code=CONI236955&leadcreated=false",
+      frequency: "monthly",
+      last_name: "Morse",
+      recurring: "false",
+      created_at: "2023-03-20 19:22:46 -0600",
+      first_name: "Marshal",
+      ip_address: "2600:1700:290:44d0:f12c:a9a2:1ed1:1944",
+      net_amount: "23.97",
+      occupation: "",
+      updated_at: "2023-03-20 19:22:46 -0600",
+      account_uid: "a65655106ea9c404245e7",
+      middle_name: "",
+      source_code: "CONI236955",
+      account_name: "TURNING POINT USA",
+      address_city: "Ozawkie",
+      check_number: "",
+      date_iso8601: "2023-03-20T19:22:46-06:00",
+      event_amount: "25.00",
+      organization: "",
+      employer_name: "",
+      submission_id: "00352841-dc19-43ed-8158-97c896395c1b",
+      action_page_id: "00331e69-0ce0-477d-8272-d291e056510c",
+      address_line_1: "6257 Westlake Rd",
+      address_line_2: "",
+      address_region: "KS",
+      commitment_uid: "12345",
+      address_country: "US",
+      action_page_name: "TPUSA Mar 2023 CO",
+      commitment_index: "4",
+      donor_profile_id: "",
+      referrer_to_form: "",
+      amount_in_dollars: "25.0",
+      payment_method_id: "4fedaa79-24c3-4664-888a-c6a0d0bb0170",
+      created_at_iso8601: "2023-03-20T19:22:46-06:00",
+      currently_employed: "true",
+      updated_at_iso8601: "2023-03-20T19:22:46-06:00",
+      address_postal_code: "66070-4187",
+      payment_description: "Visa •••• 5679",
+      custom_field_responses: {
+        campaign_source: "DE0923OT",
+        promotion_item: "Founding Documents Bundle",
+        segment_name: "Summer 2023 Gateway donation processing",
+        tee_shirt_size: "XL",
+      },
+      is_recurring_commitment: "false",
+      commitment_recurring_until: "",
+      communications_consent_email: "false",
+      communications_consent_phone: "false",
+      comments: "This is a test comment",
+      in_honor_of: "My Mother",
+    },
+  }
+  // set date constants
+  const queryObj = await getAnedotGiftToVirtuousQuery(json)
+  const query = queryObj.query || ""
+  try {
+    const res = await fetch(
+      "https://api.virtuoussoftware.com/api/v2/Gift/Transaction",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: query,
+      }
+    )
+
     const transData = await res.text()
-    console.log('in webhook')
+    console.log("in webhook")
     console.log(transData)
-   
   } catch (error) {
     console.log(error)
     return new Response(`Webhook Error: ${error.message}`, { status: 400 })
   }
-  
 
   return new Response(null, { status: 200 })
 }

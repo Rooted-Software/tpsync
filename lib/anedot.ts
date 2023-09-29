@@ -1,14 +1,126 @@
-import { db } from '@/lib/db'
-import { virApiFetch } from './virApiFetch'
+import { db } from "@/lib/db"
+import { normalize } from "path"
+import { virApiFetch } from "./virApiFetch"
 
 // Helper Functions
 function normalizePhone(phone) {
-  if (phone && phone.length === 11 && phone[0] === '1') {
+  if (phone && phone.length === 11 && phone[0] === "1") {
     phone = phone.slice(1)
   }
   // remove all non numeric characters
-  phone = phone.replace(/\D/g, '')
+  phone = phone.replace(/\D/g, "")
   return phone
+}
+
+function normalizeStreet(street) {
+  street = street || ""
+  street = street.trim()
+  //  repleace Ave or Ave. at the end of street with Avenue
+  street = street.replace(/Ave\.?$/, "Avenue")
+  // replace St or St. at the end of street with Street
+  street = street.replace(/St\.?$/, "Street")
+  // replace Dr or Dr. at the end of street with Drive
+  street = street.replace(/Dr\.?$/, "Drive")
+  // replace Rd or Rd. at the end of street with Road
+  street = street.replace(/Rd\.?$/, "Road")
+  return street
+}
+
+function normalizeState(state) {
+  state = state || ""
+  state = state.trim()
+  // convert 2 letter state to full state name
+  if (state.length === 2) {
+    state = state.toUpperCase()
+    const stateMap = {
+      AL: "Alabama",
+      AK: "Alaska",
+      AZ: "Arizona",
+      AR: "Arkansas",
+      CA: "California",
+      CO: "Colorado",
+      CT: "Connecticut",
+      DE: "Delaware",
+      DC: "District Of Columbia",
+      FL: "Florida",
+      GA: "Georgia",
+      HI: "Hawaii",
+      ID: "Idaho",
+      IL: "Illinois",
+      IN: "Indiana",
+      IA: "Iowa",
+      KS: "Kansas",
+      KY: "Kentucky",
+      LA: "Louisiana",
+      ME: "Maine",
+      MD: "Maryland",
+      MA: "Massachusetts",
+      MI: "Michigan",
+      MN: "Minnesota",
+      MS: "Mississippi",
+      MO: "Missouri",
+      MT: "Montana",
+      NE: "Nebraska",
+      NV: "Nevada",
+      NH: "New Hampshire",
+      NJ: "New Jersey",
+      NM: "New Mexico",
+      NY: "New York",
+      NC: "North Carolina",
+      ND: "North Dakota",
+      OH: "Ohio",
+      OK: "Oklahoma",
+      OR: "Oregon",
+      PA: "Pennsylvania",
+      RI: "Rhode Island",
+      SC: "South Carolina",
+      SD: "South Dakota",
+      TN: "Tennessee",
+      TX: "Texas",
+      UT: "Utah",
+      VT: "Vermont",
+      VA: "Virginia",
+      WA: "Washington",
+      WV: "West Virginia",
+      WI: "Wisconsin",
+      WY: "Wyoming",
+    }
+    state = stateMap[state]
+  }
+
+  return state
+}
+
+function normalizeAddress(address) {
+  address.address1 = normalizeStreet(address.address1)
+  address.address2 = normalizeStreet(address.address2)
+  address.state = normalizeState(address.state)
+  address.country = normalizeCountry[address.country] || address.country
+  address.postal = normalizePostal(address.postal)
+  return address
+}
+
+function normalizePostal(postal) {
+  postal = postal || ""
+  postal = postal.trim()
+  // get just first five digits
+  postal = postal.slice(0, 5)
+
+  return postal
+}
+
+function addressMatcher(address1, address2) {
+  address1 = normalizeAddress(address1)
+  address2 = normalizeAddress(address2)
+
+  return (
+    address1.address1 === address2.address1 &&
+    address1.address2 === address2.address2 &&
+    address1.city === address2.city &&
+    address1.state === address2.state &&
+    address1.country === address2.country &&
+    address1.postal === address2.postal
+  )
 }
 
 async function getRecurringMatch(commitment_uid) {
@@ -19,7 +131,7 @@ async function getRecurringMatch(commitment_uid) {
                 {
                     "parameter": "Commitment UID",
                     "operator": "Is",
-                    "value": "${commitment_uid || ''}",
+                    "value": "${commitment_uid || ""}",
                 }
             ]
         }
@@ -28,26 +140,150 @@ async function getRecurringMatch(commitment_uid) {
     "descending": "true"
   }`
 
-  const resRecurringGift = await fetch('https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10', {
-    method: 'POST',
-    headers: {
+  const resRecurringGift = await fetch(
+    "https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10",
+    {
+      method: "POST",
+      headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
-    },
-    body: recQuery,
-
-  })
+        "Content-Type": "application/json",
+      },
+      body: recQuery,
+    }
+  )
   console.log(recQuery)
   const recurringGiftData = await resRecurringGift.json()
   return recurringGiftData
 }
 
+function generateMatchWarningArray(virContact, payloadContact) {
+  const phoneMatch =
+    virContact.phone == payloadContact.phone || payloadContact.phone === ""
+  const emailMatch =
+    virContact.email == payloadContact.email || payloadContact.email === ""
+  let nameMatch =
+    phoneMatch &&
+    emailMatch &&
+    virContact.contactType === "Household" &&
+    virContact.firstName === (payloadContact.firstName || "") &&
+    virContact.lastName === (payloadContact.lastName || "") // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
+  let tempArray: any = []
+  if (!nameMatch) {
+    !phoneMatch
+      ? tempArray.push("Phone Not Found on Contact: " + payloadContact.phone)
+      : null
+    !emailMatch
+      ? tempArray.push("Email Not Found on Contact: " + payloadContact.email)
+      : null
+    virContact.contactType !== "Household"
+      ? tempArray.push(
+          "Contact Type:  " +
+            virContact.type +
+            " not equal to Household" +
+            "<br/>"
+        )
+      : null
+    virContact.firstName !== payloadContact.firstName
+      ? tempArray.push(
+          "First Name:  " +
+            virContact.firstName +
+            " not equal to " +
+            payloadContact.firstName
+        )
+      : null
+    virContact.lastName !== payloadContact.lastName
+      ? tempArray.push(
+          "Last Name:  " +
+            virContact.lastName +
+            " not equal to " +
+            payloadContact.lastName
+        )
+      : null
+    virContact.title !== (payloadContact.title || "")
+      ? tempArray.push(
+          "Title:  " +
+            virContact.prefix +
+            " not equal to " +
+            payloadContact.title
+        )
+      : null
+    virContact.suffix !== (payloadContact.suffix || "")
+      ? tempArray.push(
+          "Suffix:  " +
+            virContact.suffix +
+            " not equal to " +
+            payloadContact.suffix
+        )
+      : null
+  }
 
-export const blockedEmails = ['Null@anedot.com', 'Join@tpusa.com,', 'xxxx@tpusa.com','xxx@tpusa.com', 'null@anedot.com', 'join@tpusa.com', 'xxxxx@tpusa.com', '', 'marshal@rooted.software', 'nomail@tpusa.com']
-// we may be able to clear *@tpusa.net 
-export const blockedPhoneNumbers = ['5555555555', '15555555555', '5034200536', '15034200536']
+  virContact.address1 !== payloadContact.address1
+    ? tempArray.push(
+        "Address 1:  " +
+          virContact.address1 +
+          " not equal to " +
+          payloadContact.address1
+      )
+    : null
+  virContact.address2 !== payloadContact.address2
+    ? tempArray.push(
+        "Address 2:  " +
+          virContact.address2 +
+          " not equal to " +
+          payloadContact.address2
+      )
+    : null
+  virContact.city !== payloadContact.city
+    ? tempArray.push(
+        "City:  " + virContact.city + " not equal to " + payloadContact.city
+      )
+    : null
+  virContact.state !== payloadContact.state
+    ? tempArray.push(
+        "State:  " + virContact.state + " not equal to " + payloadContact.state
+      )
+    : null
+  virContact.country !== normalizeCountry[payloadContact.country]
+    ? tempArray.push(
+        "Country:  " +
+          virContact.country +
+          " not equal to " +
+          normalizeCountry[payloadContact.country]
+      )
+    : null
+  virContact.postal !== payloadContact.postal
+    ? tempArray.push(
+        "Postal:  " +
+          virContact.postal +
+          " not equal to " +
+          payloadContact.postal
+      )
+    : null
 
-export const anedotGiftTypeToVirtuous = { 
+  return tempArray
+}
+
+export const blockedEmails = [
+  "Null@anedot.com",
+  "Join@tpusa.com,",
+  "xxxx@tpusa.com",
+  "xxx@tpusa.com",
+  "null@anedot.com",
+  "join@tpusa.com",
+  "xxxxx@tpusa.com",
+  "",
+  "marshal@rooted.software",
+  "nomail@tpusa.com",
+]
+// we may be able to clear *@tpusa.net
+export const blockedPhoneNumbers = [
+  "5555555555",
+  "15555555555",
+  "5034200536",
+  "15034200536",
+]
+
+export const anedotGiftTypeToVirtuous = {
   cash: "Cash",
   check: "Check",
   credit_card: "Credit",
@@ -57,14 +293,14 @@ export const anedotGiftTypeToVirtuous = {
   other: "Other",
   distribution: "Qualified Charitable Distribution",
   reversing: "Reversing Transaction",
-  stock: "Stock"
+  stock: "Stock",
 }
 
-export function getGiftType(string)  { 
-  return  anedotGiftTypeToVirtuous[string] || "Other"
+export function getGiftType(string) {
+  return anedotGiftTypeToVirtuous[string] || "Other"
 }
 
-export const anedotCardTypeToVirtuous = { 
+export const anedotCardTypeToVirtuous = {
   visa: "Visa",
   master: "Mastercard",
   american_express: "American Express",
@@ -72,75 +308,79 @@ export const anedotCardTypeToVirtuous = {
   jcb: "JCB",
   diners: "Diners Club",
   unionpay: "UnionPay",
-  other: "Other"
-
+  other: "Other",
 }
 
-export const anedotCountryNormalization = {
+export const normalizeCountry = {
   US: "United States",
+  USA: "United States",
+  "United States": "United States",
 }
 
-export const anedotFrequencyTypeToVirtuous = { 
+export const anedotFrequencyTypeToVirtuous = {
   once: "",
   Once: "",
   bimonthly: "Bimontly",
   weekly: "Weekly",
   monthly: "Monthly",
-  quarterly : "Quarterly",
+  quarterly: "Quarterly",
   semiannually: "Semiannually",
   yearly: "Annually",
-  biennially: "Biennially"
+  biennially: "Biennially",
 }
 
-export const anedotAccountToName = { 
+export const anedotAccountToName = {
   a1c701b4dd7ebaefcd38b: "Faith",
   a6dc72c49b5e3629cd82a: "Blexit",
   a65655106ea9c404245e7: "TPUSA",
 }
 
-export function getCardType(string)  { 
-  return  anedotCardTypeToVirtuous[string] || "Other"
+export function getCardType(string) {
+  return anedotCardTypeToVirtuous[string] || "Other"
 }
 
-export function getAnedotFrequencyTypeToVirtuous(string)  { 
-  return  anedotFrequencyTypeToVirtuous[string] || "Other"
+export function getAnedotFrequencyTypeToVirtuous(string) {
+  return anedotFrequencyTypeToVirtuous[string] || "Other"
 }
 
 // Local DB
 export const getAnedotEvents = async (team, skip, take) => {
-    return await db.anedotEvent.findMany({
-      select: {
-        id: true,
-        event: true, 
-        payload: true,
-        createdAt: true, 
-        updatedAt: true,
-        src: true,
-        env: true,
-        status: true,
-        synced: true,
-        matchQuality: true,
-        attention: true,
-        attentionReason: true,
-        projectMatch: true,
-        segmentMatch: true,
-        addressMatch: true,
-        recurringGiftMatch: true,
-        updateRecurring: true,
-        recurringGiftId: true,
+  return await db.anedotEvent.findMany({
+    select: {
+      id: true,
+      event: true,
+      payload: true,
+      createdAt: true,
+      updatedAt: true,
+      src: true,
+      env: true,
+      status: true,
+      synced: true,
+      matchQuality: true,
+      attention: true,
+      attentionReason: true,
+      projectMatch: true,
+      segmentMatch: true,
+      addressMatch: true,
+      recurringGiftMatch: true,
+      updateRecurring: true,
+      recurringGiftId: true,
+      virtuousContact: true,
+      virtuousProject: true,
+      virtuousSegment: true,
+      contactMatch: true,
+      virtuousQuery: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+    skip: skip,
+    take: take,
+  })
+}
 
-
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
-      skip: skip,
-      take: take,
-    })
-  }
-
-export const updateAnedotEvent = async (id, synced, status, meta, query ) => {
-  console.log('in update anedot event')
+export const updateAnedotEvent = async (id, synced, status, meta, query) => {
+  console.log("in update anedot event")
 
   const event = await db.anedotEvent.update({
     where: {
@@ -153,7 +393,7 @@ export const updateAnedotEvent = async (id, synced, status, meta, query ) => {
       synced: synced,
       status: status,
       projectMatch: meta.projectMatch,
-      contactMatch:  meta.contactMatch,
+      contactMatch: meta.contactMatch,
       segmentMatch: meta.segmentMatch,
       addressMatch: meta.addressMatch,
       matchQuality: meta.matchQuality,
@@ -162,151 +402,82 @@ export const updateAnedotEvent = async (id, synced, status, meta, query ) => {
       virtuousSegment: meta.virtuousSegment,
       attention: meta.matchQuality < 4 ? true : false,
       attentionReason: meta.attentionString,
+      virtuousQuery: query,
     },
   })
-  console.log('event updated')
-  console.log(event)
+  console.log("event updated")
   return event
 }
 
-
-
 // Virtuous API
-export const getAnedotGiftToVirtuousQuery = async (json) => {
-  const today =  new Date()
-const shortDate = (today.getMonth()+1)+'.'+today.getDate()+'.'+today.getFullYear();
-const giftDate = new Date(json.payload.date)
-const giftShortDate = (giftDate.getMonth()+1)+'.'+giftDate.getDate()+'.'+giftDate.getFullYear();
-
-// set variables for tracking quality
-let recurringGiftId = '';
-let recurringGiftMatch = false; 
-let projectMatch = false;
-let segmentMatch = false;
-let nameMatch = false; 
-let addressMatch = false; 
-let updateRecurring = false; 
-let attentionString = ''
-let projectId = 0; 
-let segmentId = 0; 
-let contactId = 0; 
-// purge contact phone number 
-blockedEmails.indexOf(json.payload.email) === -1 ?  json.payload.email = json.payload.email : json.payload.email = ''
-blockedPhoneNumbers.indexOf(json.payload.phone) === -1 ?  json.payload.phone = json.payload.phone : json.payload.phone = ''
-
-// determine if the payload is recurring or not....if so, then we need to create or update a recurring gift record: {Origin}		Create Recurring Gift		TRUE	Hosted = false, recurring = true
-const payloadRecurring = json.payload.origin === 'recurring'
-let recurringGiftData: any = {}
-
-if (payloadRecurring) {
-  console.log('recurring gift')
-  recurringGiftData = await getRecurringMatch(json.payload.commitment_uid) 
-  // this is a recurring gift...we need to update the recurring gift count a
-    if (recurringGiftData?.list?.length > 0) {
-      recurringGiftMatch = true;
-      recurringGiftId = recurringGiftData.list[0].id
-      const anedotGiftCountCF = recurringGiftData.list[0].customFields.find(cf=> cf.name === "Anedot Recurring Count")
-      console.log('anecdote gift count: ' + anedotGiftCountCF)
-      const anedotGiftCount = anedotGiftCountCF ? parseInt( anedotGiftCountCF.value) : 0
-      console.log('anecdote gift count: ' + anedotGiftCount)
-      if (json.payload.commitment_index && anedotGiftCount && (anedotGiftCount < parseInt(json.payload.commitment_index))) {
-        updateRecurring = true;
-        console.log('prev anedot count: ' + anedotGiftCount )
-        console.log('new anedot count: ' + json.payload.commitment_index )
-      }
-      console.log(recurringGiftData.list[0])
-      console.log(recurringGiftData.list[0].designations[0].project + " : " +json.payload?.donation?.fund.name)
-      console.log('project matched: ' + (recurringGiftData.list[0].designations[0].projectCode === json.payload?.donation?.fund.name))
-      console.log(recurringGiftData.list[0].segment + " : " +json.payload?.custom_field_responses?.segment_name || json.payload?.custom_field_responses?.campaign_segment || json.payload?.custom_field_responses?.campaign_segment_  || json.payload?.custom_field_responses?.campaign_source || '')
-      console.log('segment matched: ' + (recurringGiftData.list[0].segment === (json.payload?.custom_field_responses?.segment_name || json.payload?.custom_field_responses?.campaign_segment || json.payload?.custom_field_responses?.campaign_segment_  || json.payload?.custom_field_responses?.campaign_source || '').trim() ))
-      projectMatch = recurringGiftData.list[0].designations[0].projectCode === json.payload?.donation?.fund.name
-      if (projectMatch) { 
-        projectId = recurringGiftData.list[0].designations[0].projectId
-      }
-      segmentMatch = recurringGiftData.list[0].segment === (json.payload?.custom_field_responses?.segment_name || json.payload?.custom_field_responses?.campaign_segment || json.payload?.custom_field_responses?.campaign_segment_  || json.payload?.custom_field_responses?.campaign_source || '').trim() 
-      if (segmentMatch) { 
-        segmentId = recurringGiftData.list[0].segmentId
-      }
-    } else {
-      recurringGiftId = json.payload.commitment_uid
-    }
-}
-
-if (!projectId) { 
+export const getVirtuousProjectByFundName = async (fundName) => {
   // check segment and project match for one time gifts
   // does such a project exist  (TODO: we may want to do this by identifier and code instead of name)
   const projectQuery = `{
-    "groups": [
-        {
-            "conditions": [
-                {
-                    "parameter": "Project Name",
-                    "operator": "Is",
-                    "value": "${json.payload?.donation?.fund.name}",
-                }
-            ]
-        }
-    ],
-    "sortBy": "Create Date",
-    "descending": "True"
-}`
-  const resProject = await fetch('https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=10', {
-  method: 'POST',
-    headers: {
-        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
-    },
-    body: projectQuery
-  })
-  const projectData = await resProject.json();
-  console.log('project: ', projectData)
-  projectMatch = projectData?.list?.length > 0;
-  if (projectMatch) { 
-    projectId = projectData.list[0].id
-  } else { 
-    console.log('error project payload:', projectQuery)
-  }
-} 
-if (!segmentId) {
-  // does such a segment exist
-  const segmentQuery = `{
-    "search": "${json.payload?.custom_field_responses?.segment_name || json.payload?.custom_field_responses?.campaign_segment || json.payload?.custom_field_responses?.campaign_segment_  || json.payload?.custom_field_responses?.campaign_source || '' }",
+      "groups": [
+          {
+              "conditions": [
+                  {
+                      "parameter": "Project Name",
+                      "operator": "Is",
+                      "value": "${fundName}",
+                  }
+              ]
+          }
+      ],
+      "sortBy": "Create Date",
+      "descending": "True"
   }`
-  const resSegment = await fetch('https://api.virtuoussoftware.com/api/Segment/Search', {
-  method: 'POST',
-    headers: {
+  const resProject = await fetch(
+    "https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=10",
+    {
+      method: "POST",
+      headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
-    },
-    body: segmentQuery
-  })
-  const segmentData = await resSegment.json();
-  console.log('segment: ', segmentData)
-  segmentMatch = segmentData?.list && segmentData?.list?.length > 0;
-  if (segmentMatch) { 
-    segmentId = segmentData.list[0].id
+        "Content-Type": "application/json",
+      },
+      body: projectQuery,
+    }
+  )
+  const projectData = await resProject.json()
+  // console.log('project: ', projectData)
+  const projectMatch = projectData?.list?.length > 0
+  if (projectMatch) {
+    return projectData.list[0].id
+  } else {
+    console.log("error project payload:", projectQuery)
+    return 0
   }
-
 }
 
+export const getVirtuousSegmentByName = async (segmentName) => {
+  // does such a segment exist
+  const segmentQuery = `{
+    "search": "${segmentName}",
+  }`
+  const resSegment = await fetch(
+    "https://api.virtuoussoftware.com/api/Segment/Search",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: segmentQuery,
+    }
+  )
+  const segmentData = await resSegment.json()
+  console.log("segment: ", segmentData)
+  const segmentMatch = segmentData?.list && segmentData?.list?.length > 0
+  if (segmentMatch) {
+    return segmentData.list[0].id
+  }
+  return 0
+}
 
-
-// can we also match the contact? if we have a contact ID from the recurring, use that, otherwise try to get the contact with alternative methods.
-let contact: any = {} ; 
-if (recurringGiftData?.list?.length > 0 && recurringGiftData.list[0].contactId) {
-const resContact = await fetch('https://api.virtuoussoftware.com/api/Contact/' + recurringGiftData.list[0].contactId, {
-  method: 'GET',
-  headers: {
-      Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-      'Content-Type': 'application/json',
-  },
-})
-const contactData = await resContact.json();
-console.log('contact: ', contactData)
-
-contact = contactData;
-} else { 
+export const getVirtuousContactBySearch = async (payloadContact) => {
   // check contact match for one time gifts
+  console.log("in get virtuous contact by search")
   const contactQuery = `{
     "groups": [
         {
@@ -314,12 +485,12 @@ contact = contactData;
                 {
                     "parameter": "Contact Name",
                     "operator": "StartsWith",
-                    "value": "${json.payload.first_name}",
+                    "value": "${payloadContact.firstName}",
                 },
                 {
                     "parameter": "Contact Name",
                     "operator": "EndsWith",
-                    "value": "${json.payload.last_name}"
+                    "value": "${payloadContact.lastName}"
                 }
             ]
         },
@@ -328,7 +499,7 @@ contact = contactData;
                 {
                     "parameter": "Phone Number",
                     "operator": "Is",
-                    "value": "${json.payload.phone}",
+                    "value": "${payloadContact.phone}",
                 }
             ]
         }, 
@@ -337,228 +508,494 @@ contact = contactData;
               {
                   "parameter": "Postal",
                   "operator": "Contains",
-                  "value": "${json.payload.address_postal_code}",
+                  "value": "${payloadContact.postal}",
               },
               {
                   "parameter": "Address Line 1",
                   "operator": "Contains",
-                  "value": "${json.payload.address_line_1}"
+                  "value": "${payloadContact.address1}"
               }
           ]
       }
     ],
     "sortBy": "Create Date",
     "descending": "True"
-}`
+    }`
   // search for the contact
-  const resSearchContact = await fetch('https://api.virtuoussoftware.com/api/Contact/Query', {
-  method: 'POST',
-  headers: {
-      Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-      'Content-Type': 'application/json',
-  },
-  body: contactQuery
-})
-console.log('contact query: ', contactQuery)
-var contactSearchData = await resSearchContact.json();
-console.log('contact: ', contactSearchData)
+  const resSearchContact = await fetch(
+    "https://api.virtuoussoftware.com/api/Contact/Query",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: contactQuery,
+    }
+  )
+  console.log("contact query --- : ", contactQuery)
+  var contactSearchData = await resSearchContact.json()
+  console.log("contact ------: ", contactSearchData)
 
-///contact search ranking if Virtuous returns more than 1
-if (contactSearchData?.list?.length > 1) {
-  // for each contact assign a match score based on if its values contain the related json payload values
-  // 1 point for each match
-  console.log('score search results')  
-  var tempContact = {matchScore: 0}
-  contactSearchData?.list.forEach((contact) => {
-    contact.matchScore = 0;
-    console.log(contact)
-    contact.phone = normalizePhone(contact.phone)
-    contact.name.indexOf(json.payload.first_name) > -1 ? contact.matchScore++ : null
-    contact.name.indexOf(' ' + json.payload.last_name) > -1 ? contact.matchScore++ : null // the space is normal in front of the last name, and will help elleviate false positives
-    contact.phone.indexOf(normalizePhone(json.payload.phone)) > -1 ? contact.matchScore++ : null
-    contact.address.indexOf(json.payload.address_line_1) > -1 ? contact.matchScore++ : null
-    contact.address.indexOf(json.payload.address_postal_code) > -1 ? contact.matchScore++ : null
+  ///contact search ranking if Virtuous returns more than 1
+  if (contactSearchData?.list?.length > 1) {
+    // for each contact assign a match score based on if its values contain the related json payload values
+    // 1 point for each match
+    console.log("score search results")
+    var tempContact = { matchScore: 0 }
+    contactSearchData?.list.forEach((contact) => {
+      contact.matchScore = 0
+      console.log(contact)
+      contact.phone = normalizePhone(contact.phone)
+      contact.name.indexOf(payloadContact.firstName) > -1
+        ? contact.matchScore++
+        : null
+      contact.name.indexOf(" " + payloadContact.lastName) > -1
+        ? contact.matchScore++
+        : null // the space is normal in front of the last name, and will help elleviate false positives
+      contact.phone.indexOf(payloadContact.phone) > -1
+        ? contact.matchScore++
+        : null
+      contact.address.indexOf(payloadContact.address1) > -1
+        ? contact.matchScore++
+        : null
+      contact.address.indexOf(payloadContact.postal) > -1
+        ? contact.matchScore++
+        : null
+      if (contact.matchScore > tempContact.matchScore) {
+        tempContact = contact
+      }
+    })
+    console.log("tempContact: ", tempContact)
+    // sort the contacts by match score
+    contactSearchData.list.sort((a, b) =>
+      a.matchScore < b.matchScore ? 1 : -1
+    )
+    console.log(contactSearchData.list)
+    // use the highest match score
+    // contact = contactSearchData.list[0]
+    // if that just worked, we already have our best one at the begining of the list, which makes the rest of things work, lol
+  }
 
- 
-    if (contact.matchScore > tempContact.matchScore) {
-      tempContact = contact
+  if (contactSearchData?.list?.length > 0) {
+    // get the contact so our details are normalized wether or not we had an id from recurring or not
+    const resContact = await fetch(
+      "https://api.virtuoussoftware.com/api/Contact/" +
+        contactSearchData.list[0].id,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    const contactData = await resContact.json()
+    console.log("contact --final contact---: ", contactData)
+    return contactData
+  }
+  console.log(" ________________ no contact found ________________")
+  return null
+}
+
+function getNormalizedContactFromVirtuousContact(
+  virtuousContact,
+  payloadContact
+) {
+  // we have to do this because there can be many individuals on a virtuous contact.  We need to search through the individuals to see who matches the payload
+  let highestRankedIndividual = 0
+
+  virtuousContact.contactIndividuals.forEach((individual, index) => {
+    individual.matchScore = 0
+    individual.prefix === payloadContact.title ? individual.matchScore++ : null
+    individual.firstName === payloadContact.firstName
+      ? individual.matchScore++
+      : null
+    individual.lastName === payloadContact.lastName
+      ? individual.matchScore++
+      : null
+    individual.suffix === payloadContact.suffix ? individual.matchScore++ : null
+
+    const phoneMatch =
+      individual.contactMethods.filter((method) => {
+        // handle method values that have a 1 prefix...
+        let tempValue = normalizePhone(method.value)
+        return tempValue === payloadContact.phone
+      }).length > 0 || payloadContact.phone === ""
+    if (phoneMatch) {
+      individual.matchScore++
+    }
+    const emailMatch =
+      individual.contactMethods.filter(
+        (method) => method.value === payloadContact.email
+      ).length > 0 || payloadContact.email === ""
+    if (emailMatch) {
+      individual.matchScore++
+    }
+
+    if (individual.matchScore > highestRankedIndividual) {
+      highestRankedIndividual = index
     }
   })
-  console.log('tempContact: ', tempContact)
-  // sort the contacts by match score
-   contactSearchData.list.sort((a, b) => (a.matchScore < b.matchScore) ? 1 : -1)
-   console.log(  contactSearchData.list)
-  // use the highest match score
-  // contact = contactSearchData.list[0]
-  // if that just worked, we already have our best one at the begining of the list, which makes the rest of things work, lol
 
-
-
-}
-
-
-if (contactSearchData?.list?.length > 0) {
-// get the contact so our details are normalized wether or not we had an id from recurring or not
-const resContact = await fetch('https://api.virtuoussoftware.com/api/Contact/' + contactSearchData.list[0].id, {
-  method: 'GET',
-  headers: {
-      Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-      'Content-Type': 'application/json',
-  },
-})
-const contactData = await resContact.json();
-console.log('contact: ', contactData)
-contact = contactData;
-}
-}
-// calculate contact match
-if (contact && contact.id) {
-  // we're just going to try to match the first individual, but we could do more here
-  contactId = contact.id
   // we have to turn contact nulls and undefined into blank strings for the match to work
-  contact.contactIndividuals[0].prefix = contact.contactIndividuals[0].prefix || ''
-  contact.contactIndividuals[0].prefix === null ? contact.contactIndividuals[0].prefix = '' : null
-  contact.contactIndividuals[0].suffix = contact.contactIndividuals[0].suffix || ''
-  contact.contactIndividuals[0].suffix === null ? contact.contactIndividuals[0].suffix = '' : null
-  contact.contactIndividuals[0].email = contact.contactIndividuals[0].email || ''
-  contact.contactIndividuals[0].phone = contact.contactIndividuals[0].phone || ''
-  contact.address.address1 = contact.address.address1 || ''
-  contact.address.address2 = contact.address.address2 || ''
-  contact.address.city = contact.address.city || ''
-  contact.address.state = contact.address.state || ''
-  contact.address.country = contact.address.country || ''
-  contact.address.postal = contact.address.postal || ''
-  console.log('contactMethods: ', contact.contactIndividuals[0].contactMethods)
-  // check if phone and email are in contactMethods
-  // handle phone numbers that have a 1 prefix...
-  json.payload.phone = normalizePhone(json.payload.phone)
-  
+  virtuousContact.contactIndividuals[highestRankedIndividual].prefix === null
+    ? (virtuousContact.contactIndividuals[0].prefix = "")
+    : null
+  virtuousContact.contactIndividuals[highestRankedIndividual].suffix === null
+    ? (virtuousContact.contactIndividuals[0].suffix = "")
+    : null
 
-
-  const phoneMatch = (contact.contactIndividuals[0]?.contactMethods.filter((method) =>  {
-    // handle method values that have a 1 prefix...
-    let tempValue = normalizePhone(method.value)
-    return tempValue === json.payload.phone}).length > 0 || json.payload.phone === '')
-  const emailMatch = (contact.contactIndividuals[0]?.contactMethods.filter((method) => method.value === json.payload.email).length > 0 || json.payload.email === '')
-  console.log('phoneMatch: ', phoneMatch)
-  console.log('emailMatch: ', emailMatch)
-
-  json.payload.suffix === null ? json.payload.suffix = '' : null
-  json.payload.title === null ? json.payload.title = '' : null
-  
-  nameMatch = phoneMatch && emailMatch&& contact.contactType=== "Household" && contact.contactIndividuals[0].firstName === (json.payload.first_name || '') && contact.contactIndividuals[0].lastName === (json.payload.last_name || '')   // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
-  addressMatch = (contact.address.address1 === json.payload.address_line_1, contact.address.address2 === json.payload.address_line_2 && contact.address.city === json.payload.address_city && contact.address.state === json.payload.address_region && contact.address.country === anedotCountryNormalization[json.payload.address_country] && contact.address.postal === json.payload.address_postal_code)
-  if (!nameMatch) {
-    !phoneMatch ? attentionString = attentionString + "Phone Not Found on Contact: " + json.payload.phone + "<br/>"   : null
-    !emailMatch ? attentionString = attentionString + "Email Not Found on Contact: " + json.payload.email + "<br/>"   : null
-    contact.contactType !== "Household" ? attentionString = attentionString + "Contact Type:  " + contact.type + 'not equal to Household' + "<br/>"   : null
-    contact.contactIndividuals[0].firstName !== json.payload.first_name ? attentionString = attentionString + "First Name:  " + contact.contactIndividuals[0].firstName + 'not equal to ' + json.payload.first_name + "<br/>"   : null
-    contact.contactIndividuals[0].lastName !== json.payload.last_name ? attentionString = attentionString + "Last Name:  " + contact.contactIndividuals[0].lastName + 'not equal to ' + json.payload.last_name + "<br/>"   : null
-    contact.contactIndividuals[0].prefix !== (json.payload.title || '') ? attentionString = attentionString + "Title:  " + contact.contactIndividuals[0].prefix + 'not equal to ' + json.payload.title + "<br/>"   : null
-    contact.contactIndividuals[0].suffix !== (json.payload.suffix || '')  ? attentionString = attentionString + "Suffix:  " + contact.contactIndividuals[0].suffix + 'not equal to ' + json.payload.suffix + "<br/>"   : null
+  const virContact = {
+    contactType: virtuousContact.contactType,
+    title:
+      virtuousContact.contactIndividuals[highestRankedIndividual].prefix || "",
+    firstName:
+      virtuousContact.contactIndividuals[highestRankedIndividual].firstName ||
+      "",
+    middleName:
+      virtuousContact.contactIndividuals[highestRankedIndividual].middleName ||
+      "",
+    lastName:
+      virtuousContact.contactIndividuals[highestRankedIndividual].lastName ||
+      "",
+    suffix:
+      virtuousContact.contactIndividuals[highestRankedIndividual].suffix || "",
+    phone: normalizePhone(
+      virtuousContact.contactIndividuals[
+        highestRankedIndividual
+      ].contactMethods.find((method) => {
+        // handle method values that have a 1 prefix...
+        let tempValue = normalizePhone(method.value)
+        return tempValue === payloadContact.phone
+      })?.value || ""
+    ),
+    email:
+      virtuousContact.contactIndividuals[
+        highestRankedIndividual
+      ].contactMethods?.find((method) => method.value === payloadContact.email)
+        ?.value || "",
+    address1: virtuousContact.address.address1,
+    address2: virtuousContact.address.address2,
+    city: virtuousContact.address.city,
+    state: virtuousContact.address.state,
+    postal: virtuousContact.address.postal,
+    country: virtuousContact.address.country,
   }
 
-  if (!addressMatch) {
-    contact.address.address1 !== (json.payload.address_line_1 || json.payload.street ) ? attentionString = attentionString + "Address 1:  " + contact.address.address1 + 'not equal to ' + (json.payload.address_line_1 || json.payload.street ) + "<br/>"   : null
-    contact.address.address2 !== (json.payload.address_line_2 || json.payload.street_2)  ? attentionString = attentionString + "Address 2:  " + contact.address.address2 + 'not equal to ' + (json.payload.address_line_2 || json.payload.street_2 ) + "<br/>"   : null
-    contact.address.city !== json.payload.address_city ? attentionString = attentionString + "City:  " + contact.address.city + 'not equal to ' + json.payload.address_city + "<br/>"   : null
-    contact.address.state !== json.payload.address_region ? attentionString = attentionString + "State:  " + contact.address.state + 'not equal to ' + json.payload.address_region + "<br/>"   : null
-    contact.address.country !== anedotCountryNormalization[json.payload.address_country] ? attentionString = attentionString + "Country:  " + contact.address.country + 'not equal to ' + anedotCountryNormalization[json.payload.address_country] + "<br/>"   : null
-    contact.address.postal !== json.payload.address_postal_code ? attentionString = attentionString + "Postal:  " + contact.address.postal + 'not equal to ' + json.payload.address_postal_code + "<br/>"   : null
-  }
-  
-} 
-
-//  calculate match quality
-const matchQuality = (projectMatch ? 1 : 0) + (segmentMatch ? 1 : 0) + (nameMatch ? 1 : 0) + (addressMatch ? 1 : 0)
-console.log('match quality: ' + matchQuality) 
-console.log('attention: ' + attentionString)
-
-// if we found a recurring gift with that commitment ID....lets update the count. 
-
-
-
-
-
-// should we actually do this as json so we can do some things like unsetting if we don't need to send recurring data
-
-const query = `
-  {
-    transactionSource: "Anedot${anedotAccountToName[json.payload.account_uid] ? ' - ' + anedotAccountToName[json.payload.account_uid] : ''}",
-    transactionId: "${json.payload.donation?.id }-57",
-    ${/* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ''}
-    ${recurringGiftId !== '' && !recurringGiftMatch ? 'recurringGiftTransactionId: "' + recurringGiftId + '",' : ''}
-    contact: {
-        ${contact && contact.id ? 'id: "' + contact.id + '",' : ''}
-        type: "Household",
-        title: "${json.payload.title}",
-        firstname: "${json.payload.first_name}",
-        middlename: "${json.payload.middle_name}",
-        lastname: "${json.payload.last_name}",
-        suffix: "${json.payload.suffix}",
-        ${json.payload.email && blockedEmails.indexOf(json.payload.email) === -1 ?  `email: "${json.payload.email}",` : ''}
-        phone: "${json.payload.phone}",
-        address: {
-            address1: "${json.payload.address_line_1}",
-            address2: "${json.payload.address_line_2}",
-            city: "${json.payload.address_city}",
-            state: "${json.payload.address_region}",
-            postal: "${json.payload.address_postal_code}",
-            country: "${anedotCountryNormalization[json.payload.address_country]}"
-        },
-    },
-    ${recurringGiftId !== '' && !updateRecurring ? 'frequency: "' + getAnedotFrequencyTypeToVirtuous(json.payload.frequency) +'",' : ''}
-    giftDate: "${giftShortDate}",
-    giftType: "${getGiftType(json.payload.source)}",
-    CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
-    amount: "${json.payload.amount_in_dollars}",
-    batch: "Anedot ${shortDate}${matchQuality < 4 ? '- Attention' : ''}",
-    segment: "${json.payload?.custom_field_responses?.segment_name || json.payload?.custom_field_responses?.campaign_segment || json.payload?.custom_field_responses?.campaign_segment_  || json.payload?.custom_field_responses?.campaign_source || '' }", 
-    recurringGiftSegment:  "${json.payload?.custom_field_responses?.segment_name || json.payload?.custom_field_responses?.campaign_segment || json.payload?.custom_field_responses?.campaign_segment_  || json.payload?.custom_field_responses?.campaign_source || '' }", 
-    designations: [
-      {
-          name: "${json.payload?.donation?.fund.name}",
-          amountDesignated: "${json.payload.amount_in_dollars}"
-      }
-    ],
-    
-    tribute: "${json.payload.in_honor_of ? "In honor of " +  json.payload.in_honor_of : '' }" ,
-    
-  customFields: 
-  {
-      "T Shirt Size": "${json.payload?.custom_field_responses?.tee_shirt_size || ''}",
-      "External Unique ID": "${json.payload.account_uid || ''}",
-      "Acknowledgment Type" : "General Form",
-      "Funding Source": "${json.payload.source_code || ''}",
-      "Check Deposited in Phoenix": "False",
-      "Anedot Recurring Count" : "${json.payload.commitment_index || ''}",
-      "Legacy Recurring ID": "${json.payload.commitment_uid || ''}",  
-      "Promotional Item": "${json.payload.custom_field_responses?.promotion_item || ''}",
-      "Anedot Action Page": "${json.payload.action_page_name || ''}",
-      "Commitment UID": "${json.payload.commitment_uid || ''}",
-      "Anedot Action Page Name": "${json.payload.action_page_name || ''}",
-      "Donor Comments" : "${json.payload?.comments || ''}",
-
-  },
-
+  return virContact
 }
-  `;
-  const meta= { 
+
+export const getAnedotGiftToVirtuousQuery = async (json) => {
+  console.log("in get anedot gift to virtuous query")
+  // set date constants
+  const today = new Date()
+  const shortDate =
+    today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
+  const giftDate = new Date(json.payload.date)
+  const giftShortDate =
+    giftDate.getMonth() +
+    1 +
+    "." +
+    giftDate.getDate() +
+    "." +
+    giftDate.getFullYear()
+
+  // set variables for tracking quality
+  let recurringGiftId = ""
+  let recurringGiftMatch = false
+  let projectMatch = false
+  let segmentMatch = false
+  let nameMatch = false
+  let addressMatch = false
+  let updateRecurring = false
+  let attentionString = ""
+  let attentionArray: any = []
+  let projectId = 0
+  let segmentId = 0
+  let contactId = 0
+  let contact: any = {}
+  let recurringGiftData: any = {}
+
+  // purge contact phone number
+  blockedEmails.indexOf(json.payload.email) === -1
+    ? (json.payload.email = json.payload.email)
+    : (json.payload.email = "")
+  blockedPhoneNumbers.indexOf(json.payload.phone) === -1
+    ? (json.payload.phone = json.payload.phone)
+    : (json.payload.phone = "")
+
+  json.payload.suffix === null ? (json.payload.suffix = "") : null
+  json.payload.title === null ? (json.payload.title = "") : null
+
+  // Set Address For easier comparison
+  const payloadContact = {
+    title: json.payload.title || "",
+    firstName: json.payload.first_name || "",
+    middleName: json.payload.middle_name || "",
+    lastName: json.payload.last_name || "",
+    suffix: json.payload.suffix || "",
+    phone: normalizePhone(json.payload.phone) || "",
+    email: json.payload.email || "",
+    address1: json.payload.address_line_1 || json.payload.street || "",
+    address2: json.payload.address_line_2 || json.payload.street_2 || "",
+    city:
+      json.payload?.city ||
+      json.payload?.address?.city ||
+      json.payload?.address_city ||
+      "",
+    state:
+      json.payload?.address_region ||
+      json.payload?.address.state ||
+      json.payload?.state ||
+      json.payload?.address_state ||
+      "",
+    postal:
+      json.payload?.address_postal_code ||
+      json.payload?.zip ||
+      json.payload?.address_zip ||
+      "",
+    country:
+      normalizeCountry[
+        json.payload.address_country ||
+          json.payload.country ||
+          json.payload.address.country
+      ] ||
+      json.payload.address_country ||
+      "",
+  }
+  console.log("initial mod payload contact: ")
+  console.log(payloadContact)
+  //set segment for easier comparison
+  const payloadSegment =
+    json.payload?.custom_field_responses?.segment_name ||
+    json.payload?.custom_field_responses?.campaign_segment ||
+    json.payload?.custom_field_responses?.campaign_segment_ ||
+    json.payload?.custom_field_responses?.campaign_source ||
+    ""
+  console.log("payload segment: " + payloadSegment)
+  // determine if the payload is recurring or not....if so, then we need to create or update a recurring gift record: {Origin}		Create Recurring Gift		TRUE	Hosted = false, recurring = true
+  const payloadRecurring = json.payload.origin === "recurring"
+
+  if (payloadRecurring) {
+    console.log("recurring gift")
+    recurringGiftData = await getRecurringMatch(json.payload.commitment_uid)
+    // this is a recurring gift...we need to update the recurring gift count
+    if (recurringGiftData?.list?.length > 0) {
+      recurringGiftMatch = true
+      recurringGiftId = recurringGiftData.list[0].id
+      contactId = recurringGiftData.list[0].contactId || 0
+      if (contactId > 0) {
+        const resContact = await fetch(
+          "https://api.virtuoussoftware.com/api/Contact/" +
+            recurringGiftData.list[0].contactId,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        const contactData = await resContact.json()
+        contact = contactData
+      }
+
+      const anedotGiftCountCF = recurringGiftData.list[0].customFields.find(
+        (cf) => cf.name === "Anedot Recurring Count"
+      )
+      const anedotGiftCount = anedotGiftCountCF
+        ? parseInt(anedotGiftCountCF.value)
+        : 0
+      if (
+        json.payload.commitment_index &&
+        anedotGiftCount &&
+        anedotGiftCount < parseInt(json.payload.commitment_index)
+      ) {
+        updateRecurring = true
+      }
+      projectMatch =
+        recurringGiftData.list[0].designations[0].projectCode ===
+        json.payload?.donation?.fund.name
+      if (projectMatch) {
+        projectId = recurringGiftData.list[0].designations[0].projectId
+      }
+      segmentMatch = recurringGiftData.list[0].segment === payloadSegment.trim()
+      if (segmentMatch) {
+        segmentId = recurringGiftData.list[0].segmentId
+      }
+    } else {
+      recurringGiftId = json.payload.commitment_uid
+    }
+  }
+  // determine project and segment
+  if (!projectId && json.payload?.donation?.fund?.name) {
+    projectId =
+      (await getVirtuousProjectByFundName(json.payload?.donation?.fund.name)) ||
+      0
+    if (projectId > 0) {
+      projectMatch = true
+    }
+  }
+  if (!segmentId) {
+    segmentId = (await getVirtuousSegmentByName(payloadSegment)) || 0
+    if (segmentId > 0) {
+      segmentMatch = true
+    }
+  }
+
+  // can we also match the contact? if we have a contact ID from the recurring, use that, otherwise try to get the contact with alternative methods.
+  if (contactId < 1) {
+    console.log("no contact id from recurring gift")
+    contact = await getVirtuousContactBySearch(payloadContact)
+  }
+
+  console.log("we should have a contact")
+  console.log(contact)
+  // calculate contact match
+  if (contact && contact.id) {
+    contactId = contact.id
+    console.log("virtuous contact: ", contact)
+    console.log("payloadContact: ", payloadContact)
+    const virContact = getNormalizedContactFromVirtuousContact(
+      contact,
+      payloadContact
+    )
+    console.log("virtuous normalized contact: ")
+    console.log(virContact)
+    const phoneMatch =
+      virContact.phone == payloadContact.phone || payloadContact.phone === ""
+    const emailMatch =
+      virContact.email == payloadContact.email || payloadContact.email === ""
+    nameMatch =
+      phoneMatch &&
+      emailMatch &&
+      contact.contactType === "Household" &&
+      virContact.firstName === (payloadContact.firstName || "") &&
+      virContact.lastName === (payloadContact.lastName || "") // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
+    addressMatch = addressMatcher(virContact, payloadContact)
+    attentionArray = generateMatchWarningArray(virContact, payloadContact)
+  }
+
+  //  calculate match quality
+  const matchQuality =
+    (projectMatch ? 1 : 0) +
+    (segmentMatch ? 1 : 0) +
+    (nameMatch ? 1 : 0) +
+    (addressMatch ? 1 : 0)
+  console.log("match quality: " + matchQuality)
+  console.log("attention: " + JSON.stringify(attentionArray))
+
+  // if we found a recurring gift with that commitment ID....lets update the count.
+
+  // should we actually do this as json so we can do some things like unsetting if we don't need to send recurring data
+  // also, we need to format the data into our new standards for virtuous (address and phone, probably prior to the query)
+  const query = `
+      {
+        transactionSource: "Anedot${
+          anedotAccountToName[json.payload.account_uid]
+            ? " - " + anedotAccountToName[json.payload.account_uid]
+            : ""
+        }",
+        transactionId: "${json.payload.donation?.id}-57",
+        ${
+          /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
+        }
+        ${
+          recurringGiftId !== "" && !recurringGiftMatch
+            ? 'recurringGiftTransactionId: "' + recurringGiftId + '",'
+            : ""
+        }
+        contact: {
+            ${contact && contact.id ? 'id: "' + contact.id + '",' : ""}
+            type: "Household",
+            title: "${json.payload.title}",
+            firstname: "${json.payload.first_name}",
+            middlename: "${json.payload.middle_name}",
+            lastname: "${json.payload.last_name}",
+            suffix: "${json.payload.suffix}",
+            ${
+              json.payload.email &&
+              blockedEmails.indexOf(json.payload.email) === -1
+                ? `email: "${json.payload.email}",`
+                : ""
+            }
+            phone: "${json.payload.phone}",
+            address: {
+                address1: "${json.payload.address_line_1}",
+                address2: "${json.payload.address_line_2}",
+                city: "${json.payload.address_city}",
+                state: "${json.payload.address_region}",
+                postal: "${json.payload.address_postal_code}",
+                country: "${normalizeCountry[json.payload.address_country]}"
+            },
+        },
+        ${
+          recurringGiftId !== "" && !updateRecurring
+            ? 'frequency: "' +
+              getAnedotFrequencyTypeToVirtuous(json.payload.frequency) +
+              '",'
+            : ""
+        }
+        giftDate: "${giftShortDate}",
+        giftType: "${getGiftType(json.payload.source)}",
+        CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
+        amount: "${json.payload.amount_in_dollars}",
+        batch: "Anedot ${shortDate}${matchQuality < 4 ? "- Attention" : ""}",
+        segment: "${payloadSegment}", 
+        recurringGiftSegment:  "${payloadSegment}", 
+        designations: [
+          {
+              name: "${json.payload?.donation?.fund.name}",
+              amountDesignated: "${json.payload.amount_in_dollars}"
+          }
+        ],
+        
+        tribute: "${
+          json.payload.in_honor_of
+            ? "In honor of " + json.payload.in_honor_of
+            : ""
+        }" ,
+        
+      customFields: 
+      {
+          "T Shirt Size": "${
+            json.payload?.custom_field_responses?.tee_shirt_size || ""
+          }",
+          "External Unique ID": "${json.payload.account_uid || ""}",
+          "Acknowledgment Type" : "General Form",
+          "Funding Source": "${json.payload.source_code || ""}",
+          "Check Deposited in Phoenix": "False",
+          "Anedot Recurring Count" : "${json.payload.commitment_index || ""}",
+          "Legacy Recurring ID": "${json.payload.commitment_uid || ""}",  
+          "Promotional Item": "${
+            json.payload.custom_field_responses?.promotion_item || ""
+          }",
+          "Anedot Action Page": "${json.payload.action_page_name || ""}",
+          "Commitment UID": "${json.payload.commitment_uid || ""}",
+          "Anedot Action Page Name": "${json.payload.action_page_name || ""}",
+          "Donor Comments" : "${json.payload?.comments || ""}",
+      },
+
+    }
+      `
+
+  //return meta for logging
+  const meta = {
     recurringGiftId: recurringGiftId,
     recurringGiftMatch: recurringGiftMatch,
     projectMatch: projectMatch,
     segmentMatch: segmentMatch,
-    nameMatch:  nameMatch,
+    nameMatch: nameMatch,
     addressMatch: addressMatch,
     updateRecurring: updateRecurring,
-    attentionString: attentionString,
-    projectId:  projectId,
+    attentionString: JSON.stringify(attentionArray),
+    projectId: projectId,
     segmentId: segmentId,
-    contactId: contactId, 
+    contactId: contactId,
     matchQuality: matchQuality,
   }
   console.log(query)
   console.log(meta)
-  return({query, meta})
-
+  return { query, meta }
 }

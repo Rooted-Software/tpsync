@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
     "format": "npx prettier --write . --ignore-path .gitignore",
     "postinstall": "prisma generate",
     "lint": "next lint",

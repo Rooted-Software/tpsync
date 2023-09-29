@@ -22,8 +22,9 @@ export async function POST(req) {
 
   // Signatures are provided for each webhook request to verify the authenticity of the request. Verify the signature by producing a SHA-256 HMAC hexdigest using the webhook's secret token as the private key and the webhook body represented as a JSON string.
   // The hexdigest you calculate should match the value in our "X-Request-Signature" header for that webhook request.
+  let hash = ""
   if (process.env.ANEDOT_WEBHOOK_SECRET) {
-    const hash = crypto
+    hash = crypto
       .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
       .update(bodyText)
       .digest("hex")
@@ -32,7 +33,7 @@ export async function POST(req) {
     console.log(hash === signature)
   }
 
-  if (json.event) {
+  if (json.event && hash === signature) {
     const anEvent = await db.anedotEvent.create({
       data: {
         webhookId: webhookId,

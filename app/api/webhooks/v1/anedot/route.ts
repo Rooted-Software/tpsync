@@ -25,7 +25,7 @@ export async function POST(req) {
   if (process.env.ANEDOT_WEBHOOK_SECRET) {
     const hash = crypto
       .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
-      .update(body)
+      .update(text)
       .digest("hex")
 
     console.log(hash, signature)

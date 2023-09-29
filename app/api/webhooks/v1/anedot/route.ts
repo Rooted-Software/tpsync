@@ -11,7 +11,7 @@ import { any } from "prop-types"
 export async function POST(req) {
   const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
   const buf = await buffer(req)
-  const body = buf.toString()
+
   const json = await req.json()
 
   console.log("in webhook req post")
@@ -26,7 +26,7 @@ export async function POST(req) {
   if (process.env.ANEDOT_WEBHOOK_SECRET) {
     const hash = crypto
       .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
-      .update(body)
+      .update(buf)
       .digest("hex")
 
     console.log(hash, signature)

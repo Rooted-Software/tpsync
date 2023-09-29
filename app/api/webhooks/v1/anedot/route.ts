@@ -7,13 +7,11 @@ import { get, request } from "http"
 import { buffer } from "micro"
 import { headers } from "next/headers"
 import { any } from "prop-types"
-import getRawBody from "raw-body"
 
 export async function POST(req) {
   const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
   const json = await req.json()
   const text = await req.text()
-  const body = await getRawBody(req)
 
   console.log("in webhook req post")
   console.log(json)

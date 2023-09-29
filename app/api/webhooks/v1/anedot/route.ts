@@ -10,7 +10,8 @@ import { any } from "prop-types"
 
 export async function POST(req) {
   const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
-  const { body } = req
+  const buf = await buffer(req)
+  const body = buf.toString()
   const json = await req.json()
 
   console.log("in webhook req post")

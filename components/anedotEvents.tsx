@@ -152,7 +152,13 @@ export function AnedotEvents({ anedotEvents, ...props }: AnedotEventsProps) {
       {loadedEvents.length > 0
         ? loadedEvents.map((event) => (
             <div key={event.id} className="col-span-12 grid grid-cols-12">
-              <div className="col-span-2">{event.id} </div>
+              <div className="col-span-2">
+                <a
+                  href={`https://anedot.com/accounts/${event.payload?.account_id}/integrations/requests/${event.webhookId}=${event.integrationId}`}
+                >
+                  {event.webhookId ? event.webhookId : event.payload.date}
+                </a>{" "}
+              </div>
               <div className="">
                 {event.status} {event.matchQuality}
               </div>

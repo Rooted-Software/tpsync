@@ -18,7 +18,7 @@ export async function POST(req) {
   console.log(process.env.NEXTAUTH_URL)
   const signature = headers().get("X-Request-Signature") as string
   const webhookId = headers().get("X-Request-Id") as string
-  const integrationId = headers().get("X-Request-Integration-Id") as string
+  const integrationId = headers().get("X-Integration-Id") as string
 
   // Signatures are provided for each webhook request to verify the authenticity of the request. Verify the signature by producing a SHA-256 HMAC hexdigest using the webhook's secret token as the private key and the webhook body represented as a JSON string.
   // The hexdigest you calculate should match the value in our "X-Request-Signature" header for that webhook request.

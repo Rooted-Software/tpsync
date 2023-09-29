@@ -348,6 +348,8 @@ export const getAnedotEvents = async (team, skip, take) => {
   return await db.anedotEvent.findMany({
     select: {
       id: true,
+      webhookId: true,
+      integrationId: true,
       event: true,
       payload: true,
       createdAt: true,
@@ -372,7 +374,7 @@ export const getAnedotEvents = async (team, skip, take) => {
       virtuousQuery: true,
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
     skip: skip,
     take: take,

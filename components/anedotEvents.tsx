@@ -135,17 +135,18 @@ export function AnedotEvents({ anedotEvents, ...props }: AnedotEventsProps) {
   }, [page])
 
   return (
-    <div className="container grid w-screen grid-flow-row auto-rows-max grid-cols-12 items-center bg-dark px-4 lg:px-0">
-      <div className="col-span-12 grid grid-cols-12">
+    <div className="m-4 grid w-full grid-flow-row auto-rows-max grid-cols-12 items-center bg-dark px-4 lg:px-0">
+      <div className="col-span-12 my-4 grid grid-cols-12">
         <div className="col-span-2">ID </div>
         <div> status</div>
 
         <div className=""> fund/project </div>
         <div className="">origin </div>
-        <div className="col-span-3">
+        <div className="col-span-2">
           {" "}
           <span>segment</span>
         </div>
+        <div>contact</div>
         <div className="">Synced </div>
         <div className="">actions</div>
       </div>
@@ -154,13 +155,21 @@ export function AnedotEvents({ anedotEvents, ...props }: AnedotEventsProps) {
             <div key={event.id} className="col-span-12 grid grid-cols-12">
               <div className="col-span-2">
                 <a
-                  href={`https://anedot.com/accounts/${event.payload?.account_id}/integrations/requests/${event.webhookId}=${event.integrationId}`}
+                  href={`https://anedot.com/accounts/${event.payload?.account_uid}/integrations/requests/${event.webhookId}?integrationId=${event.integrationId}`}
+                  target="_blank"
                 >
                   {event.webhookId ? event.webhookId : event.payload.date}
                 </a>{" "}
               </div>
-              <div className="">
+
+              <div className="group relative flex">
                 {event.status} {event.matchQuality}
+                <div
+                  className="w-100 absolute left-1/4 z-50 m-2 mx-auto -translate-x-1/4 translate-y-full rounded-md bg-black
+                    px-5 py-3 text-sm text-gray-100 opacity-0 transition-opacity duration-75 ease-in-out group-hover:opacity-100"
+                >
+                  {event.attentionReason}
+                </div>
               </div>
               <div className="">
                 {event?.payload?.donation?.fund?.name ? (
@@ -172,7 +181,7 @@ export function AnedotEvents({ anedotEvents, ...props }: AnedotEventsProps) {
                 )}{" "}
               </div>
               <div className="">{event.payload?.origin}</div>
-              <div className="col-span-3">
+              <div className="col-span-2">
                 <span className={event.segmentMatch ? "" : "text-rose-500"}>
                   {event.payload?.custom_field_responses?.segment_name ||
                     event.payload?.custom_field_responses?.campaign_segment ||
@@ -180,6 +189,14 @@ export function AnedotEvents({ anedotEvents, ...props }: AnedotEventsProps) {
                     event.payload?.custom_field_responses?.campaign_source ||
                     ""}
                 </span>
+              </div>
+              <div>
+                <a
+                  href={`https://app.virtuoussoftware.com/Generosity/Contact/View/${event.virtuousContact}`}
+                  target="_blank"
+                >
+                  {event.virtuousContact}
+                </a>
               </div>
               <div className="">{event.synced ? `synced` : `pending`} </div>
               <div className="">

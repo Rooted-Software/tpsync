@@ -42,7 +42,6 @@ export async function POST(req: Request) {
   console.log("in anedot post route")
   try {
     const session = await getServerSession(authOptions)
-
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
     }
@@ -76,6 +75,7 @@ export async function POST(req: Request) {
           console.log(transData)
 
           if (res.status === 200) {
+            console.log("success")
             updateAnedotEvent(
               event.id,
               true,
@@ -83,7 +83,11 @@ export async function POST(req: Request) {
               queryObj.meta,
               queryObj.query
             )
+            return new Response(JSON.stringify(queryObj.toString()), {
+              status: 200,
+            })
           } else {
+            console.log("not success")
             queryObj.meta.attentionString += "virtuous error: " + transData
             updateAnedotEvent(
               event.id,
@@ -102,6 +106,7 @@ export async function POST(req: Request) {
           })
         }
       } else {
+        console.log("it was only a test: success")
         updateAnedotEvent(
           event.id,
           false,
@@ -117,7 +122,10 @@ export async function POST(req: Request) {
       return new Response("event not found", { status: 404 })
     }
   } catch (error) {
+    console.log("in error ---- wierd")
+
     console.log(error)
+
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
     }

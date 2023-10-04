@@ -6,6 +6,7 @@ import crypto, { sign } from "crypto"
 import { get, request } from "http"
 import { buffer } from "micro"
 import { headers } from "next/headers"
+import test from "node:test"
 import { any } from "prop-types"
 
 export async function POST(req) {
@@ -19,13 +20,18 @@ export async function POST(req) {
   const signature = headers().get("X-Request-Signature") as string
   const webhookId = headers().get("X-Request-Id") as string
   const integrationId = headers().get("X-Integration-Id") as string
-
+  const account_uid = json.payload.account_uid
+  const ws = await db.anedotWebhook.findFirst({
+    where: {
+      account_uid: account_uid,
+    },
+  })
   // Signatures are provided for each webhook request to verify the authenticity of the request. Verify the signature by producing a SHA-256 HMAC hexdigest using the webhook's secret token as the private key and the webhook body represented as a JSON string.
   // The hexdigest you calculate should match the value in our "X-Request-Signature" header for that webhook request.
   let hash = ""
-  if (process.env.ANEDOT_WEBHOOK_SECRET) {
+  if (ws?.webhook_secret) {
     hash = crypto
-      .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
+      .createHmac("sha256", ws?.webhook_secret)
       .update(bodyText)
       .digest("hex")
 
@@ -66,7 +72,6 @@ export async function POST(req) {
 }
 
 export async function GET(req: Request) {
-  const SC = process.env.ANEDOT_WEBHOOK_SECRET
   console.log("in webhook req")
 
   //verify webhook signature - wip sample signature:
@@ -156,9 +161,17 @@ export async function GET(req: Request) {
       communications_consent_phone: "false",
     },
   }`
-  if (process.env.ANEDOT_WEBHOOK_SECRET) {
+  console.log(testjson.replace(/\n/g, "").replace('/"', '"'))
+  const jsonTest = JSON.parse(testjson.replace("/n", "").replace('/"', '"'))
+  const ws = await db.anedotWebhook.findFirst({
+    where: {
+      account_uid: jsonTest.account_uid,
+    },
+  })
+
+  if (ws?.webhook_secret) {
     const verify = crypto
-      .createHmac("sha256", process.env.ANEDOT_WEBHOOK_SECRET)
+      .createHmac("sha256", ws.webhook_secret)
       .update(testjson)
       .digest("hex")
     console.log(verify, signature)

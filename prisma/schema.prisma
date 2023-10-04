@@ -62,6 +62,8 @@ model Team {
   automation             Boolean?                @default(false)
   frequency              String?                 @default("daily")
   syncHistory            SyncHistory[]
+  AnedotEvent            AnedotEvent[]
+  AnedotWebhook          AnedotWebhook[]
 }
 
 model Session {
@@ -411,6 +413,8 @@ model AnedotEvent {
   virtuousQuery      String?  @db.LongText
   createdAt          DateTime @default(now()) @map(name: "created_at")
   updatedAt          DateTime @default(now()) @map(name: "updated_at")
+  teamId             String?
+  team               Team?    @relation(fields: [teamId], references: [id])
 }
 
 model AnedotDonation {
@@ -454,4 +458,14 @@ model AnedotDonation {
   address                 Json?
 
   @@map(name: "anedot_donations")
+}
+
+model AnedotWebhook {
+  id             String   @id @default(cuid())
+  account_name   String
+  account_uid    String
+  webhook_secret String
+  active         Boolean? @default(false)
+  teamId         String
+  team           Team     @relation(fields: [teamId], references: [id])
 }

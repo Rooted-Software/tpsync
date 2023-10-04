@@ -1,6 +1,4 @@
 import { db } from "@/lib/db"
-import { normalize } from "path"
-import { virApiFetch } from "./virApiFetch"
 
 // Helper Functions
 function normalizePhone(phone) {
@@ -395,13 +393,13 @@ export const updateAnedotEvent = async (id, synced, status, meta, query) => {
       synced: synced,
       status: status,
       projectMatch: meta.projectMatch,
-      contactMatch: meta.contactMatch,
+      contactMatch: meta.nameMatch,
       segmentMatch: meta.segmentMatch,
       addressMatch: meta.addressMatch,
       matchQuality: meta.matchQuality,
-      virtuousContact: meta.virtuousContact,
-      virtuousProject: meta.virtuousProject,
-      virtuousSegment: meta.virtuousSegment,
+      virtuousContact: meta.contactId,
+      virtuousProject: meta.projectId,
+      virtuousSegment: meta.segmentId,
       attention: meta.matchQuality < 4 ? true : false,
       attentionReason: meta.attentionString,
       virtuousQuery: query,
@@ -677,12 +675,12 @@ function getNormalizedContactFromVirtuousContact(
         highestRankedIndividual
       ].contactMethods?.find((method) => method.value === payloadContact.email)
         ?.value || "",
-    address1: virtuousContact.address.address1,
-    address2: virtuousContact.address.address2,
-    city: virtuousContact.address.city,
-    state: virtuousContact.address.state,
-    postal: virtuousContact.address.postal,
-    country: virtuousContact.address.country,
+    address1: virtuousContact.address?.address1 || "",
+    address2: virtuousContact.address?.address2 || "",
+    city: virtuousContact.address?.city || "",
+    state: virtuousContact.address?.state || "",
+    postal: virtuousContact.address?.postal || "",
+    country: virtuousContact.address?.country || "",
   }
 
   return virContact
@@ -855,7 +853,7 @@ export const getAnedotGiftToVirtuousQuery = async (json) => {
   console.log("we should have a contact")
   console.log(contact)
   // calculate contact match
-  if (contact && contact.id) {
+  if (contact?.id) {
     contactId = contact.id
     console.log("virtuous contact: ", contact)
     console.log("payloadContact: ", payloadContact)
@@ -899,7 +897,7 @@ export const getAnedotGiftToVirtuousQuery = async (json) => {
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
         }",
-        transactionId: "${json.payload.donation?.id}-57",
+        transactionId: "${json.payload.donation?.id}-58",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }

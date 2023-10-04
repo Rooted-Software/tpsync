@@ -21,6 +21,7 @@ export async function POST(req) {
   const webhookId = headers().get("X-Request-Id") as string
   const integrationId = headers().get("X-Integration-Id") as string
   const account_uid = json.payload.account_uid
+
   const ws = await db.anedotWebhook.findFirst({
     where: {
       account_uid: account_uid,
@@ -61,6 +62,8 @@ export async function POST(req) {
       query
     )
     console.log("event created")
+  } else {
+    console.log("webhook signature did not match - event not created")
   }
   try {
     console.log("in webhook")

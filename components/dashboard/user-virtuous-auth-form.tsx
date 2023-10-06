@@ -1,17 +1,16 @@
 "use client"
 
-import { Icons } from '@/components/icons'
-import { toast } from '@/components/ui/use-toast'
-import { cn } from '@/lib/utils'
-import { virtuousAuthSchema } from '@/lib/validations/auth'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { getCsrfToken, signIn } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
-import * as React from 'react'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
-
+import { Icons } from "@/components/icons"
+import { toast } from "@/components/ui/use-toast"
+import { cn } from "@/lib/utils"
+import { virtuousAuthSchema } from "@/lib/validations/auth"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { getCsrfToken, signIn } from "next-auth/react"
+import { useSearchParams } from "next/navigation"
+import * as React from "react"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 
 interface UserVirtuousAuthFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -40,36 +39,36 @@ export function UserVirtuousAuthForm({
   async function onSubmit(data: FormData) {
     setIsLoading(true)
 
-    const signInResult = await signIn('virtuous', {
+    const signInResult = await signIn("virtuous", {
       email: data.email.toLowerCase(),
       redirect: false,
       password: data.password,
-      callbackUrl: searchParams?.get('from') || '/step2',
+      callbackUrl: searchParams?.get("from") || "/step2",
     })
     console.log(signInResult)
     setIsLoading(false)
 
     if (!signInResult?.ok) {
       return toast({
-        title: 'Something went wrong.',
-        description: 'Your sign in request failed. Please try again.',
-        type: 'error',
+        title: "Something went wrong.",
+        description: "Your sign in request failed. Please try again.",
+        type: "error",
       })
     }
-    console.log(signInResult); 
-    window.location.href = signInResult.url || '/dashboard'
+    console.log(signInResult)
+    window.location.href = signInResult.url || "/anedot"
     return toast({
-      title: 'Success!',
-      description: 'You have successfully signed in.',
-      variant: 'default',
+      title: "Success!",
+      description: "You have successfully signed in.",
+      variant: "default",
     })
   }
 
   return (
-    <div className={cn('grid gap-6', className)} {...props}>
+    <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="center-items xs:grid-cols-2  grid w-full gap-5 md:grid-cols-4">
-        <div className="col-span-2 md:col-span-1"> &nbsp;</div>
+          <div className="col-span-2 md:col-span-1"> &nbsp;</div>
           <div className="col-span-2 grid md:col-span-1 ">
             <label className="my-2 text-xs" htmlFor="email">
               Email
@@ -83,7 +82,7 @@ export function UserVirtuousAuthForm({
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
-              {...register('email')}
+              {...register("email")}
             />
             {errors?.email && (
               <p className="text-red-600 px-1 text-xs">
@@ -103,7 +102,7 @@ export function UserVirtuousAuthForm({
               autoCapitalize="none"
               autoCorrect="off"
               disabled={isLoading}
-              {...register('password')}
+              {...register("password")}
             />
             {errors?.password && (
               <p className="text-red-600 px-1 text-xs">

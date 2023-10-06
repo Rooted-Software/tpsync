@@ -908,6 +908,18 @@ export function AnedotEvents({
                 <span className="sr-only">Close modal</span>
               </button>
             </div>
+            {selectedEvent?.attentionReason &&
+            selectedEvent?.attentionReason.length > 2 ? (
+              <div className="space-y-6 p-6">
+                <h2>Attention</h2>
+                {JSON.parse(selectedEvent?.attentionReason).map((reason) => (
+                  <>
+                    {reason}
+                    <br />
+                  </>
+                ))}
+              </div>
+            ) : null}
 
             <div className="space-y-6 p-6">
               <h2>Event</h2>

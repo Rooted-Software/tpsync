@@ -10,6 +10,15 @@ function normalizePhone(phone) {
   return phone
 }
 
+function properCase(str) {
+  // Capitalizes the first letter in a text string and any other letters in text that follow any character other than a letter. Converts all other letters to lowercase letters.
+  str = str.toLowerCase()
+  str = str.replace(/(?:^|\s)\S/g, function (a) {
+    return a.toUpperCase()
+  })
+  return str
+}
+
 function normalizeStreet(street) {
   street = street || ""
   street = street.trim()
@@ -21,7 +30,23 @@ function normalizeStreet(street) {
   street = street.replace(/Dr\.?$/, "Drive")
   // replace Rd or Rd. at the end of street with Road
   street = street.replace(/Rd\.?$/, "Road")
+  street = street.replace(/Ln\.?$/, "Lane")
+  street = street.replace(/Blvd\.?$/, "Boulevard")
+  street = street.replace(/Ct\.?$/, "Court")
+  street = street.toLowerCase()
+
   return street
+}
+
+function formatPhone(phone) {
+  // format phone number like (123) 456-7890
+  phone = phone || ""
+  phone = phone.trim()
+  // remove all non numeric characters
+  phone = phone.replace(/\D/g, "")
+  // add the parens and dashes
+  phone = phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
+  return phone
 }
 
 function normalizeState(state) {
@@ -112,11 +137,11 @@ function addressMatcher(address1, address2) {
   address2 = normalizeAddress(address2)
 
   return (
-    address1.address1 === address2.address1 &&
-    address1.address2 === address2.address2 &&
-    address1.city === address2.city &&
-    address1.state === address2.state &&
-    address1.country === address2.country &&
+    // address1.address1 === address2.address1 &&
+    // address1.address2 === address2.address2 &&
+    // address1.city === address2.city &&
+    // address1.state === address2.state &&
+    // address1.country === address2.country &&
     address1.postal === address2.postal
   )
 }
@@ -653,6 +678,19 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
   console.log("in get virtuous contact by search")
   const contactQuery = `{
     "groups": [
+        ${
+          payloadContact.email !== ""
+            ? `{
+            "conditions": [
+                {
+                    "parameter": "Email Address",
+                    "operator": "Is",
+                    "value": "${payloadContact.firstName}",
+                },
+            ]
+        },`
+            : null
+        }
         {
             "conditions": [
                 {
@@ -667,7 +705,9 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
                 }
             ]
         },
-        {
+        ${
+          payloadContact.phone !== ""
+            ? `{
             "conditions": [
                 {
                     "parameter": "Phone Number",
@@ -675,18 +715,15 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
                     "value": "${payloadContact.phone}",
                 }
             ]
-        }, 
+        },`
+            : null
+        }
         {
           "conditions": [
               {
                   "parameter": "Postal",
-                  "operator": "Contains",
-                  "value": "${payloadContact.postal}",
-              },
-              {
-                  "parameter": "Address Line 1",
-                  "operator": "Contains",
-                  "value": "${payloadContact.address1}"
+                  "operator": "StartsWith",
+                  "value": "${normalizePostal(payloadContact.postal)}",
               }
           ]
       }
@@ -720,6 +757,9 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
       contact.matchScore = 0
       console.log(contact)
       contact.phone = normalizePhone(contact.phone)
+      contact.email.indexOf(payloadContact.email) > -1
+        ? contact.matchScore++
+        : null
       contact.name.indexOf(payloadContact.firstName) > -1
         ? contact.matchScore++
         : null
@@ -729,10 +769,7 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
       contact.phone.indexOf(payloadContact.phone) > -1
         ? contact.matchScore++
         : null
-      contact.address.indexOf(payloadContact.address1) > -1
-        ? contact.matchScore++
-        : null
-      contact.address.indexOf(payloadContact.postal) > -1
+      contact.address.indexOf(normalizePostal(payloadContact.postal)) > -1
         ? contact.matchScore++
         : null
       if (contact.matchScore > tempContact.matchScore) {
@@ -751,6 +788,11 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
   }
 
   if (contactSearchData?.list?.length > 0) {
+    // if we don't have a high enough match score, return null
+    if (contactSearchData.list[0].matchScore < 3) {
+      return null
+    }
+
     // get the contact so our details are normalized wether or not we had an id from recurring or not
     const resContact = await fetch(
       "https://api.virtuoussoftware.com/api/Contact/" +
@@ -890,10 +932,15 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
   let contact: any = {}
   let recurringGiftData: any = {}
 
-  // purge contact phone number
+  // purge contact email phone number
   blockedEmails.indexOf(json.payload.email) === -1
     ? (json.payload.email = json.payload.email)
     : (json.payload.email = "")
+  // purge email ending in tpusa.org
+  json.payload.email.indexOf("tpusa.org") > -1
+    ? (json.payload.email = "")
+    : (json.payload.email = json.payload.email)
+
   blockedPhoneNumbers.indexOf(json.payload.phone) === -1
     ? (json.payload.phone = json.payload.phone)
     : (json.payload.phone = "")
@@ -1070,7 +1117,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
         }",
-        transactionId: "${json.payload.donation?.id}-tpsync",
+        transactionId: "${json.payload.donation?.id}",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }
@@ -1083,9 +1130,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
             ${contact && contact.id ? 'id: "' + contact.id + '",' : ""}
             type: "Household",
             title: "${json.payload.title}",
-            firstname: "${json.payload.first_name}",
-            middlename: "${json.payload.middle_name}",
-            lastname: "${json.payload.last_name}",
+            firstname: "${properCase(json.payload.first_name)}",
+            middlename: "${properCase(json.payload.middle_name)}",
+            lastname: "${properCase(json.payload.last_name)}",
             suffix: "${json.payload.suffix}",
             ${
               json.payload.email &&
@@ -1093,11 +1140,11 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
                 ? `email: "${json.payload.email}",`
                 : ""
             }
-            phone: "${json.payload.phone}",
+            phone: "${formatPhone(payloadContact.phone)}",
             address: {
-                address1: "${json.payload.address_line_1}",
-                address2: "${json.payload.address_line_2}",
-                city: "${json.payload.address_city}",
+                address1: "${properCase(json.payload.address_line_1)}",
+                address2: "${properCase(json.payload.address_line_2)}",
+                city: "${properCase(json.payload.address_city)}",
                 state: "${json.payload.address_region}",
                 postal: "${json.payload.address_postal_code}",
                 country: "${normalizeCountry[json.payload.address_country]}"

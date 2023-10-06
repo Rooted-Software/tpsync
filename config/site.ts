@@ -1,13 +1,13 @@
-import { SiteConfig } from 'types'
+import { SiteConfig } from "types"
 
 export const siteConfig: SiteConfig = {
-  name: 'DonorSync',
+  name: "TPSync",
   description:
-    'An open source application built using the new router, server components and everything new in Next.js 13.',
-  url: 'https://app.donorsync.org',
-  ogImage: 'https://app.donorsync.org/og.jpg',
+    "An open source application built using the new router, server components and everything new in Next.js 13.",
+  url: "https://app.donorsync.org",
+  ogImage: "https://app.donorsync.org/og.jpg",
   links: {
-    twitter: 'https://twitter.com/RootedSoftware',
-    github: 'https://github.com/Rooted-Software',
+    twitter: "https://twitter.com/RootedSoftware",
+    github: "https://github.com/Rooted-Software",
   },
 }

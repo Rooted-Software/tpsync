@@ -121,6 +121,160 @@ function addressMatcher(address1, address2) {
   )
 }
 
+export function generateEventQuery(searchParams) {
+  const allowOrderFields = ["createdAt", "matchQuality", "status"]
+  const allowFilterFields = [
+    "donationId",
+    "webhookId",
+    "status",
+    "matchQuality",
+    "fund",
+    "origin",
+    "segment",
+    "virtuousContact",
+    "event",
+    "createdAt",
+    "synced",
+    "matchQuality",
+    "createdAt",
+  ]
+  const jsonFilterFields = [
+    "origin",
+    "segment",
+    "event",
+    "virtuousContact",
+    "donationId",
+    "fund",
+  ]
+
+  console.log(searchParams)
+  const page = parseInt(searchParams?.page || "0") || 0
+
+  let orderField = searchParams?.orderField || "createdAt"
+  const orderDirection = searchParams?.orderDirection || "desc"
+  // see if ordery boy is in the allowOrderFields and if not, set it to createdAt
+  if (!allowOrderFields.includes(orderField)) {
+    orderField = "createdAt"
+  }
+  let orderBy: Record<string, string> = {}
+  orderBy[orderField] = orderDirection
+
+  // for each of the allowed fields, construct an object for the prisma where clause
+  const filterObj = {}
+  let jsonParamsCount = 0
+  // count how many allowFilterFields are in the searchParams
+  jsonFilterFields.forEach((key) => {
+    if (searchParams[key]) {
+      jsonParamsCount++
+    }
+  })
+
+  let AND: any[] = []
+  let OR: any[] = []
+
+  const isMultiple = jsonParamsCount > 1
+
+  for (const key of allowFilterFields) {
+    let value = searchParams[key]
+    if (value === "true") {
+      value = true
+    }
+    if (value === "false") {
+      value = false
+    }
+    if (
+      value !== undefined &&
+      value !== "" &&
+      value !== "undefined" &&
+      value !== "null"
+    ) {
+      if (key === "matchQuality" || key === "virtuousContact") {
+        filterObj[key] = parseInt(value)
+      } else if (key === "createdAt") {
+        // set filterobj key to the prisma structure for saying on date
+        // set beginning to beginning of day and end to end of day
+        const beginningOfDay = new Date(value) // set to beginning of day
+        beginningOfDay.setHours(0, 0, 0, 0)
+        const endOfDay = new Date(value) // set to end of day
+        endOfDay.setHours(23, 59, 59, 999)
+
+        filterObj[key] = {
+          gte: beginningOfDay,
+          lte: endOfDay,
+        }
+      } else if (key === "fund") {
+        if (isMultiple) {
+          AND.push({
+            payload: { path: "$.donation.fund.name", equals: value },
+          })
+        } else {
+          filterObj["payload"] = {
+            path: "$.donation.fund.name",
+            equals: value,
+          }
+        }
+      } else if (key === "donationId") {
+        if (isMultiple) {
+          AND.push({
+            payload: { path: "$.donation.id", equals: value },
+          })
+        } else {
+          filterObj["payload"] = {
+            path: "$.donation.id",
+            equals: value,
+          }
+        }
+      } else if (key === "origin") {
+        if (isMultiple) {
+          AND.push({
+            payload: { path: "$.origin", equals: value },
+          })
+        } else {
+          filterObj["payload"] = {
+            path: "$.origin",
+            equals: value,
+          }
+        }
+      } else if (key === "segment") {
+        OR.push({
+          payload: {
+            path: "$.custom_field_responses.segment_name",
+            equals: value,
+          },
+        })
+        OR.push({
+          payload: {
+            path: "$.custom_field_responses.campaign_segmente",
+            equals: value,
+          },
+        })
+        OR.push({
+          payload: {
+            path: "$.custom_field_responses.campaign_segment_",
+            equals: value,
+          },
+        })
+        OR.push({
+          payload: {
+            path: "$.custom_field_responses.campaign_source",
+            equals: value,
+          },
+        })
+      } else {
+        filterObj[key] = value
+      }
+    }
+  }
+  if (isMultiple) {
+    filterObj["AND"] = AND
+  }
+  if (OR.length > 0) {
+    filterObj["OR"] = OR
+  }
+
+  return { filterObj: filterObj, orderBy: orderBy, page: page }
+}
+
 async function getRecurringMatch(commitment_uid) {
   const recQuery = `{
     "groups": [
@@ -309,6 +463,13 @@ export const anedotCardTypeToVirtuous = {
   other: "Other",
 }
 
+const en = { "click here to unsubscribe": "click here to unsubscribe" }
+const fr = { "click here to unsubscribe": "cliquez ici pour vous désabonner" }
+
+const i18n = fr
+
+i18n["click here to unsubscribe"]
+
 export const normalizeCountry = {
   US: "United States",
   USA: "United States",
@@ -342,8 +503,9 @@ export function getAnedotFrequencyTypeToVirtuous(string) {
 }
 
 // Local DB
-export const getAnedotEvents = async (team, skip, take) => {
+export const getAnedotEvents = async (team, skip, take, where, orderBy) => {
   return await db.anedotEvent.findMany({
+    where,
     select: {
       id: true,
       webhookId: true,
@@ -371,17 +533,21 @@ export const getAnedotEvents = async (team, skip, take) => {
       contactMatch: true,
       virtuousQuery: true,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy,
     skip: skip,
     take: take,
   })
 }
 
+export const getAnedotEventsCount = async (team, where, orderBy) => {
+  return await db.anedotEvent.count({
+    where,
+    orderBy,
+  })
+}
+
 export const updateAnedotEvent = async (id, synced, status, meta, query) => {
   console.log("in update anedot event")
-
   const event = await db.anedotEvent.update({
     where: {
       id: id,
@@ -400,7 +566,14 @@ export const updateAnedotEvent = async (id, synced, status, meta, query) => {
       virtuousContact: meta.contactId,
       virtuousProject: meta.projectId,
       virtuousSegment: meta.segmentId,
-      attention: meta.matchQuality < 4 ? true : false,
+      attention:
+        meta.matchQuality < 4 ||
+        !meta.projectMatch ||
+        !meta.segmentMatch ||
+        !meta.nameMatch
+          ? true
+          : false,
+
       attentionReason: meta.attentionString,
       virtuousQuery: query,
     },
@@ -686,7 +859,7 @@ function getNormalizedContactFromVirtuousContact(
   return virContact
 }
 
-export const getAnedotGiftToVirtuousQuery = async (json) => {
+export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
   console.log("in get anedot gift to virtuous query")
   // set date constants
   const today = new Date()
@@ -702,7 +875,7 @@ export const getAnedotGiftToVirtuousQuery = async (json) => {
     giftDate.getFullYear()
 
   // set variables for tracking quality
-  let recurringGiftId = ""
+  let recurringGiftId = json.recurringGiftId || ""
   let recurringGiftMatch = false
   let projectMatch = false
   let segmentMatch = false
@@ -711,9 +884,9 @@ export const getAnedotGiftToVirtuousQuery = async (json) => {
   let updateRecurring = false
   let attentionString = ""
   let attentionArray: any = []
-  let projectId = 0
-  let segmentId = 0
-  let contactId = 0
+  let projectId = json.projectId || 0
+  let segmentId = json.segmentId || 0
+  let contactId = json.virtuousContactId || 0
   let contact: any = {}
   let recurringGiftData: any = {}
 

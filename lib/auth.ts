@@ -1,18 +1,18 @@
-import { siteConfig } from '@/config/site'
-import { db } from '@/lib/db'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { Prisma } from '@prisma/client'
-import { th } from 'date-fns/locale'
-import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { Client } from 'postmark'
+import { siteConfig } from "@/config/site"
+import { db } from "@/lib/db"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { Prisma } from "@prisma/client"
+import { th } from "date-fns/locale"
+import { NextAuthOptions } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { Client } from "postmark"
 
-type Credentials = { 
-  email: string,
+type Credentials = {
+  email: string
   password: string
 }
 
-const FormData = require('form-data')
+const FormData = require("form-data")
 
 const setDefaultNewTeam = async (user: any) => {
   // create a team
@@ -31,11 +31,9 @@ const setDefaultNewTeam = async (user: any) => {
   })
   return newTeam
 }
-  // update user with team
-  
+// update user with team
 
-
-const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || '')
+const postmarkClient = new Client(process.env.POSTMARK_API_TOKEN || "")
 
 export const authOptions: NextAuthOptions = {
   // huh any! I know.
@@ -43,56 +41,54 @@ export const authOptions: NextAuthOptions = {
   // @see https://github.com/prisma/prisma/issues/16117
   adapter: PrismaAdapter(db as any),
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   pages: {
-    signIn: '/login?from=/dashboard',
+    signIn: "/login?from=/dashboard",
   },
   providers: [
     CredentialsProvider({
-      id: 'virtuous',
+      id: "virtuous",
       // The name to display on the sign in form (e.g. 'Sign in with...')
-      name: 'Virtuous CMS',
+      name: "Virtuous CMS",
       // The credentials is used to generate a suitable form on the sign in page.
       // You can specify whatever fields you are expecting to be submitted.
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
         email: {
-          label: 'email',
-          type: 'email',
-          placeholder: 'jsmith@example.com',
+          label: "email",
+          type: "email",
+          placeholder: "jsmith@example.com",
         },
-        password: { label: 'Password', type: 'password' },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials: Credentials, req) {
         const payload = {
           email: credentials.email,
           password: credentials.password,
         }
-   
-        const form = new FormData()
-        form.append('email', credentials.email)
-        form.append('password', credentials.password)
-      
 
-        const res = await fetch('https://api.virtuoussoftware.com/Token', {
-          method: 'POST',
+        const form = new FormData()
+        form.append("email", credentials.email)
+        form.append("password", credentials.password)
+
+        const res = await fetch("https://api.virtuoussoftware.com/Token", {
+          method: "POST",
           body:
-            'grant_type=password&username=' +
+            "grant_type=password&username=" +
             credentials.email +
-            '&password=' +
+            "&password=" +
             credentials.password,
-          mode: 'no-cors',
-          cache: 'no-cache',
+          mode: "no-cors",
+          cache: "no-cache",
           headers: {
-            'Content-Type': 'form-data',
+            "Content-Type": "form-data",
           },
         })
-      
 
         const user = await res.json()
-     
+
         if (!res.ok) {
           throw new Error(user.message)
         }
@@ -104,12 +100,12 @@ export const authOptions: NextAuthOptions = {
               email: credentials.email,
             },
             include: {
-              team: true, 
-            }
+              team: true,
+            },
           })
-     
+
           if (!dbUser) {
-            console.log('no user found')
+            console.log("no user found")
             // create new user and account (with tokens)
 
             const newUser = await db.user.create({
@@ -122,37 +118,35 @@ export const authOptions: NextAuthOptions = {
                 id: true,
                 teamId: true,
                 team: true,
-              }
-            
+              },
             })
-            // check to see if there is a team? 
+            // check to see if there is a team?
             if (newUser && !newUser.teamId) {
-              const newTeam = await setDefaultNewTeam(newUser); 
-            
+              const newTeam = await setDefaultNewTeam(newUser)
             }
             dbUser = await db.user.findFirst({
               where: {
                 email: credentials.email,
               },
               include: {
-                team: true, 
-              }
+                team: true,
+              },
             })
-            if (!dbUser) { throw new Error('No user found') 
-              return null 
+            if (!dbUser) {
+              throw new Error("No user found")
+              return null
             }
             let accountData: Prisma.AccountUncheckedCreateInput = {
               userId: newUser.id,
-              type: 'oauth',
-              provider: 'virtuous',
+              type: "oauth",
+              provider: "virtuous",
               providerAccountId: user.userName,
               refresh_token: user.refresh_token,
               access_token: user.access_token,
               expires_at: user.expires_in,
-              token_type: 'bearer',
+              token_type: "bearer",
             }
 
-          
             const newAccount = await db.account.create({
               data: accountData,
               select: {
@@ -160,46 +154,48 @@ export const authOptions: NextAuthOptions = {
               },
             })
           } else {
-           
             // update account (with tokens)
             const updatedAccount = await db.account.updateMany({
               where: {
                 userId: dbUser.id,
-                type: 'oauth',
-                provider: 'virtuous',
+                type: "oauth",
+                provider: "virtuous",
               },
               data: {
                 access_token: user.access_token,
                 refresh_token: user.refresh_token,
                 expires_at: user.expires_in,
-                token_type: 'bearer',
+                token_type: "bearer",
               },
             })
           }
-         console.log('finishing login ')
+          console.log("finishing login ")
           if (!dbUser?.teamId) {
-            const newTeam = await setDefaultNewTeam(dbUser); 
+            const newTeam = await setDefaultNewTeam(dbUser)
             dbUser.teamId = newTeam.id
             dbUser = await db.user.findFirst({
               where: {
                 email: credentials.email,
               },
               include: {
-                team: true, 
-              }
+                team: true,
+              },
             })
           }
 
-          if (!dbUser || !dbUser?.teamId) { 
-            console.log('failed to fund user or team')
+          if (!dbUser || !dbUser?.teamId) {
+            console.log("failed to fund user or team")
             // failed to fund user or team, which should not happen at this stage
-            return null 
+            return null
           }
-    
-          
-          console.log('Here is the user')
-          let loggedInUser: any = {id: dbUser.id, email: credentials.email, team: dbUser.team, teamId: dbUser.teamId}
 
+          console.log("Here is the user")
+          let loggedInUser: any = {
+            id: dbUser.id,
+            email: credentials.email,
+            team: dbUser.team,
+            teamId: dbUser.teamId,
+          }
 
           return loggedInUser
         }
@@ -217,7 +213,9 @@ export const authOptions: NextAuthOptions = {
       // console.log(session)
       // console.log('user-session')
       // console.log(user)
-      if (!token.teamId) { return session } 
+      if (!token.teamId) {
+        return session
+      }
       if (token) {
         session.user.id = token.id
         session.user.name = token.name
@@ -226,22 +224,23 @@ export const authOptions: NextAuthOptions = {
         session.user.team = token.team
         session.user.teamId = token.teamId
       }
-    
-      console.log('returning session')
+
+      // console.log('returning session')
       // console.log(session)
       return session
     },
     async jwt({ token, user }) {
-      console.log('in jwt-token')
+      console.log("in jwt-token")
       // console.log(token)
       // console.log('jwt-user')
       // console.log(user)
       const dbUser = await db.user.findFirst({
         where: {
           email: token.email,
-        },include: { 
-          team: true, 
-        }
+        },
+        include: {
+          team: true,
+        },
       })
       // console.log("In JWT DB USER")
       // console.log(dbUser)

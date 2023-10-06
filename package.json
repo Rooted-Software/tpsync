@@ -1,9 +1,9 @@
 {
-  "name": "DonorSync",
+  "name": "TPSync",
   "version": "0.3.0",
   "private": true,
   "author": {
-    "name": "DonorSync",
+    "name": "Rooted Software",
     "url": "https://twitter.com/rootedSoftware"
   },
   "scripts": {

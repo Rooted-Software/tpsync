@@ -1,6 +1,6 @@
 {
-  "name": "DonorSync",
-  "short_name": "DonorSync",
+  "name": "TPSync",
+  "short_name": "TPSync",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

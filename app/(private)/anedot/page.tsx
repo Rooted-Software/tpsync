@@ -1,8 +1,11 @@
 import { AnedotEvents } from "@/components/anedotEvents"
 import { UserAccountNav } from "@/components/user-account-nav"
-import { getAnedotEvents } from "@/lib/anedot"
+import { getAnedotEvents, getAnedotEventsCount } from "@/lib/anedot"
+import { generateEventQuery } from "@/lib/anedot"
 import { getCurrentUser } from "@/lib/session"
+import { get } from "http"
 import { redirect } from "next/navigation"
+import { json } from "stream/consumers"
 
 export const metadata = {
   title: "Review Incoming Anedot Transactions",
@@ -12,15 +15,23 @@ export const metadata = {
 export default async function ReveiwDataPage({ searchParams }) {
   const user = await getCurrentUser()
   if (!user) {
-    redirect("/step1")
+    redirect("/login")
   }
-  console.log(searchParams)
-  const page = parseInt(searchParams?.page || "0") || 0
 
-  const eventData = getAnedotEvents(user.teamId, page * 25, 25)
+  const { filterObj, orderBy, page } = generateEventQuery(searchParams)
 
-  const [anedotEvents] = await Promise.all([eventData])
+  const eventData = getAnedotEvents(
+    user.teamId,
+    page * 25,
+    25,
+    filterObj,
+    orderBy
+  )
+  const countData = getAnedotEventsCount(user.teamId, filterObj, orderBy)
 
+  const [anedotEvents, eventCount] = await Promise.all([eventData, countData])
+  console.log("Event Data")
+  console.log(eventCount)
   return (
     <>
       <header className="sticky top-0 z-40 border-b bg-background">
@@ -36,11 +47,7 @@ export default async function ReveiwDataPage({ searchParams }) {
         </div>
       </header>
       <div>
-        {anedotEvents.length > 0 ? (
-          <AnedotEvents anedotEvents={anedotEvents} />
-        ) : (
-          `getting anedot events...`
-        )}
+        <AnedotEvents anedotEvents={anedotEvents} eventCount={eventCount} />
       </div>
     </>
   )

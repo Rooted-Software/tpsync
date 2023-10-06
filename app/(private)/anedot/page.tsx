@@ -30,8 +30,7 @@ export default async function ReveiwDataPage({ searchParams }) {
   const countData = getAnedotEventsCount(user.teamId, filterObj, orderBy)
 
   const [anedotEvents, eventCount] = await Promise.all([eventData, countData])
-  console.log("Event Data")
-  console.log(eventCount)
+
   return (
     <>
       <header className="sticky top-0 z-40 border-b bg-background">

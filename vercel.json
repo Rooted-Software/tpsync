@@ -2,11 +2,11 @@
   "functions": {
     "api/anedot/*.js": {
       "memory": 3008,
-      "maxDuration": 300 // This function can run for a maximum of 30 seconds
+      "maxDuration": 300 
     },
     "api/webhooks/v1/anedot/*.js": {
       "memory": 3008,
-      "maxDuration": 300 // These functions can run for a maximum of 15 seconds
+      "maxDuration": 300 
     }
   }
 }

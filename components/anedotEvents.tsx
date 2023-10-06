@@ -90,14 +90,14 @@ export function AnedotEvents({
     let urlString = url.toString()
     let newUrl = setSearchParams(url)
     console.log(newUrl.toString())
-    router.replace(newUrl.toString())
-    router.refresh()
+
     if (!isLoading && url.toString() !== urlString) {
       window.location.href = newUrl.toString()
     }
     setIsLoading(false)
     if (url !== newUrl) {
-      window.location.href = newUrl.toString()
+      router.replace(newUrl.toString())
+      router.refresh()
     }
   }, [
     page,
@@ -203,6 +203,9 @@ export function AnedotEvents({
       setIsLoading(false)
       console.log(response)
       let url = new URL(window.location.href)
+
+      router.refresh()
+
       window.location.href = url.toString()
 
       // setLoadedEvents(data)
@@ -279,8 +282,9 @@ export function AnedotEvents({
 
       let url = new URL(window.location.href)
 
-      window.location.href = url.toString()
+      router.refresh()
 
+      window.location.href = url.toString()
       // getEvents()
     }, 400)
   }
@@ -299,7 +303,7 @@ export function AnedotEvents({
 
     router.push(url.toString())
     router.refresh()
-    window.location.href = url.toString()
+    //window.location.href = url.toString()
   }
 
   function clearFilterAndSort(pathname) {

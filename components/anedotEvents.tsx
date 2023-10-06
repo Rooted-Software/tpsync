@@ -323,12 +323,11 @@ export function AnedotEvents({
     setStatusFilter("")
 
     setPage(0)
+    setTimeout(function () {
+      console.log("Executed after 1 second")
 
-    url = setSearchParams(url)
-
-    router.push(url.toString())
-    router.refresh()
-    window.location.href = url.toString()
+      window.location.href = url.toString()
+    }, 400)
   }
 
   function setSearchParams(url) {
@@ -349,7 +348,8 @@ export function AnedotEvents({
     } else {
       url.searchParams.delete("matchQuality")
     }
-    if (fundFilter) {
+    if (fundFilter && fundFilter !== "") {
+      console.log(fundFilter)
       url.searchParams.set("fund", fundFilter.trim())
     } else {
       url.searchParams.delete("fund")

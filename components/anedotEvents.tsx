@@ -21,6 +21,13 @@ interface AnedotEventsProps {
   anedotEvents: any[]
   eventCount: number
 }
+var replacements = { "\\\\": "\\", "\\n": "\n", '\\"': '"' }
+
+function slashUnescape(contents) {
+  return contents.replace(/\\(\\|n|")/g, function (replace) {
+    return replacements[replace]
+  })
+}
 
 export function AnedotEvents({
   anedotEvents,
@@ -303,7 +310,7 @@ export function AnedotEvents({
 
     router.push(url.toString())
     router.refresh()
-    //window.location.href = url.toString()
+    window.location.href = url.toString()
   }
 
   function clearFilterAndSort(pathname) {
@@ -913,7 +920,7 @@ export function AnedotEvents({
 
             <div className="space-y-6 p-6">
               <h2>Generated Virtuous Query</h2>
-              {JSON.stringify(selectedEvent?.virtuousQuery)}
+              {selectedEvent?.virtuousQuery}
             </div>
 
             <div className="items-right flex space-x-2 rounded-b border-t border-gray-200 p-6 text-right dark:border-gray-600">

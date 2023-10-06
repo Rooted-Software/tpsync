@@ -12,6 +12,7 @@ import { NextRequest } from "next/server"
 import * as z from "zod"
 
 export const maxDuration = 300
+
 const eventCreateSchema = z.object({
   id: z.string(),
   test: z.boolean().optional(),

@@ -51,7 +51,7 @@ export async function POST(req) {
         env: process.env.NEXTAUTH_URL || "local",
       },
     })
-    const queryObj = await getAnedotGiftToVirtuousQuery(json)
+    const queryObj = await getAnedotGiftToVirtuousQuery(json, false)
     const query = queryObj.query || ""
     const meta = queryObj.meta || ""
     const updated = await updateAnedotEvent(

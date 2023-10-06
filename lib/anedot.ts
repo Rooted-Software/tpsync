@@ -953,7 +953,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
   if (payloadRecurring) {
     console.log("recurring gift")
     recurringGiftData = await getRecurringMatch(json.payload.commitment_uid)
-    // this is a recurring gift...we need to update the recurring gift count
+    // this is a recurring gift...we need to update the recurring gift count (if virtuous will let us) But at lease we can get some data from the matched recurring gift
     if (recurringGiftData?.list?.length > 0) {
       recurringGiftMatch = true
       recurringGiftId = recurringGiftData.list[0].id
@@ -1070,7 +1070,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
         }",
-        transactionId: "${json.payload.donation?.id}-58",
+        transactionId: "${json.payload.donation?.id}-tpsync",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }

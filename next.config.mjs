@@ -5,7 +5,7 @@
 const nextConfig = {
   // @TODO turn swcMinify back on once the agressive dead code elimination bug that casues
   // `ReferenceError: FieldPresenceWithOverlay is not defined` is fixed
-  devErrorOverlay: true,
+
   swcMinify: false,
   //setting to false to enable draggable
   reactStrictMode: false,
@@ -17,7 +17,6 @@ const nextConfig = {
     ],
   },
   experimental: {
-    appDir: true,
     serverComponentsExternalPackages: ['@prisma/client'],
   },
   typescript: {

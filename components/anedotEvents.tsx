@@ -102,10 +102,6 @@ export function AnedotEvents({
       window.location.href = newUrl.toString()
     }
     setIsLoading(false)
-    if (url !== newUrl) {
-      router.replace(newUrl.toString())
-      router.refresh()
-    }
   }, [
     page,
     orderField,

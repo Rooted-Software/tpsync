@@ -61,9 +61,37 @@ export async function POST(req) {
       meta,
       query
     )
+    // go ahead and sync....
+    try {
+      const res = await fetch(
+        "https://api.virtuoussoftware.com/api/v2/Gift/Transaction",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: query,
+        }
+      )
+
+      const transData = await res.text()
+      console.log("in webhook")
+      console.log(transData)
+    } catch (error) {
+      console.log(error)
+      return new Response(`Webhook Error: ${error.message}`, { status: 400 })
+    }
+
     console.log("event created")
   } else {
     console.log("webhook signature did not match - event not created")
+    return new Response(
+      `Webhook Signature Error: webhook signnature didn't match`,
+      {
+        status: 400,
+      }
+    )
   }
   try {
     console.log("in webhook")
@@ -75,6 +103,7 @@ export async function POST(req) {
 }
 
 export async function GET(req: Request) {
+  // for testing purposes only
   console.log("in webhook req")
 
   //verify webhook signature - wip sample signature:

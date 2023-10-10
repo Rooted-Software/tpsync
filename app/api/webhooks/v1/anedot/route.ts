@@ -78,6 +78,15 @@ export async function POST(req) {
       const transData = await res.text()
       console.log("in webhook")
       console.log(transData)
+      if (res.status === 200) {
+        const updated = await updateAnedotEvent(
+          anEvent.id,
+          true,
+          "synced",
+          meta,
+          query
+        )
+      }
     } catch (error) {
       console.log(error)
       return new Response(`Webhook Error: ${error.message}`, { status: 400 })

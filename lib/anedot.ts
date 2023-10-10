@@ -1117,7 +1117,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
         } ${shortDate}${matchQuality < 4 ? "- Attention" : ""}",
-        transactionId: "${json.payload.donation?.id}",
+        transactionId: "${json.payload.donation?.id}-test",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }

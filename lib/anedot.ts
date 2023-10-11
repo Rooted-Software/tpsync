@@ -685,7 +685,7 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
                 {
                     "parameter": "Email Address",
                     "operator": "Is",
-                    "value": "${payloadContact.firstName}",
+                    "value": "${payloadContact.email}",
                 },
             ]
         },`

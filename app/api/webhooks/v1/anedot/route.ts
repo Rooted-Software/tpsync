@@ -9,6 +9,8 @@ import { headers } from "next/headers"
 import test from "node:test"
 import { any } from "prop-types"
 
+export const maxDuration = 300
+
 export async function POST(req) {
   const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
 
@@ -61,6 +63,7 @@ export async function POST(req) {
       meta,
       query
     )
+    console.log("event created -- syncing to virtuous")
     // go ahead and sync....
     try {
       const res = await fetch(

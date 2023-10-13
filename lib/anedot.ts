@@ -904,6 +904,7 @@ function getNormalizedContactFromVirtuousContact(
 export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
   console.log("in get anedot gift to virtuous query")
   // set date constants
+
   const today = new Date()
   const shortDate =
     today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
@@ -1116,7 +1117,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
           anedotAccountToName[json.payload.account_uid]
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
-        } ${shortDate}${matchQuality < 4 ? "- Attention" : ""}",
+        } ${giftShortDate}${matchQuality < 4 ? "- Attention" : ""}",
         transactionId: "${json.payload.donation?.id}-test",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
@@ -1161,7 +1162,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
         giftType: "${getGiftType(json.payload.source)}",
         CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
         amount: "${json.payload.amount_in_dollars}",
-        batch: "Anedot ${shortDate}${matchQuality < 4 ? "- Attention" : ""}",
+        batch: "Anedot ${giftShortDate}${
+    matchQuality < 4 ? "- Attention" : ""
+  }",
         segment: "${payloadSegment}", 
         recurringGiftSegment:  "${payloadSegment}", 
         designations: [
@@ -1182,9 +1185,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
           "T Shirt Size": "${
             json.payload?.custom_field_responses?.tee_shirt_size || ""
           }",
-          "External Unique ID": "${json.payload.account_uid || ""}",
+          "External Unique ID": "${json.payload.donation?.id || ""}",
           "Acknowledgment Type" : "General Form",
-          "Funding Source": "${json.payload.source_code || ""}",
+          "Funding Source": "Individual",
           "Check Deposited in Phoenix": "False",
           "Anedot Recurring Count" : "${json.payload.commitment_index || ""}",
           "Legacy Recurring ID": "${json.payload.commitment_uid || ""}",  

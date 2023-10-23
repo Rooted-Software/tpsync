@@ -480,6 +480,14 @@ export function AnedotEvents({
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onSelect={(event) => {
+                    setStatusFilter("error")
+                  }}
+                >
+                  error
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(event) => {
                     setStatusFilter("")
                   }}
                 >

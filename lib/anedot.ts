@@ -137,11 +137,14 @@ function addressMatcher(address1, address2) {
   address2 = normalizeAddress(address2)
 
   return (
+    // if the first five of address1.address1 and address2.address1 are the same
     // address1.address1 === address2.address1 &&
     // address1.address2 === address2.address2 &&
     // address1.city === address2.city &&
     // address1.state === address2.state &&
     // address1.country === address2.country &&
+    address1.address1.slice(0, 5).toLowerCase() ===
+      address2.address1.slice(0, 5).toLowerCase() &&
     address1.postal === address2.postal
   )
 }
@@ -819,8 +822,10 @@ function getNormalizedContactFromVirtuousContact(
 ) {
   // we have to do this because there can be many individuals on a virtuous contact.  We need to search through the individuals to see who matches the payload
   let highestRankedIndividual = 0
-
-  virtuousContact.contactIndividuals.forEach((individual, index) => {
+  if (!virtuousContact) {
+    return null
+  }
+  virtuousContact?.contactIndividuals?.forEach((individual, index) => {
     individual.matchScore = 0
     individual.prefix === payloadContact.title ? individual.matchScore++ : null
     individual.firstName === payloadContact.firstName
@@ -852,7 +857,9 @@ function getNormalizedContactFromVirtuousContact(
       highestRankedIndividual = index
     }
   })
-
+  if (!virtuousContact.contactIndividuals) {
+    return null
+  }
   // we have to turn contact nulls and undefined into blank strings for the match to work
   virtuousContact.contactIndividuals[highestRankedIndividual].prefix === null
     ? (virtuousContact.contactIndividuals[0].prefix = "")
@@ -860,6 +867,12 @@ function getNormalizedContactFromVirtuousContact(
   virtuousContact.contactIndividuals[highestRankedIndividual].suffix === null
     ? (virtuousContact.contactIndividuals[0].suffix = "")
     : null
+
+  const dataHygieneCF = virtuousContact.customFields.find(
+    (cf) => cf.name === "Data Hygiene Date (Contact)"
+  )
+  const dataHygieneDate =
+    dataHygieneCF && dataHygieneCF.value ? dataHygieneCF.value : null
 
   const virContact = {
     contactType: virtuousContact.contactType,
@@ -896,6 +909,7 @@ function getNormalizedContactFromVirtuousContact(
     state: virtuousContact.address?.state || "",
     postal: virtuousContact.address?.postal || "",
     country: virtuousContact.address?.country || "",
+    dataHygieneDate: dataHygieneDate || "",
   }
 
   return virContact
@@ -1073,15 +1087,16 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
 
   console.log("we should have a contact")
   console.log(contact)
+  const virContact = getNormalizedContactFromVirtuousContact(
+    contact,
+    payloadContact
+  )
   // calculate contact match
-  if (contact?.id) {
+  if (contact?.id && virContact) {
     contactId = contact.id
     console.log("virtuous contact: ", contact)
     console.log("payloadContact: ", payloadContact)
-    const virContact = getNormalizedContactFromVirtuousContact(
-      contact,
-      payloadContact
-    )
+
     console.log("virtuous normalized contact: ")
     console.log(virContact)
     const phoneMatch =
@@ -1111,23 +1126,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
 
   // should we actually do this as json so we can do some things like unsetting if we don't need to send recurring data
   // also, we need to format the data into our new standards for virtuous (address and phone, probably prior to the query)
-  const query = `
-      {
-        transactionSource: "Anedot${
-          anedotAccountToName[json.payload.account_uid]
-            ? " - " + anedotAccountToName[json.payload.account_uid]
-            : ""
-        } ${giftShortDate}${matchQuality < 4 ? "- Attention" : ""}",
-        transactionId: "${json.payload.donation?.id}-test",
-        ${
-          /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
-        }
-        ${
-          recurringGiftId !== "" && !recurringGiftMatch
-            ? 'recurringGiftTransactionId: "' + recurringGiftId + '",'
-            : ""
-        }
-        contact: {
+  // we want to only send new contact data if we don't have a contact id OR if the data hygine date is older than 45 days and
+
+  let contactString = `contact: {
             ${contact && contact.id ? 'id: "' + contact.id + '",' : ""}
             type: "Household",
             title: "${json.payload.title}",
@@ -1149,8 +1150,39 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
                 state: "${json.payload.address_region}",
                 postal: "${json.payload.address_postal_code}",
                 country: "${normalizeCountry[json.payload.address_country]}"
-            },
-        },
+            }, },`
+  // if contact.datahyginedate < 45 days ago
+
+  if (
+    contact &&
+    contact.id &&
+    virContact &&
+    virContact?.dataHygieneDate &&
+    new Date(virContact.dataHygieneDate) >
+      new Date(today.setDate(today.getDate() - 45)) &&
+    addressMatch
+  ) {
+    contactString = `contact: {id: "${contact.id}" },`
+  }
+
+  const query = `
+      {
+        transactionSource: "Anedot${
+          anedotAccountToName[json.payload.account_uid]
+            ? " - " + anedotAccountToName[json.payload.account_uid]
+            : ""
+        } ${giftShortDate}${matchQuality < 4 ? "- Attention" : ""}",
+        transactionId: "${json.payload.donation?.id}-test",
+        ${
+          /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
+        }
+        ${
+          recurringGiftId !== "" && !recurringGiftMatch
+            ? 'recurringGiftTransactionId: "' + recurringGiftId + '",'
+            : ""
+        }
+        ${contactString}
+       
         ${
           recurringGiftId !== "" && !updateRecurring
             ? 'frequency: "' +

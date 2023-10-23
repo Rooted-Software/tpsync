@@ -89,6 +89,19 @@ export async function POST(req) {
           meta,
           query
         )
+      } else {
+        let attnString = JSON.parse(meta.attentionString)
+        let resBody = JSON.parse(transData)
+        attnString.push(resBody?.message)
+        attnString.push()
+        meta.attentionString = JSON.stringify(attnString)
+        const updated = await updateAnedotEvent(
+          anEvent.id,
+          true,
+          "error",
+          meta,
+          query
+        )
       }
     } catch (error) {
       console.log(error)

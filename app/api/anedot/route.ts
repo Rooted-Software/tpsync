@@ -218,7 +218,7 @@ export async function POST(req: Request) {
       // outside loop - now post to transaction endpoint
       if (!body.test) {
         console.log("*******   not testing *****  - Posting to virtuous")
-        const today = new Date()
+
         const giftDate = new Date()
         const giftShortDate =
           giftDate.getMonth() +
@@ -315,7 +315,6 @@ export async function POST(req: Request) {
               status: 200,
             })
           } else {
-            console.log("not success")
             /* 
               queryObj.meta.attentionString += "virtuous error: " + transData
               updateAnedotEvent(
@@ -421,16 +420,36 @@ export async function PATCH(req: Request) {
             })
           } else {
             console.log("not success")
-            queryObj.meta.attentionString += "virtuous error: " + transData
-            updateAnedotEvent(
+            let meta = queryObj.meta
+            let attnString = JSON.parse(meta.attentionString)
+            let resBody = JSON.parse(transData)
+            attnString.push(resBody?.message)
+            let modelState = resBody?.modelState
+            if (modelState) {
+              for (const [key, value] of Object.entries(modelState)) {
+                if (Array.isArray(Object[key])) {
+                  // push each item in array to attnString
+                  modelState[key].forEach((item) => {
+                    attnString.push(`${key}: ${item}`)
+                  })
+                }
+                attnString.push(`${key}: ${value}`)
+              }
+            }
+            meta.attentionString = JSON.stringify(attnString)
+            console.log("meta")
+            console.log(meta.attentionString)
+            const updated = await updateAnedotEvent(
               event.id,
               false,
-              "failure",
-              queryObj.meta,
+              "error",
+              meta,
               queryObj.query
             )
           }
-
+          return new Response(JSON.stringify(queryObj.toString()), {
+            status: 400,
+          })
           //log transaction
         } catch (error) {
           console.log(error)

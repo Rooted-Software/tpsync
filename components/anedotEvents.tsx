@@ -757,17 +757,17 @@ export function AnedotEvents({
         </div>
         <div className="text-xs">
           <button
-            onClick={() => syncAllEvents(false)}
             className="m-1 inline rounded-lg bg-red px-1.5 py-1 text-center text-xs  font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-red dark:focus:ring-blue-800"
             type="button"
+            disabled={true}
           >
             <Icons.refresh className="inline h-4 w-4"></Icons.refresh>{" "}
             {eventCount}
           </button>
           <button
-            onClick={() => syncAllEvents(true)}
             className="m-1 inline rounded-lg bg-yellow-700 px-1.5 py-1 text-center text-xs  font-medium text-white hover:bg-yellow-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-yellow-700 dark:focus:ring-blue-800"
             type="button"
+            disabled={true}
           >
             <Icons.testTube
               className={`inline h-4 w-4 ${isLoading ? "animate-spin" : null}`}

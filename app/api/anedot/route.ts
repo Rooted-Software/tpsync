@@ -421,8 +421,9 @@ export async function PATCH(req: Request) {
           } else {
             console.log("not success")
             let meta = queryObj.meta
-            let attnString = JSON.parse(meta.attentionString)
-            let resBody = JSON.parse(transData)
+            let query = queryObj.query
+            let attnString = JSON.parse(meta.attentionString) || []
+            let resBody = JSON.parse(transData) || ["unable to parse respBody"]
             attnString.push(resBody?.message)
             let modelState = resBody?.modelState
             if (modelState) {
@@ -437,14 +438,20 @@ export async function PATCH(req: Request) {
               }
             }
             meta.attentionString = JSON.stringify(attnString)
-            console.log("meta")
-            console.log(meta.attentionString)
+            meta.syncSrc = "webhook"
+            // we should look at the response and see if this was a rejection due to a duplicate gift, and if so, we should log it as duplicate and not error
+
+            let status = "error"
+            if (transData.includes("Gift Transaction already exists.")) {
+              status = "duplicate"
+            }
+            meta.syncErrorResponse = resBody
             const updated = await updateAnedotEvent(
               event.id,
-              false,
-              "error",
+              status === "duplicate" ? true : false,
+              status,
               meta,
-              queryObj.query
+              query
             )
           }
           return new Response(JSON.stringify(queryObj.toString()), {

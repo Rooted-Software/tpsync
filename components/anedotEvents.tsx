@@ -916,6 +916,11 @@ export function AnedotEvents({
                 <span className="sr-only">Close modal</span>
               </button>
             </div>
+            <div className="space-y-6 p-6">
+              <span className="font-bold">dbId:</span> {selectedEvent.id}{" "}
+              <span className="font-bold">webhookId:</span>{" "}
+              {selectedEvent.webhookId}
+            </div>
             {selectedEvent?.attentionReason &&
             selectedEvent?.attentionReason.length > 2 ? (
               <div className="space-y-6 p-6">
@@ -928,17 +933,14 @@ export function AnedotEvents({
                 ))}
               </div>
             ) : null}
-
             <div className="space-y-6 p-6">
               <h2>Event</h2>
               {JSON.stringify(selectedEvent?.payload)}
             </div>
-
             <div className="space-y-6 p-6">
               <h2>Generated Virtuous Query</h2>
               {selectedEvent?.virtuousQuery}
             </div>
-
             <div className="items-right flex space-x-2 rounded-b border-t border-gray-200 p-6 text-right dark:border-gray-600">
               <button
                 data-modal-hide="defaultModal"

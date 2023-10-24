@@ -90,15 +90,34 @@ export async function POST(req) {
           query
         )
       } else {
-        let attnString = JSON.parse(meta.attentionString)
-        let resBody = JSON.parse(transData)
+        let attnString = JSON.parse(meta.attentionString) || []
+        let resBody = JSON.parse(transData) || ["unable to parse respBody"]
         attnString.push(resBody?.message)
-        attnString.push()
+        let modelState = resBody?.modelState
+        if (modelState) {
+          for (const [key, value] of Object.entries(modelState)) {
+            if (Array.isArray(Object[key])) {
+              // push each item in array to attnString
+              modelState[key].forEach((item) => {
+                attnString.push(`${key}: ${item}`)
+              })
+            }
+            attnString.push(`${key}: ${value}`)
+          }
+        }
         meta.attentionString = JSON.stringify(attnString)
+        meta.syncSrc = "webhook"
+        // we should look at the response and see if this was a rejection due to a duplicate gift, and if so, we should log it as duplicate and not error
+
+        let status = "error"
+        if (transData.includes("Gift Transaction already exists.")) {
+          status = "duplicate"
+        }
+        meta.syncErrorResponse = resBody
         const updated = await updateAnedotEvent(
           anEvent.id,
-          true,
-          "error",
+          status === "duplicate" ? true : false,
+          status,
           meta,
           query
         )

@@ -411,6 +411,8 @@ model AnedotEvent {
   attention          Boolean?
   attentionReason    String?  @db.MediumText
   virtuousQuery      String?  @db.LongText
+  syncErrorResponse  Json?
+  syncSrc            String?
   createdAt          DateTime @default(now()) @map(name: "created_at")
   updatedAt          DateTime @default(now()) @map(name: "updated_at")
   teamId             String?

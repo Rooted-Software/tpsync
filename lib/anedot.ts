@@ -604,6 +604,8 @@ export const updateAnedotEvent = async (id, synced, status, meta, query) => {
 
       attentionReason: meta.attentionString,
       virtuousQuery: query,
+      syncErrorResponse: meta?.syncErrorResponse,
+      syncSrc: meta?.syncSrc,
     },
   })
   console.log("event updated")
@@ -1249,6 +1251,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     segmentId: segmentId,
     contactId: contactId,
     matchQuality: matchQuality,
+    syncErrorResponse: "",
+    syncSrc: "",
   }
   console.log(query)
   console.log(meta)

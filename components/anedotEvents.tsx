@@ -785,7 +785,8 @@ export function AnedotEvents({
                   target="_blank"
                 >
                   {idType === "donationId"
-                    ? event.payload?.donation?.id
+                    ? event.payload?.donation?.id ||
+                      event.payload?.uid + " - campaign"
                     : event.webhookId}
                 </a>{" "}
               </div>

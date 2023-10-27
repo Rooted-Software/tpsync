@@ -11,6 +11,7 @@ function normalizePhone(phone) {
 }
 
 function properCase(str) {
+  str = str || ""
   // Capitalizes the first letter in a text string and any other letters in text that follow any character other than a letter. Converts all other letters to lowercase letters.
   str = str.toLowerCase()
   str = str.replace(/(?:^|\s)\S/g, function (a) {
@@ -33,7 +34,7 @@ function normalizeStreet(street) {
   street = street.replace(/Ln\.?$/, "Lane")
   street = street.replace(/Blvd\.?$/, "Boulevard")
   street = street.replace(/Ct\.?$/, "Court")
-  street = street.toLowerCase()
+  street = street?.toLowerCase()
 
   return street
 }
@@ -312,6 +313,39 @@ async function getRecurringMatch(commitment_uid) {
                     "parameter": "Commitment UID",
                     "operator": "Is",
                     "value": "${commitment_uid || ""}",
+                }
+            ]
+        }
+    ],
+    "sortBy": "Create DateTime UTC",
+    "descending": "true"
+  }`
+
+  const resRecurringGift = await fetch(
+    "https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: recQuery,
+    }
+  )
+  console.log(recQuery)
+  const recurringGiftData = await resRecurringGift.json()
+  return recurringGiftData
+}
+
+async function getRecurringMatchFromOriginating(originating_uid) {
+  const recQuery = `{
+    "groups": [
+        {
+            "conditions": [
+                {
+                    "parameter": "originating_uid",
+                    "operator": "Is",
+                    "value": "${originating_uid || ""}",
                 }
             ]
         }
@@ -974,8 +1008,16 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     suffix: json.payload.suffix || "",
     phone: normalizePhone(json.payload.phone) || "",
     email: json.payload.email || "",
-    address1: json.payload.address_line_1 || json.payload.street || "",
-    address2: json.payload.address_line_2 || json.payload.street_2 || "",
+    address1:
+      json.payload.address_line_1 ||
+      json.payload.street ||
+      json.payload.address?.street ||
+      "",
+    address2:
+      json.payload.address_line_2 ||
+      json.payload.street_2 ||
+      json.payload.address?.street_2 ||
+      "",
     city:
       json.payload?.city ||
       json.payload?.address?.city ||
@@ -983,7 +1025,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
       "",
     state:
       json.payload?.address_region ||
-      json.payload?.address.state ||
+      json.payload?.address?.state ||
       json.payload?.state ||
       json.payload?.address_state ||
       "",
@@ -996,7 +1038,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
       normalizeCountry[
         json.payload.address_country ||
           json.payload.country ||
-          json.payload.address.country
+          json.payload.address?.country
       ] ||
       json.payload.address_country ||
       "",
@@ -1016,7 +1058,18 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
 
   if (payloadRecurring) {
     console.log("recurring gift")
-    recurringGiftData = await getRecurringMatch(json.payload.commitment_uid)
+    if (json.payload?.commitment_uid) {
+      console.log("commitment uid")
+      // can we get the recurring gift from the originating_uid
+      recurringGiftData = await getRecurringMatch(json.payload.commitment_uid)
+    } else if (json.payload?.originating_uid) {
+      console.log("originating uid")
+      // can we get the recurring gift from the originating_uid
+      recurringGiftData = await getRecurringMatchFromOriginating(
+        json.payload.originating_uid
+      )
+    }
+
     // this is a recurring gift...we need to update the recurring gift count (if virtuous will let us) But at lease we can get some data from the matched recurring gift
     if (recurringGiftData?.list?.length > 0) {
       recurringGiftMatch = true
@@ -1173,8 +1226,10 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
           anedotAccountToName[json.payload.account_uid]
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
-        } ${giftShortDate}${matchQuality < 4 ? "- Attention" : ""}",
-        transactionId: "${json.payload.donation?.id}-test",
+        } ${giftShortDate} ${json.payload?.campaign_uid ? ` - Campaign` : ""}${
+    matchQuality < 4 ? " - Attention" : ""
+  }",
+        transactionId: "${json.payload.donation?.id || json.payload?.uid}-test",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }
@@ -1232,6 +1287,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
           "Commitment UID": "${json.payload.commitment_uid || ""}",
           "Anedot Action Page Name": "${json.payload.action_page_name || ""}",
           "Donor Comments" : "${json.payload?.comments || ""}",
+          "originating_uid": "${json.payload?.originating_uid || ""}",
+          "campaign_uid": "${json.payload?.campaign_uid || ""}",
       },
 
     }

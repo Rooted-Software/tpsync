@@ -1254,11 +1254,19 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
         batch: "Anedot ${giftShortDate}${
     matchQuality < 4 ? "- Attention" : ""
   }",
-        segment: "${payloadSegment}", 
+        segment: "${
+          payloadSegment || json.payload?.campaign_uid
+            ? "Needs Segment Code"
+            : ""
+        }", 
         recurringGiftSegment:  "${payloadSegment}", 
         designations: [
           {
-              name: "${json.payload?.donation?.fund.name}",
+              name: "${
+                json.payload?.donation?.fund?.name || json.payload?.campaign_uid
+                  ? "General Fund"
+                  : ""
+              }",
               amountDesignated: "${json.payload.amount_in_dollars}"
           }
         ],

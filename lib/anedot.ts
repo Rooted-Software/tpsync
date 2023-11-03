@@ -1199,12 +1199,12 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
             }
             phone: "${formatPhone(payloadContact.phone)}",
             address: {
-                address1: "${properCase(json.payload.address_line_1)}",
-                address2: "${properCase(json.payload.address_line_2)}",
-                city: "${properCase(json.payload.address_city)}",
-                state: "${json.payload.address_region}",
-                postal: "${json.payload.address_postal_code}",
-                country: "${normalizeCountry[json.payload.address_country]}"
+                address1: "${properCase(payloadContact.address1)}",
+                address2: "${properCase(payloadContact.address2)}",
+                city: "${properCase(payloadContact.city)}",
+                state: "${payloadContact.state}",
+                postal: "${payloadContact.postal}",
+                country: "${payloadContact.country}"
             }, },`
   // if contact.datahyginedate < 45 days ago
 

@@ -1229,7 +1229,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
         } ${giftShortDate} ${json.payload?.campaign_uid ? ` - Campaign` : ""}${
     matchQuality < 4 ? " - Attention" : ""
   }",
-        transactionId: "${json.payload.donation?.id || json.payload?.uid}-test",
+        transactionId: "${json.payload.donation?.id || json.payload?.uid}",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }
@@ -1254,11 +1254,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
         batch: "Anedot ${giftShortDate}${
     matchQuality < 4 ? "- Attention" : ""
   }",
-        segment: "${
-          payloadSegment || json.payload?.campaign_uid
-            ? "Needs Segment Code"
-            : ""
-        }", 
+        segment: "${payloadSegment || "Needs Segment Code"}", 
         recurringGiftSegment:  "${payloadSegment}", 
         designations: [
           {

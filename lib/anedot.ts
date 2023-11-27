@@ -488,6 +488,7 @@ export const blockedEmails = [
   "",
   "marshal@rooted.software",
   "nomail@tpusa.com",
+  "noemail@tpusa.com",
 ]
 // we may be able to clear *@tpusa.net
 export const blockedPhoneNumbers = [
@@ -1255,12 +1256,20 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     matchQuality < 4 ? "- Attention" : ""
   }",
         segment: "${payloadSegment || "Needs Segment Code"}", 
-        recurringGiftSegment:  "${payloadSegment}", 
+        ${
+          recurringGiftId == "" && !updateRecurring
+            ? ""
+            : `recurringGiftSegment:  "${payloadSegment}",`
+        } 
         designations: [
           {
               name: "${
-                json.payload?.donation?.fund?.name || json.payload?.campaign_uid
-                  ? "General Fund"
+                json.payload?.donation?.fund?.name ||
+                json.payload?.campaign_uid ||
+                json.payload?.donation?.name
+                  ? json.payload?.donation?.fund?.name ||
+                    json.payload?.donation?.name ||
+                    "General Fund"
                   : ""
               }",
               amountDesignated: "${json.payload.amount_in_dollars}"

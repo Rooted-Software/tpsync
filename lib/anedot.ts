@@ -969,6 +969,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     giftDate.getFullYear()
 
   // set variables for tracking quality
+  let isRecurring = json.payload.origin === "recurring"
   let recurringGiftId = json.recurringGiftId || ""
   let recurringGiftMatch = false
   let projectMatch = false
@@ -1103,7 +1104,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
         anedotGiftCount &&
         anedotGiftCount < parseInt(json.payload.commitment_index)
       ) {
-        updateRecurring = true
+        // disabling for time being to avoid creating a bunch of recurring gifts
+        // updateRecurring = true
       }
       projectMatch =
         recurringGiftData.list[0].designations[0].projectCode ===
@@ -1227,22 +1229,20 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
           anedotAccountToName[json.payload.account_uid]
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
-        } ${giftShortDate} ${json.payload?.campaign_uid ? ` - Campaign` : ""}${
-    matchQuality < 4 ? " - Attention" : ""
-  }",
+        }",
         transactionId: "${json.payload.donation?.id || json.payload?.uid}",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }
         ${
-          recurringGiftId !== "" && !recurringGiftMatch
+          isRecurring && recurringGiftId !== "" && !recurringGiftMatch
             ? 'recurringGiftTransactionId: "' + recurringGiftId + '",'
             : ""
         }
         ${contactString}
        
         ${
-          recurringGiftId !== "" && !updateRecurring
+          isRecurring && recurringGiftId == "" && !updateRecurring
             ? 'frequency: "' +
               getAnedotFrequencyTypeToVirtuous(json.payload.frequency) +
               '",'
@@ -1252,9 +1252,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
         giftType: "${getGiftType(json.payload.source)}",
         CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
         amount: "${json.payload.amount_in_dollars}",
-        batch: "Anedot ${giftShortDate}${
-    matchQuality < 4 ? "- Attention" : ""
-  }",
+        batch: "Anedot ${giftShortDate} ${
+    json.payload?.campaign_uid ? ` - Campaign` : ""
+  }${matchQuality < 4 ? " - Attention" : ""}",
         segment: "${payloadSegment || "Needs Segment Code"}", 
         ${
           recurringGiftId == "" && !updateRecurring

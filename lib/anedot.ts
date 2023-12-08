@@ -1075,7 +1075,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     // this is a recurring gift...we need to update the recurring gift count (if virtuous will let us) But at lease we can get some data from the matched recurring gift
     if (recurringGiftData?.list?.length > 0) {
       recurringGiftMatch = true
-      recurringGiftId = recurringGiftData.list[0].id
+      recurringGiftId = recurringGiftData.list[0].id.toString()
       contactId = recurringGiftData.list[0].contactId || 0
       if (contactId > 0) {
         const resContact = await fetch(

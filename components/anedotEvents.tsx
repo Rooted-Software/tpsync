@@ -24,6 +24,7 @@ interface AnedotEventsProps {
 var replacements = { "\\\\": "\\", "\\n": "\n", '\\"': '"' }
 
 function slashUnescape(contents) {
+  if (contents === null) return ""
   return contents.replace(/\\(\\|n|")/g, function (replace) {
     return replacements[replace]
   })
@@ -54,6 +55,9 @@ export function AnedotEvents({
   )
   const [fundFilter, setFundFilter] = React.useState<string>(
     searchParams?.get("fund") || ""
+  )
+  const [postfix, setPostfix] = React.useState<string>(
+    searchParams?.get("postfix") || ""
   )
   const [originFilter, setOriginFilter] = React.useState<string>(
     searchParams?.get("origin") || ""
@@ -174,7 +178,7 @@ export function AnedotEvents({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: eventId, test: test }),
+      body: JSON.stringify({ id: eventId, test: test, postfix: postfix }),
     })
     if (!(response?.status === 200)) {
       setIsLoading(false)
@@ -241,6 +245,7 @@ export function AnedotEvents({
       orderDirection: orderDirection,
       page: page,
       test: test,
+      postfix: postfix,
     }
 
     console.log("client side sync")
@@ -759,21 +764,36 @@ export function AnedotEvents({
           <button
             className="m-1 inline rounded-lg bg-red px-1.5 py-1 text-center text-xs  font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-red dark:focus:ring-blue-800"
             type="button"
-            disabled={true}
+            onClick={() => syncAllEvents(true)}
+            disabled={false}
           >
-            <Icons.refresh className="inline h-4 w-4"></Icons.refresh>{" "}
+            <Icons.refresh
+              className={`inline h-4 w-4 ${isLoading ? "animate-spin" : null}`}
+            ></Icons.refresh>{" "}
             {eventCount}
           </button>
           <button
             className="m-1 inline rounded-lg bg-yellow-700 px-1.5 py-1 text-center text-xs  font-medium text-white hover:bg-yellow-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-yellow-700 dark:focus:ring-blue-800"
             type="button"
-            disabled={true}
+            disabled={false}
+            onClick={() => syncAllEvents(true)}
           >
             <Icons.testTube
               className={`inline h-4 w-4 ${isLoading ? "animate-spin" : null}`}
             ></Icons.testTube>{" "}
             {eventCount}
           </button>
+          <div className="">
+            <span className="px-2">add postfix to id</span>
+
+            <input
+              className={"mx-2 w-24 rounded-md bg-white p-1 text-black"}
+              value={postfix}
+              onChange={(e) => {
+                setPostfix(e.target.value)
+              }}
+            />
+          </div>
         </div>
       </div>
       {loadedEvents.length > 0

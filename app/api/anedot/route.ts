@@ -35,6 +35,7 @@ const eventFilterSchema = z.object({
   orderDirection: z.string().optional(),
   page: z.number().optional(),
   test: z.boolean().optional(),
+  postfix: z.string().optional(),
 })
 
 const allowSort = ["created_at", "matchQuality"]
@@ -69,6 +70,7 @@ function slashEscape(contents) {
 var replacements = { "\\\\": "\\", "\\n": "\n", '\\"': '"' }
 
 function slashUnescape(contents) {
+  if (contents == null) return contents
   return contents.replace(/\\(\\|n|")/g, function (replace) {
     return replacements[replace]
   })
@@ -130,6 +132,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(req: Request) {
   console.log("in anedot post route")
+  // this is for sending a set of filters to select gifts to be procesesed
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
@@ -178,7 +181,7 @@ export async function POST(req: Request) {
           matchQuality: event.matchQuality,
         }
         let queryObj = { query: query, meta: meta }
-        console.log("in loop")
+        console.log("in loop : " + eventIndex + " : " + event.id)
         if (
           !(
             event.virtuousQuery &&
@@ -186,8 +189,16 @@ export async function POST(req: Request) {
             !body.test
           )
         ) {
-          queryObj = await getAnedotGiftToVirtuousQuery(event, body.test)
-          query = slashUnescape(queryObj.query)
+          queryObj = await getAnedotGiftToVirtuousQuery(
+            event,
+            body.test,
+            body.postfix
+          )
+          if (queryObj.query) {
+            query = slashUnescape(queryObj.query)
+          } else {
+            query = ""
+          }
         }
         if (
           queryObj &&
@@ -203,6 +214,13 @@ export async function POST(req: Request) {
             queryObj: queryObj,
             query: query,
           })
+          updateAnedotEvent(
+            event.id,
+            true,
+            "tested",
+            queryObj.meta,
+            queryObj.query
+          )
           attentionString =
             attentionString.length > 0
               ? attentionString + "," + query
@@ -213,6 +231,13 @@ export async function POST(req: Request) {
               ? transactionsString + "," + query
               : transactionsString + query
           transactionObject.push({ event: event.id, queryObj: queryObj })
+          updateAnedotEvent(
+            event.id,
+            true,
+            "tested",
+            queryObj.meta,
+            queryObj.query
+          )
         }
       }
       // outside loop - now post to transaction endpoint
@@ -346,6 +371,17 @@ export async function POST(req: Request) {
             event.queryObj.query
           )
         }
+        for (const event of attentionObject) {
+          console.log("in update attention events event loop")
+          console.log(event)
+          updateAnedotEvent(
+            event.event,
+            false,
+            "tested",
+            event.queryObj.meta,
+            event.queryObj.query
+          )
+        }
       }
 
       // should have all bundles
@@ -372,6 +408,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   console.log("in anedot post route")
+  // this is for sending a single event to either testing or virtuous
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
@@ -386,6 +423,7 @@ export async function PATCH(req: Request) {
     })
     if (event) {
       console.log(event.payload)
+      // is there a way for us to detect if this is an event or campaign?
       const queryObj = await getAnedotGiftToVirtuousQuery(event, false)
       const query = queryObj.query
       if (!body.test) {

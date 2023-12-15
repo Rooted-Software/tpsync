@@ -1,7 +1,11 @@
 import { db } from "@/lib/db"
+import post from "@/schemas/post"
 
 // Helper Functions
 function normalizePhone(phone) {
+  if (!phone) {
+    return ""
+  }
   if (phone && phone.length === 11 && phone[0] === "1") {
     phone = phone.slice(1)
   }
@@ -705,7 +709,7 @@ export const getVirtuousSegmentByName = async (segmentName) => {
     }
   )
   const segmentData = await resSegment.json()
-  console.log("segment: ", segmentData)
+  // console.log("segment: ", segmentData)
   const segmentMatch = segmentData?.list && segmentData?.list?.length > 0
   if (segmentMatch) {
     return segmentData.list[0].id
@@ -783,7 +787,7 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
       body: contactQuery,
     }
   )
-  console.log("contact query --- : ", contactQuery)
+  // console.log("contact query --- : ", contactQuery)
   var contactSearchData = await resSearchContact.json()
   console.log("contact ------: ", contactSearchData)
 
@@ -795,33 +799,41 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
     var tempContact = { matchScore: 0 }
     contactSearchData?.list.forEach((contact) => {
       contact.matchScore = 0
-      console.log(contact)
+      console.log(".........contact match...... .")
+      console.log(payloadContact.email)
       contact.phone = normalizePhone(contact.phone)
+      payloadContact?.email &&
+      payloadContact?.email !== null &&
       contact.email.indexOf(payloadContact.email) > -1
         ? contact.matchScore++
         : null
-      contact.name.indexOf(payloadContact.firstName) > -1
+      payloadContact?.firstName &&
+      contact?.name &&
+      contact?.name?.indexOf(payloadContact.firstName) > -1
         ? contact.matchScore++
         : null
-      contact.name.indexOf(" " + payloadContact.lastName) > -1
+      payloadContact?.lastName &&
+      contact?.name?.indexOf(" " + payloadContact.lastName) > -1
         ? contact.matchScore++
         : null // the space is normal in front of the last name, and will help elleviate false positives
-      contact.phone.indexOf(payloadContact.phone) > -1
+      payloadContact?.phone &&
+      contact?.phone?.indexOf(payloadContact.phone) > -1
         ? contact.matchScore++
         : null
-      contact.address.indexOf(normalizePostal(payloadContact.postal)) > -1
+      payloadContact?.postal &&
+      contact?.address?.indexOf(normalizePostal(payloadContact.postal)) > -1
         ? contact.matchScore++
         : null
       if (contact.matchScore > tempContact.matchScore) {
         tempContact = contact
       }
     })
-    console.log("tempContact: ", tempContact)
+    // console.log("tempContact: ", tempContact)
     // sort the contacts by match score
     contactSearchData.list.sort((a, b) =>
       a.matchScore < b.matchScore ? 1 : -1
     )
-    console.log(contactSearchData.list)
+    // console.log(contactSearchData.list)
     // use the highest match score
     // contact = contactSearchData.list[0]
     // if that just worked, we already have our best one at the begining of the list, which makes the rest of things work, lol
@@ -846,10 +858,10 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
       }
     )
     const contactData = await resContact.json()
-    console.log("contact --final contact---: ", contactData)
+    // console.log("contact --final contact---: ", contactData)
     return contactData
   }
-  console.log(" ________________ no contact found ________________")
+  // console.log(" ________________ no contact found ________________")
   return null
 }
 
@@ -952,7 +964,7 @@ function getNormalizedContactFromVirtuousContact(
   return virContact
 }
 
-export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
+export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   console.log("in get anedot gift to virtuous query")
   // set date constants
 
@@ -986,15 +998,17 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
   let recurringGiftData: any = {}
 
   // purge contact email phone number
-  blockedEmails.indexOf(json.payload.email) === -1
+  console.log("check1 *********************")
+  json.payload.email && blockedEmails.indexOf(json.payload.email) === -1
     ? (json.payload.email = json.payload.email)
     : (json.payload.email = "")
   // purge email ending in tpusa.org
-  json.payload.email.indexOf("tpusa.org") > -1
+  console.log("check2 *********************")
+  json.payload.email && json.payload.email.indexOf("tpusa.org") > -1
     ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
-
-  blockedPhoneNumbers.indexOf(json.payload.phone) === -1
+  console.log("check3 *********************")
+  json.payload.phone && blockedPhoneNumbers.indexOf(json.payload.phone) === -1
     ? (json.payload.phone = json.payload.phone)
     : (json.payload.phone = "")
 
@@ -1045,8 +1059,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
       json.payload.address_country ||
       "",
   }
-  console.log("initial mod payload contact: ")
-  console.log(payloadContact)
+  // console.log("initial mod payload contact: ")
+  // console.log(payloadContact)
   //set segment for easier comparison
   const payloadSegment =
     json.payload?.custom_field_responses?.segment_name ||
@@ -1054,18 +1068,18 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     json.payload?.custom_field_responses?.campaign_segment_ ||
     json.payload?.custom_field_responses?.campaign_source ||
     ""
-  console.log("payload segment: " + payloadSegment)
+  // console.log("payload segment: " + payloadSegment)
   // determine if the payload is recurring or not....if so, then we need to create or update a recurring gift record: {Origin}		Create Recurring Gift		TRUE	Hosted = false, recurring = true
   const payloadRecurring = json.payload.origin === "recurring"
 
   if (payloadRecurring) {
-    console.log("recurring gift")
+    // console.log("recurring gift")
     if (json.payload?.commitment_uid) {
-      console.log("commitment uid")
+      // console.log("commitment uid")
       // can we get the recurring gift from the originating_uid
       recurringGiftData = await getRecurringMatch(json.payload.commitment_uid)
     } else if (json.payload?.originating_uid) {
-      console.log("originating uid")
+      // console.log("originating uid")
       // can we get the recurring gift from the originating_uid
       recurringGiftData = await getRecurringMatchFromOriginating(
         json.payload.originating_uid
@@ -1139,12 +1153,12 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
 
   // can we also match the contact? if we have a contact ID from the recurring, use that, otherwise try to get the contact with alternative methods.
   if (contactId < 1) {
-    console.log("no contact id from recurring gift")
+    // console.log("no contact id from recurring gift")
     contact = await getVirtuousContactBySearch(payloadContact)
   }
 
-  console.log("we should have a contact")
-  console.log(contact)
+  // console.log("we should have a contact")
+  // console.log(contact)
   const virContact = getNormalizedContactFromVirtuousContact(
     contact,
     payloadContact
@@ -1152,11 +1166,11 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
   // calculate contact match
   if (contact?.id && virContact) {
     contactId = contact.id
-    console.log("virtuous contact: ", contact)
-    console.log("payloadContact: ", payloadContact)
+    // console.log("virtuous contact: ", contact)
+    // console.log("payloadContact: ", payloadContact)
 
-    console.log("virtuous normalized contact: ")
-    console.log(virContact)
+    // console.log("virtuous normalized contact: ")
+    // console.log(virContact)
     const phoneMatch =
       virContact.phone == payloadContact.phone || payloadContact.phone === ""
     const emailMatch =
@@ -1177,8 +1191,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     (segmentMatch ? 1 : 0) +
     (nameMatch ? 1 : 0) +
     (addressMatch ? 1 : 0)
-  console.log("match quality: " + matchQuality)
-  console.log("attention: " + JSON.stringify(attentionArray))
+  // console.log("match quality: " + matchQuality)
+  // console.log("attention: " + JSON.stringify(attentionArray))
 
   // if we found a recurring gift with that commitment ID....lets update the count.
 
@@ -1230,7 +1244,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
             ? " - " + anedotAccountToName[json.payload.account_uid]
             : ""
         }",
-        transactionId: "${json.payload.donation?.id || json.payload?.uid}",
+        transactionId: "${
+          json.payload.donation?.id || json.payload?.uid + postfix || ""
+        }",
         ${
           /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }
@@ -1287,7 +1303,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
           "T Shirt Size": "${
             json.payload?.custom_field_responses?.tee_shirt_size || ""
           }",
-          "External Unique ID": "${json.payload.donation?.id || ""}",
+          "External Unique ID": "${
+            json.payload.donation?.id || json.payload?.uid || ""
+          }",
           "Acknowledgment Type" : "General Form",
           "Funding Source": "Individual",
           "Check Deposited in Phoenix": "False",
@@ -1324,7 +1342,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery) => {
     syncErrorResponse: "",
     syncSrc: "",
   }
-  console.log(query)
-  console.log(meta)
+  // console.log(query)
+  // console.log(meta)
   return { query, meta }
 }

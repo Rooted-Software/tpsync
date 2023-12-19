@@ -971,6 +971,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   const today = new Date()
   const shortDate =
     today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
+
   const giftDate = new Date(json.payload.date)
   const giftShortDate =
     giftDate.getMonth() +
@@ -978,6 +979,13 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     "." +
     giftDate.getDate() +
     "." +
+    giftDate.getFullYear()
+  const giftShortSlashDate =
+    giftDate.getMonth() +
+    1 +
+    "/" +
+    giftDate.getDate() +
+    "/" +
     giftDate.getFullYear()
 
   // set variables for tracking quality
@@ -1264,7 +1272,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
               '",'
             : ""
         }
-        giftDate: "${giftShortDate}",
+        giftDate: "${giftShortSlashDate}",
         giftType: "${getGiftType(json.payload.source)}",
         CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
         amount: "${json.payload.amount_in_dollars}",

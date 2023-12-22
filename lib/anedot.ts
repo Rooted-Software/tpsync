@@ -973,6 +973,12 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
 
   const giftDate = new Date(json.payload.date)
+
+  const testDate = new Date("2023-12-21T00:40:54.203Z")
+  const UTCDateString =
+    giftDate.toISOString().replace(/T/, " ").replace(/\..+/, "") + " +00:00"
+
+  console.log("UTCDateString: ", UTCDateString)
   const giftShortDate =
     giftDate.getMonth() +
     1 +
@@ -1272,7 +1278,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
               '",'
             : ""
         }
-        giftDate: "${giftShortSlashDate}",
+        giftDate: "${UTCDateString}",
         giftType: "${getGiftType(json.payload.source)}",
         CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
         amount: "${json.payload.amount_in_dollars}",

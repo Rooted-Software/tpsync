@@ -1,154 +1,181 @@
-import { db } from '@/lib/db'
-import { headers } from 'next/headers'
-import crypto from 'crypto'
-import { buffer } from "micro";
-import getRawBody from 'raw-body'
-import { request } from 'http';
+import { db } from "@/lib/db"
+import crypto from "crypto"
+import { request } from "http"
+import { buffer } from "micro"
+import { headers } from "next/headers"
+import getRawBody from "raw-body"
 
-async function getVirtuousContact(email) 
+async function getVirtuousContact(email) {
+  const res = await fetch(
+    "https://api.virtuoussoftware.com/api/Contact/Find?email=" + email,
     {
-        const res = await fetch('https://api.virtuoussoftware.com/api/Contact/Find?email='+email, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
-                'Content-Type': 'application/json',
-            },})
-            const data=await res.json()
-        return data
-     }
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.VIRTUOUS_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
+  const data = await res.json()
+  return data
+}
 
 export async function POST(req) {
-  const SECRET_KEY=process.env.ANEDOT_WEBHOOK_SECRET || ''
+  const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
 
   const json = await req.json()
-  console.log('in webhook req post')
+  console.log("in webhook req post")
   console.log(json)
   console.log(process.env.NEXTAUTH_URL)
-  const signature = headers().get('X-Request-Signature') as string
+  const signature = headers().get("X-Request-Signature") as string
   //attempt whole body...not just text as above
-  const hmac = crypto.createHmac('sha256', SECRET_KEY);
+  const hmac = crypto.createHmac("sha256", SECRET_KEY)
   // hmac.update(body);
   // const hmacDigest = hmac.digest('hex');
   // console.log(hmacDigest)
   // console.log(signature)
   if (json.event) {
-  await db.anedotEvent.create({
-    data: {
-      event: json.event,
-      payload: json.payload,
-      env: process.env.NEXTAUTH_URL || 'local',
-    },
-  })
-  console.log('event created')
-  if (json.event === 'donation_complete') {
-    db.anedotDonation.create({
-      data: json.payload,
-     })
+    await db.anedotEvent.create({
+      data: {
+        event: json.event,
+        payload: json.payload,
+        env: process.env.NEXTAUTH_URL || "local",
+      },
+    })
+    console.log("event created")
+    if (json.event === "donation_complete") {
+      db.anedotDonation.create({
+        data: json.payload,
+      })
 
-
-     console.log('donation created')
+      console.log("donation created")
+    }
   }
-  
 
-}
-
-  
-  
-  
   try {
-    console.log('in webhook')
+    console.log("in webhook")
   } catch (error) {
     return new Response(`Webhook Error: ${error.message}`, { status: 400 })
   }
-  
 
   return new Response(null, { status: 200 })
 }
 
 export async function GET(req: Request) {
-  const SC=process.env.ANEDOT_WEBHOOK_SECRET
-  console.log('in webhook req')
+  const SC = process.env.ANEDOT_WEBHOOK_SECRET
+  console.log("in webhook req")
   console.log(SC)
-  const signature = headers().get('X-Request-Signature') as string
+  const signature = headers().get("X-Request-Signature") as string
   console.log(signature)
   const body = await req.text()
 
+  const json = {
+    payload: {
+      date: "2023-03-20 19:22:46 -0600",
+      name: "John Kinzell",
+      email: "jkinzell@comcast.net",
+      phone: "4152508763",
+      title: "",
+      origin: "hosted",
+      source: "credit_card",
+      status: "completed",
+      suffix: "",
+      donation: {
+        id: "d3269849e2a3643c7571c",
+        fees: { anedot_fees: { amount: "1.03" }, vendor_fees: [] },
+        fund: {
+          id: "eede7ac9-9ea1-4d69-b8ef-324fea912ed6",
+          name: "General Fund",
+          identifier: "General Fund",
+        },
+        products: [],
+        card_type: "visa",
+        card_last_digits: "5679",
+        donation_project: "",
+        credit_card_expiration: "12/2026",
+      },
+      referrer:
+        "https://secure.anedot.com/turning-point-usa/ce3bbd04-9b5d-4e5c-be0a-68a606c8d164?source_code=CONI236955&leadcreated=false",
+      frequency: "once",
+      last_name: "Kinzell",
+      recurring: "false",
+      created_at: "2023-03-20 19:22:46 -0600",
+      first_name: "John",
+      ip_address: "2600:1700:290:44d0:f12c:a9a2:1ed1:1944",
+      net_amount: "23.97",
+      occupation: "",
+      updated_at: "2023-03-20 19:22:46 -0600",
+      account_uid: "a65655106ea9c404245e7",
+      middle_name: "",
+      source_code: "CONI236955",
+      account_name: "TURNING POINT USA",
+      address_city: "Austin",
+      check_number: "",
+      date_iso8601: "2023-03-20T19:22:46-06:00",
+      event_amount: "25.00",
+      organization: "",
+      employer_name: "",
+      submission_id: "00352841-dc19-43ed-8158-97c896395c1b",
+      action_page_id: "00331e69-0ce0-477d-8272-d291e056510c",
+      address_line_1: "3303 Windsor Road",
+      address_line_2: "",
+      address_region: "TX",
+      commitment_uid: "",
+      address_country: "US",
+      action_page_name: "TPUSA Mar 2023 CO",
+      commitment_index: "",
+      donor_profile_id: "",
+      referrer_to_form: "",
+      amount_in_dollars: "25.0",
+      payment_method_id: "4fedaa79-24c3-4664-888a-c6a0d0bb0170",
+      created_at_iso8601: "2023-03-20T19:22:46-06:00",
+      currently_employed: "true",
+      updated_at_iso8601: "2023-03-20T19:22:46-06:00",
+      address_postal_code: "78703",
+      payment_description: "Visa •••• 5679",
+      custom_field_responses: { campaign_source: "AE_HF_Mar2023_LiveFreeTour" },
+      is_recurring_commitment: "false",
+      commitment_recurring_until: "",
+      communications_consent_email: "false",
+      communications_consent_phone: "false",
+    },
+  }
 
-const json = {payload :
-{ "date": "2023-03-20 19:22:46 -0600", 
-  "name": "John Kinzell", 
-  "email": "jkinzell@comcast.net", 
-  "phone": "4152508763", 
-  "title": "",
-   "origin": "hosted", 
-   "source": "credit_card", 
-   "status": "completed", 
-   "suffix": "", 
-   "donation": 
-        {"id": "d3269849e2a3643c7571c", 
-        "fees": {"anedot_fees": {"amount": "1.03"}, "vendor_fees": []}, 
-        "fund": {"id": "eede7ac9-9ea1-4d69-b8ef-324fea912ed6", "name": "General Fund", "identifier": "General Fund"}, 
-        "products": [], 
-        "card_type": "visa", 
-        "card_last_digits": "5679", 
-        "donation_project": "", 
-        "credit_card_expiration": "12/2026"}, 
-        "referrer": "https://secure.anedot.com/turning-point-usa/ce3bbd04-9b5d-4e5c-be0a-68a606c8d164?source_code=CONI236955&leadcreated=false", 
-        "frequency": "once", 
-        "last_name": "Kinzell", 
-        "recurring": "false", 
-        "created_at": "2023-03-20 19:22:46 -0600", 
-        "first_name": "John", 
-        "ip_address": "2600:1700:290:44d0:f12c:a9a2:1ed1:1944", 
-        "net_amount": "23.97", 
-        "occupation": "", 
-        "updated_at": "2023-03-20 19:22:46 -0600", 
-        "account_uid": "a65655106ea9c404245e7", 
-        "middle_name": "", 
-        "source_code": "CONI236955", 
-        "account_name": "TURNING POINT USA", 
-        "address_city": "Austin", 
-        "check_number": "", 
-        "date_iso8601": "2023-03-20T19:22:46-06:00", 
-        "event_amount": "25.00", 
-        "organization": "", 
-        "employer_name": "", 
-        "submission_id": "00352841-dc19-43ed-8158-97c896395c1b", 
-        "action_page_id": "00331e69-0ce0-477d-8272-d291e056510c", 
-        "address_line_1": "3303 Windsor Road", "address_line_2": "", "address_region": "TX", 
-        "commitment_uid": "", "address_country": "US", 
-        "action_page_name": "TPUSA Mar 2023 CO", 
-        "commitment_index": "", 
-        "donor_profile_id": "", 
-        "referrer_to_form": "", 
-        "amount_in_dollars": "25.0", 
-        "payment_method_id": "4fedaa79-24c3-4664-888a-c6a0d0bb0170", 
-        "created_at_iso8601": "2023-03-20T19:22:46-06:00", 
-        "currently_employed": "true", 
-        "updated_at_iso8601": "2023-03-20T19:22:46-06:00", 
-        "address_postal_code": "78703", 
-        "payment_description": "Visa •••• 5679", 
-        "custom_field_responses": {"campaign_source": "AE_HF_Mar2023_LiveFreeTour"}, 
-        "is_recurring_commitment": "false", 
-        "commitment_recurring_until": "", 
-        "communications_consent_email": "false", 
-        "communications_consent_phone": "false"}
-}
- 
-const today =  new Date()
-const shortDate = (today.getMonth()+1)+'.'+today.getDate()+'.'+today.getFullYear();
-const giftDate = new Date(json.payload.date)
-const contact = await getVirtuousContact('marshal@rooted.software')
-console.log('Getting Contact')
+  const today = new Date()
+  const shortDate =
+    today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
+  const giftDate = new Date(json.payload.date)
+  const testDate = new Date("2023-12-21T00:40:54.203Z")
+  const UTCDateString = giftDate
+    .toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      fractionalSecondDigits: 3,
+      timeZoneName: "short",
+    })
+    .replace(/,/g, "") // Remove the comma after the date
 
-// if no contact... either create or fail
-if (!contact?.id) { 
-  console.log('no contact')
+  console.log("UTCDateString: " + UTCDateString)
+  const contact = await getVirtuousContact("marshal@rooted.software")
+  console.log("Getting Contact")
 
-}
-console.log(contact.id)
+  // if no contact... either create or fail
+  if (!contact?.id) {
+    console.log("no contact")
+  }
+  console.log(contact.id)
 
-const giftShortDate = (giftDate.getMonth()+1)+'.'+giftDate.getDate()+'.'+giftDate.getFullYear();
+  const giftShortDate =
+    giftDate.getMonth() +
+    1 +
+    "." +
+    giftDate.getDate() +
+    "." +
+    giftDate.getFullYear()
   const query = `
   {
     "contactId": "${contact.id}",
@@ -262,11 +289,11 @@ const giftShortDate = (giftDate.getMonth()+1)+'.'+giftDate.getDate()+'.'+giftDat
         }
     ]
 }
-  `;
+  `
 
   //console.log(query)
   try {
-      /*
+    /*
     const res = await fetch('https://api.virtuoussoftware.com/api/v2/Gift/Transaction', {
         method: 'POST',
         headers: {
@@ -284,15 +311,12 @@ const giftShortDate = (giftDate.getMonth()+1)+'.'+giftDate.getDate()+'.'+giftDat
 
 
     */
- 
-    console.log('in webhook')
+
+    console.log("in webhook")
   } catch (error) {
     console.log(error)
     return new Response(`Webhook Error: ${error.message}`, { status: 400 })
   }
-  
 
   return new Response(null, { status: 200 })
 }
-
-

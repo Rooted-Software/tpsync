@@ -522,7 +522,7 @@ export function getGiftType(string) {
 export const anedotCardTypeToVirtuous = {
   visa: "Visa",
   master: "Mastercard",
-  american_express: "American Express",
+  american_express: "AMEX",
   discover: "Discover",
   jcb: "JCB",
   diners: "Diners Club",

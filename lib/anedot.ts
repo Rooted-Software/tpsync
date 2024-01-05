@@ -500,6 +500,7 @@ export const blockedPhoneNumbers = [
   "15555555555",
   "5034200536",
   "15034200536",
+  "8448721776",
 ]
 
 export const anedotGiftTypeToVirtuous = {
@@ -1018,11 +1019,17 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     : (json.payload.email = "")
   // purge email ending in tpusa.org
   console.log("check2 *********************")
-  json.payload.email && json.payload.email.indexOf("tpusa.org") > -1
+  json.payload.email &&
+  json.payload.email.toLowerCase().indexOf("tpusa.org") > -1
+    ? (json.payload.email = "")
+    : (json.payload.email = json.payload.email)
+  json.payload.email &&
+  json.payload.email.toLowerCase().indexOf("tpusa.net ") > -1
     ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
   console.log("check3 *********************")
-  json.payload.phone && blockedPhoneNumbers.indexOf(json.payload.phone) === -1
+  json.payload.phone &&
+  blockedPhoneNumbers.indexOf(normalizePhone(json.payload.phone)) === -1
     ? (json.payload.phone = json.payload.phone)
     : (json.payload.phone = "")
 

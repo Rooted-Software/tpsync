@@ -338,6 +338,7 @@ async function getRecurringMatch(commitment_uid) {
   )
   console.log(recQuery)
   const recurringGiftData = await resRecurringGift.json()
+  console.log("recurring gift data: ", recurringGiftData)
   return recurringGiftData
 }
 
@@ -710,7 +711,7 @@ export const getVirtuousSegmentByName = async (segmentName) => {
     }
   )
   const segmentData = await resSegment.json()
-  // console.log("segment: ", segmentData)
+  console.log("segment: ", segmentData)
   const segmentMatch = segmentData?.list && segmentData?.list?.length > 0
   if (segmentMatch) {
     return segmentData.list[0].id
@@ -776,6 +777,7 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
     "sortBy": "Create Date",
     "descending": "True"
     }`
+  console.log("contact query --- : ", contactQuery)
   // search for the contact
   const resSearchContact = await fetch(
     "https://api.virtuoussoftware.com/api/Contact/Query",
@@ -1011,6 +1013,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   let contactId = json.virtuousContactId || 0
   let contact: any = {}
   let recurringGiftData: any = {}
+  const isActionPage = json.payload?.action_page_id ? true : false
 
   // purge contact email phone number
   console.log("check1 *********************")
@@ -1024,7 +1027,10 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
   json.payload.email &&
-  json.payload.email.toLowerCase().indexOf("tpusa.net ") > -1
+  json.payload.email.toLowerCase().indexOf("tpusa.net") > -1
+    ? (json.payload.email = "")
+    : (json.payload.email = json.payload.email)
+  json.payload.email.toLowerCase().indexOf("tpusa.com") > -1
     ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
   console.log("check3 *********************")
@@ -1083,7 +1089,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   // console.log("initial mod payload contact: ")
   // console.log(payloadContact)
   //set segment for easier comparison
-  const payloadSegment =
+  var payloadSegment =
     json.payload?.custom_field_responses?.segment_name ||
     json.payload?.custom_field_responses?.campaign_segment ||
     json.payload?.custom_field_responses?.campaign_segment_ ||
@@ -1200,8 +1206,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       phoneMatch &&
       emailMatch &&
       contact.contactType === "Household" &&
-      virContact.firstName === (payloadContact.firstName || "") &&
-      virContact.lastName === (payloadContact.lastName || "") // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
+      properCase(virContact.firstName) === (payloadContact.firstName || "") &&
+      properCase(virContact.lastName) === (payloadContact.lastName || "") // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
     addressMatch = addressMatcher(virContact, payloadContact)
     attentionArray = generateMatchWarningArray(virContact, payloadContact)
   }
@@ -1222,7 +1228,11 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   // we want to only send new contact data if we don't have a contact id OR if the data hygine date is older than 45 days and
 
   let contactString = `contact: {
-            ${contact && contact.id ? 'id: "' + contact.id + '",' : ""}
+            ${
+              contact && contact.id && nameMatch
+                ? 'id: "' + contact.id + '",'
+                : ""
+            }
             type: "Household",
             title: "${json.payload.title}",
             firstname: "${properCase(json.payload.first_name)}",
@@ -1244,9 +1254,9 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
                 postal: "${payloadContact.postal}",
                 country: "${payloadContact.country}"
             }, },`
-  // if contact.datahyginedate < 45 days ago
-
+  // if contact.datahyginedate < 45 days ago just send the id if we have it
   if (
+    nameMatch &&
     contact &&
     contact.id &&
     virContact &&
@@ -1256,6 +1266,29 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     addressMatch
   ) {
     contactString = `contact: {id: "${contact.id}" },`
+  }
+
+  // segment Adustment to handle rules for blank segments
+  if (
+    payloadSegment === "" ||
+    payloadSegment === null ||
+    payloadSegment === undefined
+  ) {
+    // segment is blank or non-existant
+    if (isActionPage) {
+      payloadSegment = "Misc. Online Gifts"
+    } else {
+      // is a campaign
+      payloadSegment = "Needs Segment Code"
+    }
+  } else {
+    //segment is defined
+    if (isActionPage || segmentMatch) {
+      // segment stays the same
+    } else {
+      // is a campaign
+      payloadSegment = "Misc. Online Gifts"
+    }
   }
 
   const query = `

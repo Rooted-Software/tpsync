@@ -1279,7 +1279,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       payloadSegment = "Misc. Online Gifts"
     } else {
       // is a campaign
-      payloadSegment = "Needs Segment Code"
+      payloadSegment = "Misc. Online Gifts"
     }
   } else {
     //segment is defined
@@ -1287,7 +1287,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       // segment stays the same
     } else {
       // is a campaign
-      payloadSegment = "Misc. Online Gifts"
+      payloadSegment = "Needs Segment Code"
     }
   }
 

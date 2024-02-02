@@ -1,23 +1,21 @@
-import { db } from '@/lib/db'
-import post from '@/schemas/post'
-import { db } from '@/lib/db'
-import post from '@/schemas/post'
+import { db } from "@/lib/db"
+import post from "@/schemas/post"
 
 // Helper Functions
 function normalizePhone(phone) {
   if (!phone) {
-    return ''
+    return ""
   }
-  if (phone && phone.length === 11 && phone[0] === '1') {
+  if (phone && phone.length === 11 && phone[0] === "1") {
     phone = phone.slice(1)
   }
   // remove all non numeric characters
-  phone = phone.replace(/\D/g, '')
+  phone = phone.replace(/\D/g, "")
   return phone
 }
 
 function properCase(str) {
-  str = str || ''
+  str = str || ""
   // Capitalizes the first letter in a text string and any other letters in text that follow any character other than a letter. Converts all other letters to lowercase letters.
   str = str.toLowerCase()
   str = str.replace(/(?:^|\s)\S/g, function (a) {
@@ -27,19 +25,19 @@ function properCase(str) {
 }
 
 function normalizeStreet(street) {
-  street = street || ''
+  street = street || ""
   street = street.trim()
   //  repleace Ave or Ave. at the end of street with Avenue
-  street = street.replace(/Ave\.?$/, 'Avenue')
+  street = street.replace(/Ave\.?$/, "Avenue")
   // replace St or St. at the end of street with Street
-  street = street.replace(/St\.?$/, 'Street')
+  street = street.replace(/St\.?$/, "Street")
   // replace Dr or Dr. at the end of street with Drive
-  street = street.replace(/Dr\.?$/, 'Drive')
+  street = street.replace(/Dr\.?$/, "Drive")
   // replace Rd or Rd. at the end of street with Road
-  street = street.replace(/Rd\.?$/, 'Road')
-  street = street.replace(/Ln\.?$/, 'Lane')
-  street = street.replace(/Blvd\.?$/, 'Boulevard')
-  street = street.replace(/Ct\.?$/, 'Court')
+  street = street.replace(/Rd\.?$/, "Road")
+  street = street.replace(/Ln\.?$/, "Lane")
+  street = street.replace(/Blvd\.?$/, "Boulevard")
+  street = street.replace(/Ct\.?$/, "Court")
   street = street?.toLowerCase()
 
   return street
@@ -47,73 +45,73 @@ function normalizeStreet(street) {
 
 function formatPhone(phone) {
   // format phone number like (123) 456-7890
-  phone = phone || ''
+  phone = phone || ""
   phone = phone.trim()
   // remove all non numeric characters
-  phone = phone.replace(/\D/g, '')
+  phone = phone.replace(/\D/g, "")
   // add the parens and dashes
-  phone = phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+  phone = phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
   return phone
 }
 
 function normalizeState(state) {
-  state = state || ''
+  state = state || ""
   state = state.trim()
   // convert 2 letter state to full state name
   if (state.length === 2) {
     state = state.toUpperCase()
     const stateMap = {
-      AL: 'Alabama',
-      AK: 'Alaska',
-      AZ: 'Arizona',
-      AR: 'Arkansas',
-      CA: 'California',
-      CO: 'Colorado',
-      CT: 'Connecticut',
-      DE: 'Delaware',
-      DC: 'District Of Columbia',
-      FL: 'Florida',
-      GA: 'Georgia',
-      HI: 'Hawaii',
-      ID: 'Idaho',
-      IL: 'Illinois',
-      IN: 'Indiana',
-      IA: 'Iowa',
-      KS: 'Kansas',
-      KY: 'Kentucky',
-      LA: 'Louisiana',
-      ME: 'Maine',
-      MD: 'Maryland',
-      MA: 'Massachusetts',
-      MI: 'Michigan',
-      MN: 'Minnesota',
-      MS: 'Mississippi',
-      MO: 'Missouri',
-      MT: 'Montana',
-      NE: 'Nebraska',
-      NV: 'Nevada',
-      NH: 'New Hampshire',
-      NJ: 'New Jersey',
-      NM: 'New Mexico',
-      NY: 'New York',
-      NC: 'North Carolina',
-      ND: 'North Dakota',
-      OH: 'Ohio',
-      OK: 'Oklahoma',
-      OR: 'Oregon',
-      PA: 'Pennsylvania',
-      RI: 'Rhode Island',
-      SC: 'South Carolina',
-      SD: 'South Dakota',
-      TN: 'Tennessee',
-      TX: 'Texas',
-      UT: 'Utah',
-      VT: 'Vermont',
-      VA: 'Virginia',
-      WA: 'Washington',
-      WV: 'West Virginia',
-      WI: 'Wisconsin',
-      WY: 'Wyoming',
+      AL: "Alabama",
+      AK: "Alaska",
+      AZ: "Arizona",
+      AR: "Arkansas",
+      CA: "California",
+      CO: "Colorado",
+      CT: "Connecticut",
+      DE: "Delaware",
+      DC: "District Of Columbia",
+      FL: "Florida",
+      GA: "Georgia",
+      HI: "Hawaii",
+      ID: "Idaho",
+      IL: "Illinois",
+      IN: "Indiana",
+      IA: "Iowa",
+      KS: "Kansas",
+      KY: "Kentucky",
+      LA: "Louisiana",
+      ME: "Maine",
+      MD: "Maryland",
+      MA: "Massachusetts",
+      MI: "Michigan",
+      MN: "Minnesota",
+      MS: "Mississippi",
+      MO: "Missouri",
+      MT: "Montana",
+      NE: "Nebraska",
+      NV: "Nevada",
+      NH: "New Hampshire",
+      NJ: "New Jersey",
+      NM: "New Mexico",
+      NY: "New York",
+      NC: "North Carolina",
+      ND: "North Dakota",
+      OH: "Ohio",
+      OK: "Oklahoma",
+      OR: "Oregon",
+      PA: "Pennsylvania",
+      RI: "Rhode Island",
+      SC: "South Carolina",
+      SD: "South Dakota",
+      TN: "Tennessee",
+      TX: "Texas",
+      UT: "Utah",
+      VT: "Vermont",
+      VA: "Virginia",
+      WA: "Washington",
+      WV: "West Virginia",
+      WI: "Wisconsin",
+      WY: "Wyoming",
     }
     state = stateMap[state]
   }
@@ -131,7 +129,7 @@ function normalizeAddress(address) {
 }
 
 function normalizePostal(postal) {
-  postal = postal || ''
+  postal = postal || ""
   postal = postal.trim()
   // get just first five digits
   postal = postal.slice(0, 5)
@@ -157,39 +155,39 @@ function addressMatcher(address1, address2) {
 }
 
 export function generateEventQuery(searchParams) {
-  const allowOrderFields = ['createdAt', 'matchQuality', 'status']
+  const allowOrderFields = ["createdAt", "matchQuality", "status"]
   const allowFilterFields = [
-    'donationId',
-    'webhookId',
-    'status',
-    'matchQuality',
-    'fund',
-    'origin',
-    'segment',
-    'virtuousContact',
-    'event',
-    'createdAt',
-    'synced',
-    'matchQuality',
-    'createdAt',
+    "donationId",
+    "webhookId",
+    "status",
+    "matchQuality",
+    "fund",
+    "origin",
+    "segment",
+    "virtuousContact",
+    "event",
+    "createdAt",
+    "synced",
+    "matchQuality",
+    "createdAt",
   ]
   const jsonFilterFields = [
-    'origin',
-    'segment',
-    'event',
-    'virtuousContact',
-    'donationId',
-    'fund',
+    "origin",
+    "segment",
+    "event",
+    "virtuousContact",
+    "donationId",
+    "fund",
   ]
 
   console.log(searchParams)
-  const page = parseInt(searchParams?.page || '0') || 0
+  const page = parseInt(searchParams?.page || "0") || 0
 
-  let orderField = searchParams?.orderField || 'createdAt'
-  const orderDirection = searchParams?.orderDirection || 'desc'
+  let orderField = searchParams?.orderField || "createdAt"
+  const orderDirection = searchParams?.orderDirection || "desc"
   // see if ordery boy is in the allowOrderFields and if not, set it to createdAt
   if (!allowOrderFields.includes(orderField)) {
-    orderField = 'createdAt'
+    orderField = "createdAt"
   }
   let orderBy: Record<string, string> = {}
   orderBy[orderField] = orderDirection
@@ -211,21 +209,21 @@ export function generateEventQuery(searchParams) {
 
   for (const key of allowFilterFields) {
     let value = searchParams[key]
-    if (value === 'true') {
+    if (value === "true") {
       value = true
     }
-    if (value === 'false') {
+    if (value === "false") {
       value = false
     }
     if (
       value !== undefined &&
-      value !== '' &&
-      value !== 'undefined' &&
-      value !== 'null'
+      value !== "" &&
+      value !== "undefined" &&
+      value !== "null"
     ) {
-      if (key === 'matchQuality' || key === 'virtuousContact') {
+      if (key === "matchQuality" || key === "virtuousContact") {
         filterObj[key] = parseInt(value)
-      } else if (key === 'createdAt') {
+      } else if (key === "createdAt") {
         // set filterobj key to the prisma structure for saying on date
         // set beginning to beginning of day and end to end of day
         const beginningOfDay = new Date(value) // set to beginning of day
@@ -237,61 +235,61 @@ export function generateEventQuery(searchParams) {
           gte: beginningOfDay,
           lte: endOfDay,
         }
-      } else if (key === 'fund') {
+      } else if (key === "fund") {
         if (isMultiple) {
           AND.push({
-            payload: { path: '$.donation.fund.name', equals: value },
+            payload: { path: "$.donation.fund.name", equals: value },
           })
         } else {
-          filterObj['payload'] = {
-            path: '$.donation.fund.name',
+          filterObj["payload"] = {
+            path: "$.donation.fund.name",
             equals: value,
           }
         }
-      } else if (key === 'donationId') {
+      } else if (key === "donationId") {
         if (isMultiple) {
           AND.push({
-            payload: { path: '$.donation.id', equals: value },
+            payload: { path: "$.donation.id", equals: value },
           })
         } else {
-          filterObj['payload'] = {
-            path: '$.donation.id',
+          filterObj["payload"] = {
+            path: "$.donation.id",
             equals: value,
           }
         }
-      } else if (key === 'origin') {
+      } else if (key === "origin") {
         if (isMultiple) {
           AND.push({
-            payload: { path: '$.origin', equals: value },
+            payload: { path: "$.origin", equals: value },
           })
         } else {
-          filterObj['payload'] = {
-            path: '$.origin',
+          filterObj["payload"] = {
+            path: "$.origin",
             equals: value,
           }
         }
-      } else if (key === 'segment') {
+      } else if (key === "segment") {
         OR.push({
           payload: {
-            path: '$.custom_field_responses.segment_name',
+            path: "$.custom_field_responses.segment_name",
             equals: value,
           },
         })
         OR.push({
           payload: {
-            path: '$.custom_field_responses.campaign_segmente',
+            path: "$.custom_field_responses.campaign_segmente",
             equals: value,
           },
         })
         OR.push({
           payload: {
-            path: '$.custom_field_responses.campaign_segment_',
+            path: "$.custom_field_responses.campaign_segment_",
             equals: value,
           },
         })
         OR.push({
           payload: {
-            path: '$.custom_field_responses.campaign_source',
+            path: "$.custom_field_responses.campaign_source",
             equals: value,
           },
         })
@@ -301,10 +299,10 @@ export function generateEventQuery(searchParams) {
     }
   }
   if (isMultiple) {
-    filterObj['AND'] = AND
+    filterObj["AND"] = AND
   }
   if (OR.length > 0) {
-    filterObj['OR'] = OR
+    filterObj["OR"] = OR
   }
 
   return { filterObj: filterObj, orderBy: orderBy, page: page }
@@ -318,7 +316,7 @@ async function getRecurringMatch(commitment_uid) {
                 {
                     "parameter": "Commitment UID",
                     "operator": "Is",
-                    "value": "${commitment_uid || ''}",
+                    "value": "${commitment_uid || ""}",
                 }
             ]
         }
@@ -328,19 +326,19 @@ async function getRecurringMatch(commitment_uid) {
   }`
 
   const resRecurringGift = await fetch(
-    'https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10',
+    "https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: recQuery,
     }
   )
   console.log(recQuery)
   const recurringGiftData = await resRecurringGift.json()
-  console.log('recurring gift data: ', recurringGiftData)
+  console.log("recurring gift data: ", recurringGiftData)
   return recurringGiftData
 }
 
@@ -352,7 +350,7 @@ async function getRecurringMatchFromOriginating(originating_uid) {
                 {
                     "parameter": "originating_uid",
                     "operator": "Is",
-                    "value": "${originating_uid || ''}",
+                    "value": "${originating_uid || ""}",
                 }
             ]
         }
@@ -362,12 +360,12 @@ async function getRecurringMatchFromOriginating(originating_uid) {
   }`
 
   const resRecurringGift = await fetch(
-    'https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10',
+    "https://api.virtuoussoftware.com/api/RecurringGift/Query?skip=0&take=10",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: recQuery,
     }
@@ -379,60 +377,60 @@ async function getRecurringMatchFromOriginating(originating_uid) {
 
 function generateMatchWarningArray(virContact, payloadContact) {
   const phoneMatch =
-    virContact.phone == payloadContact.phone || payloadContact.phone === ''
+    virContact.phone == payloadContact.phone || payloadContact.phone === ""
   const emailMatch =
-    virContact.email == payloadContact.email || payloadContact.email === ''
+    virContact.email == payloadContact.email || payloadContact.email === ""
   let nameMatch =
     phoneMatch &&
     emailMatch &&
-    virContact.contactType === 'Household' &&
-    virContact.firstName === (payloadContact.firstName || '') &&
-    virContact.lastName === (payloadContact.lastName || '') // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
+    virContact.contactType === "Household" &&
+    virContact.firstName === (payloadContact.firstName || "") &&
+    virContact.lastName === (payloadContact.lastName || "") // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
   let tempArray: any = []
   if (!nameMatch) {
     !phoneMatch
-      ? tempArray.push('Phone Not Found on Contact: ' + payloadContact.phone)
+      ? tempArray.push("Phone Not Found on Contact: " + payloadContact.phone)
       : null
     !emailMatch
-      ? tempArray.push('Email Not Found on Contact: ' + payloadContact.email)
+      ? tempArray.push("Email Not Found on Contact: " + payloadContact.email)
       : null
-    virContact.contactType !== 'Household'
+    virContact.contactType !== "Household"
       ? tempArray.push(
-          'Contact Type:  ' +
+          "Contact Type:  " +
             virContact.type +
-            ' not equal to Household' +
-            '<br/>'
+            " not equal to Household" +
+            "<br/>"
         )
       : null
     virContact.firstName !== payloadContact.firstName
       ? tempArray.push(
-          'First Name:  ' +
+          "First Name:  " +
             virContact.firstName +
-            ' not equal to ' +
+            " not equal to " +
             payloadContact.firstName
         )
       : null
     virContact.lastName !== payloadContact.lastName
       ? tempArray.push(
-          'Last Name:  ' +
+          "Last Name:  " +
             virContact.lastName +
-            ' not equal to ' +
+            " not equal to " +
             payloadContact.lastName
         )
       : null
-    virContact.title !== (payloadContact.title || '')
+    virContact.title !== (payloadContact.title || "")
       ? tempArray.push(
-          'Title:  ' +
+          "Title:  " +
             virContact.prefix +
-            ' not equal to ' +
+            " not equal to " +
             payloadContact.title
         )
       : null
-    virContact.suffix !== (payloadContact.suffix || '')
+    virContact.suffix !== (payloadContact.suffix || "")
       ? tempArray.push(
-          'Suffix:  ' +
+          "Suffix:  " +
             virContact.suffix +
-            ' not equal to ' +
+            " not equal to " +
             payloadContact.suffix
         )
       : null
@@ -440,43 +438,43 @@ function generateMatchWarningArray(virContact, payloadContact) {
 
   virContact.address1 !== payloadContact.address1
     ? tempArray.push(
-        'Address 1:  ' +
+        "Address 1:  " +
           virContact.address1 +
-          ' not equal to ' +
+          " not equal to " +
           payloadContact.address1
       )
     : null
   virContact.address2 !== payloadContact.address2
     ? tempArray.push(
-        'Address 2:  ' +
+        "Address 2:  " +
           virContact.address2 +
-          ' not equal to ' +
+          " not equal to " +
           payloadContact.address2
       )
     : null
   virContact.city !== payloadContact.city
     ? tempArray.push(
-        'City:  ' + virContact.city + ' not equal to ' + payloadContact.city
+        "City:  " + virContact.city + " not equal to " + payloadContact.city
       )
     : null
   virContact.state !== payloadContact.state
     ? tempArray.push(
-        'State:  ' + virContact.state + ' not equal to ' + payloadContact.state
+        "State:  " + virContact.state + " not equal to " + payloadContact.state
       )
     : null
   virContact.country !== normalizeCountry[payloadContact.country]
     ? tempArray.push(
-        'Country:  ' +
+        "Country:  " +
           virContact.country +
-          ' not equal to ' +
+          " not equal to " +
           normalizeCountry[payloadContact.country]
       )
     : null
   virContact.postal !== payloadContact.postal
     ? tempArray.push(
-        'Postal:  ' +
+        "Postal:  " +
           virContact.postal +
-          ' not equal to ' +
+          " not equal to " +
           payloadContact.postal
       )
     : null
@@ -485,92 +483,92 @@ function generateMatchWarningArray(virContact, payloadContact) {
 }
 
 export const blockedEmails = [
-  'Null@anedot.com',
-  'Join@tpusa.com,',
-  'xxxx@tpusa.com',
-  'xxx@tpusa.com',
-  'null@anedot.com',
-  'join@tpusa.com',
-  'xxxxx@tpusa.com',
-  '',
-  'marshal@rooted.software',
-  'nomail@tpusa.com',
-  'noemail@tpusa.com',
+  "Null@anedot.com",
+  "Join@tpusa.com,",
+  "xxxx@tpusa.com",
+  "xxx@tpusa.com",
+  "null@anedot.com",
+  "join@tpusa.com",
+  "xxxxx@tpusa.com",
+  "",
+  "marshal@rooted.software",
+  "nomail@tpusa.com",
+  "noemail@tpusa.com",
 ]
 // we may be able to clear *@tpusa.net
 export const blockedPhoneNumbers = [
-  '5555555555',
-  '15555555555',
-  '5034200536',
-  '15034200536',
-  '8448721776',
+  "5555555555",
+  "15555555555",
+  "5034200536",
+  "15034200536",
+  "8448721776",
 ]
 
 export const anedotGiftTypeToVirtuous = {
-  cash: 'Cash',
-  check: 'Check',
-  credit_card: 'Credit',
-  bank_account: 'EFT',
-  crypto: 'Cryptocoin',
-  non_cash: 'Non-Cash',
-  other: 'Other',
-  distribution: 'Qualified Charitable Distribution',
-  reversing: 'Reversing Transaction',
-  stock: 'Stock',
+  cash: "Cash",
+  check: "Check",
+  credit_card: "Credit",
+  bank_account: "EFT",
+  crypto: "Cryptocoin",
+  non_cash: "Non-Cash",
+  other: "Other",
+  distribution: "Qualified Charitable Distribution",
+  reversing: "Reversing Transaction",
+  stock: "Stock",
 }
 
 export function getGiftType(string) {
-  return anedotGiftTypeToVirtuous[string] || 'Other'
+  return anedotGiftTypeToVirtuous[string] || "Other"
 }
 
 export const anedotCardTypeToVirtuous = {
-  visa: 'Visa',
-  master: 'Mastercard',
-  american_express: 'AMEX',
-  discover: 'Discover',
-  jcb: 'JCB',
-  diners: 'Diners Club',
-  unionpay: 'UnionPay',
-  other: 'Other',
+  visa: "Visa",
+  master: "Mastercard",
+  american_express: "AMEX",
+  discover: "Discover",
+  jcb: "JCB",
+  diners: "Diners Club",
+  unionpay: "UnionPay",
+  other: "Other",
 }
 
-const en = { 'click here to unsubscribe': 'click here to unsubscribe' }
-const fr = { 'click here to unsubscribe': 'cliquez ici pour vous désabonner' }
+const en = { "click here to unsubscribe": "click here to unsubscribe" }
+const fr = { "click here to unsubscribe": "cliquez ici pour vous désabonner" }
 
 const i18n = fr
 
-i18n['click here to unsubscribe']
+i18n["click here to unsubscribe"]
 
 export const normalizeCountry = {
-  US: 'United States',
-  USA: 'United States',
-  'United States': 'United States',
+  US: "United States",
+  USA: "United States",
+  "United States": "United States",
 }
 
 export const anedotFrequencyTypeToVirtuous = {
-  once: '',
-  Once: '',
-  bimonthly: 'Bimontly',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  quarterly: 'Quarterly',
-  semiannually: 'Semiannually',
-  yearly: 'Annually',
-  biennially: 'Biennially',
+  once: "",
+  Once: "",
+  bimonthly: "Bimontly",
+  weekly: "Weekly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  semiannually: "Semiannually",
+  yearly: "Annually",
+  biennially: "Biennially",
 }
 
 export const anedotAccountToName = {
-  a1c701b4dd7ebaefcd38b: 'Faith',
-  a6dc72c49b5e3629cd82a: 'Blexit',
-  a65655106ea9c404245e7: 'TPUSA',
+  a1c701b4dd7ebaefcd38b: "Faith",
+  a6dc72c49b5e3629cd82a: "Blexit",
+  a65655106ea9c404245e7: "TPUSA",
 }
 
 export function getCardType(string) {
-  return anedotCardTypeToVirtuous[string] || 'Other'
+  return anedotCardTypeToVirtuous[string] || "Other"
 }
 
 export function getAnedotFrequencyTypeToVirtuous(string) {
-  return anedotFrequencyTypeToVirtuous[string] || 'Other'
+  return anedotFrequencyTypeToVirtuous[string] || "Other"
 }
 
 // Local DB
@@ -618,7 +616,7 @@ export const getAnedotEventsCount = async (team, where, orderBy) => {
 }
 
 export const updateAnedotEvent = async (id, synced, status, meta, query) => {
-  console.log('in update anedot event')
+  console.log("in update anedot event")
   const event = await db.anedotEvent.update({
     where: {
       id: id,
@@ -651,7 +649,7 @@ export const updateAnedotEvent = async (id, synced, status, meta, query) => {
       syncSrc: meta?.syncSrc,
     },
   })
-  console.log('event updated')
+  console.log("event updated")
   return event
 }
 
@@ -675,12 +673,12 @@ export const getVirtuousProjectByFundName = async (fundName) => {
       "descending": "True"
   }`
   const resProject = await fetch(
-    'https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=10',
+    "https://api.virtuoussoftware.com/api/Project/Query?skip=0&take=10",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: projectQuery,
     }
@@ -691,7 +689,7 @@ export const getVirtuousProjectByFundName = async (fundName) => {
   if (projectMatch) {
     return projectData.list[0].id
   } else {
-    console.log('error project payload:', projectQuery)
+    console.log("error project payload:", projectQuery)
     return 0
   }
 }
@@ -702,18 +700,18 @@ export const getVirtuousSegmentByName = async (segmentName) => {
     "search": "${segmentName}",
   }`
   const resSegment = await fetch(
-    'https://api.virtuoussoftware.com/api/Segment/Search',
+    "https://api.virtuoussoftware.com/api/Segment/Search",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: segmentQuery,
     }
   )
   const segmentData = await resSegment.json()
-  console.log('segment: ', segmentData)
+  console.log("segment: ", segmentData)
   const segmentMatch = segmentData?.list && segmentData?.list?.length > 0
   if (segmentMatch) {
     return segmentData.list[0].id
@@ -723,11 +721,11 @@ export const getVirtuousSegmentByName = async (segmentName) => {
 
 export const getVirtuousContactBySearch = async (payloadContact) => {
   // check contact match for one time gifts
-  console.log('in get virtuous contact by search')
+  console.log("in get virtuous contact by search")
   const contactQuery = `{
     "groups": [
         ${
-          payloadContact.email !== ''
+          payloadContact.email !== ""
             ? `{
             "conditions": [
                 {
@@ -754,7 +752,7 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
             ]
         },
         ${
-          payloadContact.phone !== ''
+          payloadContact.phone !== ""
             ? `{
             "conditions": [
                 {
@@ -779,32 +777,32 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
     "sortBy": "Create Date",
     "descending": "True"
     }`
-  console.log('contact query --- : ', contactQuery)
+  console.log("contact query --- : ", contactQuery)
   // search for the contact
   const resSearchContact = await fetch(
-    'https://api.virtuoussoftware.com/api/Contact/Query',
+    "https://api.virtuoussoftware.com/api/Contact/Query",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: contactQuery,
     }
   )
   // console.log("contact query --- : ", contactQuery)
   var contactSearchData = await resSearchContact.json()
-  console.log('contact ------: ', contactSearchData)
+  console.log("contact ------: ", contactSearchData)
 
   ///contact search ranking if Virtuous returns more than 1
   if (contactSearchData?.list?.length > 1) {
     // for each contact assign a match score based on if its values contain the related json payload values
     // 1 point for each match
-    console.log('score search results')
+    console.log("score search results")
     var tempContact = { matchScore: 0 }
     contactSearchData?.list.forEach((contact) => {
       contact.matchScore = 0
-      console.log('.........contact match...... .')
+      console.log(".........contact match...... .")
       console.log(payloadContact.email)
       contact.phone = normalizePhone(contact.phone)
       payloadContact?.email &&
@@ -818,7 +816,7 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
         ? contact.matchScore++
         : null
       payloadContact?.lastName &&
-      contact?.name?.indexOf(' ' + payloadContact.lastName) > -1
+      contact?.name?.indexOf(" " + payloadContact.lastName) > -1
         ? contact.matchScore++
         : null // the space is normal in front of the last name, and will help elleviate false positives
       payloadContact?.phone &&
@@ -852,13 +850,13 @@ export const getVirtuousContactBySearch = async (payloadContact) => {
 
     // get the contact so our details are normalized wether or not we had an id from recurring or not
     const resContact = await fetch(
-      'https://api.virtuoussoftware.com/api/Contact/' +
+      "https://api.virtuoussoftware.com/api/Contact/" +
         contactSearchData.list[0].id,
       {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     )
@@ -895,14 +893,14 @@ function getNormalizedContactFromVirtuousContact(
         // handle method values that have a 1 prefix...
         let tempValue = normalizePhone(method.value)
         return tempValue === payloadContact.phone
-      }).length > 0 || payloadContact.phone === ''
+      }).length > 0 || payloadContact.phone === ""
     if (phoneMatch) {
       individual.matchScore++
     }
     const emailMatch =
       individual.contactMethods.filter(
         (method) => method.value === payloadContact.email
-      ).length > 0 || payloadContact.email === ''
+      ).length > 0 || payloadContact.email === ""
     if (emailMatch) {
       individual.matchScore++
     }
@@ -916,14 +914,14 @@ function getNormalizedContactFromVirtuousContact(
   }
   // we have to turn contact nulls and undefined into blank strings for the match to work
   virtuousContact.contactIndividuals[highestRankedIndividual].prefix === null
-    ? (virtuousContact.contactIndividuals[0].prefix = '')
+    ? (virtuousContact.contactIndividuals[0].prefix = "")
     : null
   virtuousContact.contactIndividuals[highestRankedIndividual].suffix === null
-    ? (virtuousContact.contactIndividuals[0].suffix = '')
+    ? (virtuousContact.contactIndividuals[0].suffix = "")
     : null
 
   const dataHygieneCF = virtuousContact.customFields.find(
-    (cf) => cf.name === 'Data Hygiene Date (Contact)'
+    (cf) => cf.name === "Data Hygiene Date (Contact)"
   )
   const dataHygieneDate =
     dataHygieneCF && dataHygieneCF.value ? dataHygieneCF.value : null
@@ -931,18 +929,18 @@ function getNormalizedContactFromVirtuousContact(
   const virContact = {
     contactType: virtuousContact.contactType,
     title:
-      virtuousContact.contactIndividuals[highestRankedIndividual].prefix || '',
+      virtuousContact.contactIndividuals[highestRankedIndividual].prefix || "",
     firstName:
       virtuousContact.contactIndividuals[highestRankedIndividual].firstName ||
-      '',
+      "",
     middleName:
       virtuousContact.contactIndividuals[highestRankedIndividual].middleName ||
-      '',
+      "",
     lastName:
       virtuousContact.contactIndividuals[highestRankedIndividual].lastName ||
-      '',
+      "",
     suffix:
-      virtuousContact.contactIndividuals[highestRankedIndividual].suffix || '',
+      virtuousContact.contactIndividuals[highestRankedIndividual].suffix || "",
     phone: normalizePhone(
       virtuousContact.contactIndividuals[
         highestRankedIndividual
@@ -950,65 +948,65 @@ function getNormalizedContactFromVirtuousContact(
         // handle method values that have a 1 prefix...
         let tempValue = normalizePhone(method.value)
         return tempValue === payloadContact.phone
-      })?.value || ''
+      })?.value || ""
     ),
     email:
       virtuousContact.contactIndividuals[
         highestRankedIndividual
       ].contactMethods?.find((method) => method.value === payloadContact.email)
-        ?.value || '',
-    address1: virtuousContact.address?.address1 || '',
-    address2: virtuousContact.address?.address2 || '',
-    city: virtuousContact.address?.city || '',
-    state: virtuousContact.address?.state || '',
-    postal: virtuousContact.address?.postal || '',
-    country: virtuousContact.address?.country || '',
-    dataHygieneDate: dataHygieneDate || '',
+        ?.value || "",
+    address1: virtuousContact.address?.address1 || "",
+    address2: virtuousContact.address?.address2 || "",
+    city: virtuousContact.address?.city || "",
+    state: virtuousContact.address?.state || "",
+    postal: virtuousContact.address?.postal || "",
+    country: virtuousContact.address?.country || "",
+    dataHygieneDate: dataHygieneDate || "",
   }
 
   return virContact
 }
 
 export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
-  console.log('in get anedot gift to virtuous query')
+  console.log("in get anedot gift to virtuous query")
   // set date constants
 
   const today = new Date()
   const shortDate =
-    today.getMonth() + 1 + '.' + today.getDate() + '.' + today.getFullYear()
+    today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
 
   const giftDate = new Date(json.payload.date)
 
-  const testDate = new Date('2023-12-21T00:40:54.203Z')
+  const testDate = new Date("2023-12-21T00:40:54.203Z")
   const UTCDateString =
-    giftDate.toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' +00:00'
+    giftDate.toISOString().replace(/T/, " ").replace(/\..+/, "") + " +00:00"
 
-  console.log('UTCDateString: ', UTCDateString)
+  console.log("UTCDateString: ", UTCDateString)
   const giftShortDate =
     giftDate.getMonth() +
     1 +
-    '.' +
+    "." +
     giftDate.getDate() +
-    '.' +
+    "." +
     giftDate.getFullYear()
   const giftShortSlashDate =
     giftDate.getMonth() +
     1 +
-    '/' +
+    "/" +
     giftDate.getDate() +
-    '/' +
+    "/" +
     giftDate.getFullYear()
 
   // set variables for tracking quality
-  let isRecurring = json.payload.origin === 'recurring'
-  let recurringGiftId = json.recurringGiftId || ''
+  let isRecurring = json.payload.origin === "recurring"
+  let recurringGiftId = json.recurringGiftId || ""
   let recurringGiftMatch = false
   let projectMatch = false
   let segmentMatch = false
   let nameMatch = false
   let addressMatch = false
   let updateRecurring = false
-  let attentionString = ''
+  let attentionString = ""
   let attentionArray: any = []
   let projectId = json.projectId || 0
   let segmentId = json.segmentId || 0
@@ -1018,67 +1016,67 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   const isActionPage = json.payload?.action_page_id ? true : false
 
   // purge contact email phone number
-  console.log('check1 *********************')
+  console.log("check1 *********************")
   json.payload.email && blockedEmails.indexOf(json.payload.email) === -1
     ? (json.payload.email = json.payload.email)
-    : (json.payload.email = '')
+    : (json.payload.email = "")
   // purge email ending in tpusa.org
-  console.log('check2 *********************')
+  console.log("check2 *********************")
   json.payload.email &&
-  json.payload.email.toLowerCase().indexOf('tpusa.org') > -1
-    ? (json.payload.email = '')
+  json.payload.email.toLowerCase().indexOf("tpusa.org") > -1
+    ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
   json.payload.email &&
-  json.payload.email.toLowerCase().indexOf('tpusa.net') > -1
-    ? (json.payload.email = '')
+  json.payload.email.toLowerCase().indexOf("tpusa.net") > -1
+    ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
-  json.payload.email.toLowerCase().indexOf('tpusa.com') > -1
-    ? (json.payload.email = '')
+  json.payload.email.toLowerCase().indexOf("tpusa.com") > -1
+    ? (json.payload.email = "")
     : (json.payload.email = json.payload.email)
-  console.log('check3 *********************')
+  console.log("check3 *********************")
   json.payload.phone &&
   blockedPhoneNumbers.indexOf(normalizePhone(json.payload.phone)) === -1
     ? (json.payload.phone = json.payload.phone)
-    : (json.payload.phone = '')
+    : (json.payload.phone = "")
 
-  json.payload.suffix === null ? (json.payload.suffix = '') : null
-  json.payload.title === null ? (json.payload.title = '') : null
+  json.payload.suffix === null ? (json.payload.suffix = "") : null
+  json.payload.title === null ? (json.payload.title = "") : null
 
   // Set Address For easier comparison
   const payloadContact = {
-    title: json.payload.title || '',
-    firstName: json.payload.first_name || '',
-    middleName: json.payload.middle_name || '',
-    lastName: json.payload.last_name || '',
-    suffix: json.payload.suffix || '',
-    phone: normalizePhone(json.payload.phone) || '',
-    email: json.payload.email || '',
+    title: json.payload.title || "",
+    firstName: json.payload.first_name || "",
+    middleName: json.payload.middle_name || "",
+    lastName: json.payload.last_name || "",
+    suffix: json.payload.suffix || "",
+    phone: normalizePhone(json.payload.phone) || "",
+    email: json.payload.email || "",
     address1:
       json.payload.address_line_1 ||
       json.payload.street ||
       json.payload.address?.street ||
-      '',
+      "",
     address2:
       json.payload.address_line_2 ||
       json.payload.street_2 ||
       json.payload.address?.street_2 ||
-      '',
+      "",
     city:
       json.payload?.city ||
       json.payload?.address?.city ||
       json.payload?.address_city ||
-      '',
+      "",
     state:
       json.payload?.address_region ||
       json.payload?.address?.state ||
       json.payload?.state ||
       json.payload?.address_state ||
-      '',
+      "",
     postal:
       json.payload?.address_postal_code ||
       json.payload?.zip ||
       json.payload?.address_zip ||
-      '',
+      "",
     country:
       normalizeCountry[
         json.payload.address_country ||
@@ -1086,7 +1084,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
           json.payload.address?.country
       ] ||
       json.payload.address_country ||
-      '',
+      "",
   }
   // console.log("initial mod payload contact: ")
   // console.log(payloadContact)
@@ -1096,10 +1094,10 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     json.payload?.custom_field_responses?.campaign_segment ||
     json.payload?.custom_field_responses?.campaign_segment_ ||
     json.payload?.custom_field_responses?.campaign_source ||
-    ''
+    ""
   // console.log("payload segment: " + payloadSegment)
   // determine if the payload is recurring or not....if so, then we need to create or update a recurring gift record: {Origin}		Create Recurring Gift		TRUE	Hosted = false, recurring = true
-  const payloadRecurring = json.payload.origin === 'recurring'
+  const payloadRecurring = json.payload.origin === "recurring"
 
   if (payloadRecurring) {
     // console.log("recurring gift")
@@ -1122,13 +1120,13 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       contactId = recurringGiftData.list[0].contactId || 0
       if (contactId > 0) {
         const resContact = await fetch(
-          'https://api.virtuoussoftware.com/api/Contact/' +
+          "https://api.virtuoussoftware.com/api/Contact/" +
             recurringGiftData.list[0].contactId,
           {
-            method: 'GET',
+            method: "GET",
             headers: {
               Authorization: `Bearer ${process.env.VIRTUOUS_PRODUCTION_API_KEY}`,
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           }
         )
@@ -1137,7 +1135,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       }
 
       const anedotGiftCountCF = recurringGiftData.list[0].customFields.find(
-        (cf) => cf.name === 'Anedot Recurring Count'
+        (cf) => cf.name === "Anedot Recurring Count"
       )
       const anedotGiftCount = anedotGiftCountCF
         ? parseInt(anedotGiftCountCF.value)
@@ -1201,15 +1199,15 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     // console.log("virtuous normalized contact: ")
     // console.log(virContact)
     const phoneMatch =
-      virContact.phone == payloadContact.phone || payloadContact.phone === ''
+      virContact.phone == payloadContact.phone || payloadContact.phone === ""
     const emailMatch =
-      virContact.email == payloadContact.email || payloadContact.email === ''
+      virContact.email == payloadContact.email || payloadContact.email === ""
     nameMatch =
       phoneMatch &&
       emailMatch &&
-      contact.contactType === 'Household' &&
-      properCase(virContact.firstName) === (payloadContact.firstName || '') &&
-      properCase(virContact.lastName) === (payloadContact.lastName || '') // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
+      contact.contactType === "Household" &&
+      properCase(virContact.firstName) === (payloadContact.firstName || "") &&
+      properCase(virContact.lastName) === (payloadContact.lastName || "") // ignoring prefix and suffix for now && contact.contactIndividuals[0].prefix === (json.payload.title || '') && contact.contactIndividuals[0].suffix === (json.payload.suffix || '')
     addressMatch = addressMatcher(virContact, payloadContact)
     attentionArray = generateMatchWarningArray(virContact, payloadContact)
   }
@@ -1233,7 +1231,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
             ${
               contact && contact.id && nameMatch
                 ? 'id: "' + contact.id + '",'
-                : ''
+                : ""
             }
             type: "Household",
             title: "${json.payload.title}",
@@ -1245,7 +1243,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
               json.payload.email &&
               blockedEmails.indexOf(json.payload.email) === -1
                 ? `email: "${json.payload.email}",`
-                : ''
+                : ""
             }
             phone: "${formatPhone(payloadContact.phone)}",
             address: {
@@ -1272,16 +1270,16 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
 
   // segment Adustment to handle rules for blank segments
   if (
-    payloadSegment === '' ||
+    payloadSegment === "" ||
     payloadSegment === null ||
     payloadSegment === undefined
   ) {
     // segment is blank or non-existant
     if (isActionPage) {
-      payloadSegment = 'Misc. Online Gifts'
+      payloadSegment = "Misc. Online Gifts"
     } else {
       // is a campaign
-      payloadSegment = 'Misc. Online Gifts'
+      payloadSegment = "Misc. Online Gifts"
     }
   } else {
     //segment is defined
@@ -1289,7 +1287,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       // segment stays the same
     } else {
       // is a campaign
-      payloadSegment = 'Needs Segment Code'
+      payloadSegment = "Needs Segment Code"
     }
   }
 
@@ -1297,40 +1295,40 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
       {
         transactionSource: "Anedot${
           anedotAccountToName[json.payload.account_uid]
-            ? ' - ' + anedotAccountToName[json.payload.account_uid]
-            : ''
+            ? " - " + anedotAccountToName[json.payload.account_uid]
+            : ""
         }",
         transactionId: "${
-          json.payload.donation?.id || json.payload?.uid || ''
+          json.payload.donation?.id || json.payload?.uid || ""
         }",
         ${
-          /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ''
+          /* this seems to always want to create a recurring, not update it updateRecurring ? 'recurringGiftTransactionUpdate : "TRUE",' : ''*/ ""
         }
         ${
-          isRecurring && recurringGiftId !== '' && !recurringGiftMatch
+          isRecurring && recurringGiftId !== "" && !recurringGiftMatch
             ? 'recurringGiftTransactionId: "' + recurringGiftId + '",'
-            : ''
+            : ""
         }
         ${contactString}
        
         ${
-          isRecurring && recurringGiftId == '' && !updateRecurring
+          isRecurring && recurringGiftId == "" && !updateRecurring
             ? 'frequency: "' +
               getAnedotFrequencyTypeToVirtuous(json.payload.frequency) +
               '",'
-            : ''
+            : ""
         }
         giftDate: "${UTCDateString}",
         giftType: "${getGiftType(json.payload.source)}",
         CreditCardType: "${getCardType(json.payload?.donation?.card_type)}",
         amount: "${json.payload.amount_in_dollars}",
         batch: "Anedot ${giftShortDate} ${
-    json.payload?.campaign_uid ? ` - Campaign` : ''
-  }${matchQuality < 4 ? ' - Attention' : ''}",
-        segment: "${payloadSegment || 'Needs Segment Code'}", 
+    json.payload?.campaign_uid ? ` - Campaign` : ""
+  }${matchQuality < 4 ? " - Attention" : ""}",
+        segment: "${payloadSegment || "Needs Segment Code"}", 
         ${
-          recurringGiftId == '' && !updateRecurring
-            ? ''
+          recurringGiftId == "" && !updateRecurring
+            ? ""
             : `recurringGiftSegment:  "${payloadSegment}",`
         } 
         designations: [
@@ -1341,8 +1339,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
                 json.payload?.donation?.name
                   ? json.payload?.donation?.fund?.name ||
                     json.payload?.donation?.name ||
-                    'General Fund'
-                  : ''
+                    "General Fund"
+                  : ""
               }",
               amountDesignated: "${json.payload.amount_in_dollars}"
           }
@@ -1350,32 +1348,32 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
         
         tribute: "${
           json.payload.in_honor_of
-            ? 'In honor of ' + json.payload.in_honor_of
-            : ''
+            ? "In honor of " + json.payload.in_honor_of
+            : ""
         }" ,
         
       customFields: 
       {
           "T Shirt Size": "${
-            json.payload?.custom_field_responses?.tee_shirt_size || ''
+            json.payload?.custom_field_responses?.tee_shirt_size || ""
           }",
           "External Unique ID": "${
-            json.payload.donation?.id || json.payload?.uid || ''
+            json.payload.donation?.id || json.payload?.uid || ""
           }",
           "Acknowledgment Type" : "General Form",
           "Funding Source": "Individual",
           "Check Deposited in Phoenix": "False",
-          "Anedot Recurring Count" : "${json.payload.commitment_index || ''}",
-          "Legacy Recurring ID": "${json.payload.commitment_uid || ''}",  
+          "Anedot Recurring Count" : "${json.payload.commitment_index || ""}",
+          "Legacy Recurring ID": "${json.payload.commitment_uid || ""}",  
           "Promotional Item": "${
-            json.payload.custom_field_responses?.promotion_item || ''
+            json.payload.custom_field_responses?.promotion_item || ""
           }",
-          "Anedot Action Page": "${json.payload.action_page_name || ''}",
-          "Commitment UID": "${json.payload.commitment_uid || ''}",
-          "Anedot Action Page Name": "${json.payload.action_page_name || ''}",
-          "Donor Comments" : "${json.payload?.comments || ''}",
-          "originating_uid": "${json.payload?.originating_uid || ''}",
-          "campaign_uid": "${json.payload?.campaign_uid || ''}",
+          "Anedot Action Page": "${json.payload.action_page_name || ""}",
+          "Commitment UID": "${json.payload.commitment_uid || ""}",
+          "Anedot Action Page Name": "${json.payload.action_page_name || ""}",
+          "Donor Comments" : "${json.payload?.comments || ""}",
+          "originating_uid": "${json.payload?.originating_uid || ""}",
+          "campaign_uid": "${json.payload?.campaign_uid || ""}",
       },
 
     }
@@ -1395,8 +1393,8 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
     segmentId: segmentId,
     contactId: contactId,
     matchQuality: matchQuality,
-    syncErrorResponse: '',
-    syncSrc: '',
+    syncErrorResponse: "",
+    syncSrc: "",
   }
   // console.log(query)
   // console.log(meta)

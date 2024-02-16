@@ -1,13 +1,15 @@
-import { getAnedotGiftToVirtuousQuery } from "@/lib/anedot"
-import { updateAnedotEvent } from "@/lib/anedot"
-import { db } from "@/lib/db"
-import { match } from "assert"
-import crypto, { sign } from "crypto"
-import { get, request } from "http"
-import { buffer } from "micro"
-import { headers } from "next/headers"
-import test from "node:test"
-import { any } from "prop-types"
+import { headers } from "next/headers";
+
+import { getAnedotGiftToVirtuousQuery } from "@/lib/anedot";
+import { updateAnedotEvent } from "@/lib/anedot";
+import { db } from "@/lib/db";
+import { match } from "assert";
+import crypto, { sign } from "crypto";
+import { get, request } from "http";
+import { buffer } from "micro";
+import test from "node:test";
+import { any } from "prop-types";
+
 
 export const maxDuration = 300
 
@@ -15,20 +17,41 @@ export async function POST(req) {
   const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
 
   const bodyText = await req.text()
+  console.log(bodyText)
   const json = JSON.parse(bodyText)
   console.log("in webhook req post")
-  console.log(json)
-  console.log(process.env.NEXTAUTH_URL)
+  const searchParams = req.nextUrl.searchParams
+  var tpSourceName = searchParams.get('source') || null
+  if (tpSourceName === "FaithTest") {
+    tpSourceName = "TPUSA"
+
+  }
+
   const signature = headers().get("X-Request-Signature") as string
   const webhookId = headers().get("X-Request-Id") as string
   const integrationId = headers().get("X-Integration-Id") as string
   const account_uid = json.payload.account_uid
+  var ws: any = null 
+  if (account_uid) { 
+    ws = await db.anedotWebhook.findFirst({
+      where: {
+        account_uid: account_uid,
+      },
+    }) 
+      console.log('got by account_uid')
+  } else if (!account_uid && tpSourceName) { 
+      ws  = await db.anedotWebhook.findFirst({
+      where: {
+        account_name: tpSourceName,
+      },
+    }) 
+    console.log('got by source name: ' + tpSourceName)
+    
+    console.log('new payload: ') 
+    console.log(json.payload)
+  } 
 
-  const ws = await db.anedotWebhook.findFirst({
-    where: {
-      account_uid: account_uid,
-    },
-  })
+ 
   // Signatures are provided for each webhook request to verify the authenticity of the request. Verify the signature by producing a SHA-256 HMAC hexdigest using the webhook's secret token as the private key and the webhook body represented as a JSON string.
   // The hexdigest you calculate should match the value in our "X-Request-Signature" header for that webhook request.
   let hash = ""
@@ -41,8 +64,12 @@ export async function POST(req) {
     console.log(hash, signature)
     console.log(hash === signature)
   }
-
+  //we can't do this until after checking the 
+  json.payload.account_uid = ws.account_uid
   if (json.event && hash === signature) {
+     console.log("in webhook")
+    // if the payload does not have a source id - add it to our fallback. 
+   
     const anEvent = await db.anedotEvent.create({
       data: {
         webhookId: webhookId,

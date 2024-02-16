@@ -30,7 +30,7 @@ export async function POST(req) {
   const signature = headers().get("X-Request-Signature") as string
   const webhookId = headers().get("X-Request-Id") as string
   const integrationId = headers().get("X-Integration-Id") as string
-  const account_uid = json.payload.account_uid
+  const account_uid = json.payload?.account_uid
   var ws: any = null 
   if (account_uid) { 
     ws = await db.anedotWebhook.findFirst({

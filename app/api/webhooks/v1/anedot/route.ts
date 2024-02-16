@@ -65,7 +65,9 @@ export async function POST(req) {
     console.log(hash === signature)
   }
   //we can't do this until after checking the 
-  json.payload.account_uid = ws.account_uid
+  console.log("uid....")
+  console.log(ws?.account_uid)
+  json.payload.account_uid = ws?.account_uid
   if (json.event && hash === signature) {
      console.log("in webhook")
     // if the payload does not have a source id - add it to our fallback. 

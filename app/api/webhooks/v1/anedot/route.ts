@@ -17,7 +17,6 @@ export async function POST(req) {
   const SECRET_KEY = process.env.ANEDOT_WEBHOOK_SECRET || ""
 
   const bodyText = await req.text()
-  console.log(bodyText)
   const json = JSON.parse(bodyText)
   console.log("in webhook req post")
   const searchParams = req.nextUrl.searchParams
@@ -46,9 +45,8 @@ export async function POST(req) {
       },
     }) 
     console.log('got by source name: ' + tpSourceName)
-    
-    console.log('new payload: ') 
-    console.log(json.payload)
+    json.payload.account_uid = ws?.account_uid
+ 
   } 
 
  
@@ -65,9 +63,7 @@ export async function POST(req) {
     console.log(hash === signature)
   }
   //we can't do this until after checking the 
-  console.log("uid....")
-  console.log(ws?.account_uid)
-  json.payload.account_uid = ws?.account_uid
+  
   if (json.event && hash === signature) {
      console.log("in webhook")
     // if the payload does not have a source id - add it to our fallback. 

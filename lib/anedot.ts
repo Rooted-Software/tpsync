@@ -975,7 +975,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
   const shortDate =
     today.getMonth() + 1 + "." + today.getDate() + "." + today.getFullYear()
 
-  const giftDate = new Date(json.payload.date)
+  const giftDate = new Date(json.payload.date || today)
 
   const testDate = new Date("2023-12-21T00:40:54.203Z")
   const UTCDateString =

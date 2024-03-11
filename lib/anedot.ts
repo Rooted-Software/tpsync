@@ -1364,6 +1364,7 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
           "Funding Source": "Individual",
           "Check Deposited in Phoenix": "False",
           "Commitment Index" : "${json.payload.commitment_index || ""}",
+          "Anedot Recurring Count" : "${json.payload.commitment_index || ""}",
           "Legacy Recurring ID": "${json.payload.commitment_uid || ""}",  
           "Promotional Item": "${
             json.payload.custom_field_responses?.promotion_item || ""

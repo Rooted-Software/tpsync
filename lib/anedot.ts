@@ -1363,17 +1363,19 @@ export const getAnedotGiftToVirtuousQuery = async (json, reQuery, postfix?) => {
           "Acknowledgment Type" : "General Form",
           "Funding Source": "Individual",
           "Check Deposited in Phoenix": "False",
-          "Anedot Recurring Count" : "${json.payload.commitment_index || ""}",
+          "Commitment Index" : "${json.payload.commitment_index || ""}",
           "Legacy Recurring ID": "${json.payload.commitment_uid || ""}",  
           "Promotional Item": "${
             json.payload.custom_field_responses?.promotion_item || ""
           }",
           "Anedot Action Page": "${json.payload.action_page_name || ""}",
           "Commitment UID": "${json.payload.commitment_uid || ""}",
+          "Recurring Commitment UID": "${json.payload.commitment_uid || ""}",
           "Anedot Action Page Name": "${json.payload.action_page_name || ""}",
           "Donor Comments" : "${json.payload?.comments || ""}",
           "originating_uid": "${json.payload?.originating_uid || ""}",
           "campaign_uid": "${json.payload?.campaign_uid || ""}",
+          "Is Recurring Gift": "${json?.payload?.commitment_index || json?.payload?.commitment_uid ? "True" : "False"}",
       },
 
     }
